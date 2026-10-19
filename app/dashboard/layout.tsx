@@ -15,7 +15,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const data = await getDashboardData();
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[248px_1fr]">
+    <div className="min-h-dvh lg:grid lg:grid-cols-[248px_1fr] lg:bg-[linear-gradient(90deg,#fff_247px,#dedcea_247px,#dedcea_248px,transparent_248px)]">
       <aside className="border-b border-line bg-paper lg:sticky lg:top-0 lg:h-dvh lg:border-b-0 lg:border-r">
         <div className="flex h-full flex-col gap-4 p-4 lg:p-5">
           <div className="flex items-center justify-between">

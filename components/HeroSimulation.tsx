@@ -64,11 +64,11 @@ export function HeroSimulation() {
   const sentCount = hits.length;
 
   return (
-    <div className="relative mx-auto w-full max-w-[540px]" aria-label="Animated example: comments with the keyword LINK receive a DM" role="img">
+    <div className="relative mx-auto w-full max-w-[600px]" aria-label="Animated example: comments with the keyword LINK receive a DM" role="img">
       <div className="grid grid-cols-[1fr] gap-4 sm:grid-cols-[1.05fr_1fr]">
         {/* Phone: Reel + comment sheet */}
         <div className="relative overflow-hidden rounded-[34px] bg-ink p-2 shadow-[0_40px_80px_-30px_rgb(22_19_43/0.55)]">
-          <div className="relative h-[430px] overflow-hidden rounded-[27px]">
+          <div className="relative h-[470px] overflow-hidden rounded-[27px]">
             <div
               className="absolute inset-0"
               style={{
@@ -90,7 +90,7 @@ export function HeroSimulation() {
             </p>
 
             {/* Comment sheet */}
-            <div className="absolute inset-x-0 bottom-0 h-[220px] rounded-t-[22px] bg-paper px-3 pt-2">
+            <div className="absolute inset-x-0 bottom-0 h-[236px] rounded-t-[22px] bg-paper px-3 pt-2">
               <div className="mx-auto mb-2 h-1 w-9 rounded-full bg-line" />
               <p className="mb-2 text-center text-[0.7rem] font-semibold text-ink">Comments</p>
               <ul className="space-y-2.5">

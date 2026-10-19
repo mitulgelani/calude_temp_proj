@@ -107,7 +107,7 @@ export default function HomePage() {
       {/* Hero */}
       <section className="wrap grid items-center gap-12 pb-20 pt-10 md:pt-16 lg:grid-cols-[1fr_1.05fr] lg:gap-10">
         <div>
-          <h1 className="max-w-[13ch] text-[clamp(2.7rem,6.6vw,5.1rem)] font-extrabold leading-[0.95] tracking-[-0.045em]">
+          <h1 className="max-w-[13ch] text-[clamp(2.7rem,6.4vw,5rem)] font-extrabold leading-[0.96] tracking-[-0.035em]">
             Auto-DM everyone who comments on your Reels.
           </h1>
           <p className="mt-6 max-w-[46ch] text-lg leading-relaxed text-ink-soft md:text-xl">

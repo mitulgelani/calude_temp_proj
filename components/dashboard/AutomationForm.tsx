@@ -27,7 +27,7 @@ export function AutomationForm({
   const [media, setMedia] = useState<MediaView[] | null>(null);
   const [mediaError, setMediaError] = useState("");
   const [mode, setMode] = useState<MatchMode>(initial?.match_mode ?? "contains");
-  const [keywords, setKeywords] = useState<string[]>(initial?.keywords ?? []);
+  const [keywords, setKeywords] = useState<string[]>(initial?.keywords ?? ["LINK"]);
   const [draft, setDraft] = useState("");
   const [message, setMessage] = useState(initial?.dm_message ?? "Hey {username}! Here's the link you asked for ✨");
   const [link, setLink] = useState(initial?.link_url ?? "");
@@ -132,7 +132,7 @@ export function AutomationForm({
           {trigger === "comment" ? (
             <div>
               <p className="label">Which post?</p>
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
                 <button
                   type="button"
                   onClick={() => setMediaId(null)}

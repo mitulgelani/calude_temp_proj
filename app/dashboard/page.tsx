@@ -42,10 +42,10 @@ export default async function OverviewPage() {
         </section>
       ) : null}
 
-      <section aria-label="This month" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="This month" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="rounded-[22px] bg-paper p-5 ring-1 ring-line">
           <p className="text-sm text-muted">DMs sent this month</p>
-          <p className="mt-1 text-3xl font-bold tabular-nums tracking-[-0.03em]">{fmt.format(data.sentThisMonth)}</p>
+          <p className="mt-1 text-2xl font-bold tabular-nums tracking-[-0.03em] sm:text-3xl">{fmt.format(data.sentThisMonth)}</p>
           {free ? (
             <div className="mt-3">
               <div className="h-1.5 rounded-full bg-mist" role="progressbar" aria-valuenow={usage} aria-valuemin={0} aria-valuemax={100} aria-label="Free plan usage">
@@ -110,7 +110,7 @@ function Stat({ label, value, note }: { label: string; value: string; note: stri
   return (
     <div className="rounded-[22px] bg-paper p-5 ring-1 ring-line">
       <p className="text-sm text-muted">{label}</p>
-      <p className="mt-1 text-3xl font-bold tabular-nums tracking-[-0.03em]">{value}</p>
+      <p className="mt-1 text-2xl font-bold tabular-nums tracking-[-0.03em] sm:text-3xl">{value}</p>
       <p className="mt-3 text-xs text-muted">{note}</p>
     </div>
   );

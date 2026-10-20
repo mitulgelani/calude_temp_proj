@@ -1,7 +1,7 @@
 import { after, NextResponse, type NextRequest } from "next/server";
 import { verifyMetaSignature } from "@/lib/crypto";
 import { env, isBackendConfigured } from "@/lib/env";
-import { handleComment, handleMessaging, type CommentValue, type MessagingEvent } from "@/lib/engine";
+import { drainQueue, handleComment, handleMessaging, type CommentValue, type MessagingEvent } from "@/lib/engine";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -57,6 +57,8 @@ export async function POST(req: NextRequest) {
         console.log("[webhook] message", m.message?.mid ?? m.postback?.mid, result);
       }
     }
+    // Send a few DMs that were held back by Instagram's hourly limit.
+    await drainQueue(15).catch((e: unknown) => console.error("[webhook] drain", e));
   });
 
   return NextResponse.json({ ok: true });

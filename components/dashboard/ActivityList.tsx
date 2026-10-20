@@ -6,6 +6,7 @@ const STATUS: Record<EventView["status"], { label: string; className: string }> 
   failed: { label: "Not sent", className: "text-danger" },
   skipped: { label: "Skipped", className: "text-muted" },
   matched: { label: "Sending", className: "text-violet" },
+  queued: { label: "Queued", className: "text-violet" },
 };
 
 export function ActivityList({ events, automations }: { events: EventView[]; automations: AutomationView[] }) {

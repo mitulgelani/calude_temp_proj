@@ -3,7 +3,7 @@ import { decrypt } from "@/lib/crypto";
 import { FREE_DM_LIMIT } from "@/lib/plans";
 import { siteUrl } from "@/lib/site";
 import { fillTemplate, matchesKeywords, type MatchMode } from "@/lib/match";
-import { getUserProfile, replyToComment, sendMessage, sendPrivateReply } from "@/lib/instagram";
+import { InstagramError, getUserProfile, replyToComment, sendMessage, sendPrivateReply } from "@/lib/instagram";
 
 export const DEFAULT_OPENER = "Hey! Reply to this message with anything and I'll send the link right over 👇";
 export const DEFAULT_FOLLOW_PROMPT =
@@ -163,17 +163,53 @@ export async function handleComment(igUserId: string, value: CommentValue): Prom
     .single();
   if (insertError || !event) return "ignored: duplicate";
 
+  return deliverComment(account, automation, { id: event.id, commentId: value.id, username: value.from.username });
+}
+
+/**
+ * Meta allows 750 private replies per hour per account on posts and Reels.
+ * We stay under it and queue the rest; the drain job sends them as capacity frees up
+ * (Instagram accepts private replies for 7 days after the comment).
+ */
+export const HOURLY_PRIVATE_REPLY_BUDGET = 700;
+
+function isRateLimitError(e: unknown): boolean {
+  if (e instanceof InstagramError && e.code && [4, 17, 32, 613, 80002, 80006].includes(e.code)) return true;
+  const msg = e instanceof Error ? e.message.toLowerCase() : "";
+  return msg.includes("rate limit") || msg.includes("too many") || msg.includes("request limit");
+}
+
+async function sentLastHour(accountId: string): Promise<number> {
+  const { count } = await supabaseAdmin()
+    .from("events")
+    .select("id", { count: "exact", head: true })
+    .eq("ig_account_id", accountId)
+    .eq("kind", "comment")
+    .gte("sent_at", new Date(Date.now() - 3_600_000).toISOString());
+  return count ?? 0;
+}
+
+export async function deliverComment(
+  account: Account,
+  automation: Automation,
+  event: { id: string; commentId: string; username?: string | null },
+): Promise<string> {
+  const db = supabaseAdmin();
+  const username = event.username ?? undefined;
+
   if (!(await underQuota(account.user_id))) {
     await db.from("events").update({ status: "skipped", error: "Monthly DM limit reached on the Free plan" }).eq("id", event.id);
     return "skipped: quota";
   }
+  if ((await sentLastHour(account.id)) >= HOURLY_PRIVATE_REPLY_BUDGET) {
+    await db.from("events").update({ status: "queued", error: "Waiting for Instagram's hourly limit to reset" }).eq("id", event.id);
+    return "queued: hourly budget";
+  }
 
   const token = decrypt(account.access_token_enc);
   try {
-    const firstMessage = automation.follow_gate
-      ? automation.opener_message || DEFAULT_OPENER
-      : composeDm(automation, value.from.username);
-    const sent = await sendPrivateReply(igUserId, token, value.id, firstMessage);
+    const firstMessage = automation.follow_gate ? automation.opener_message || DEFAULT_OPENER : composeDm(automation, username);
+    const sent = await sendPrivateReply(account.ig_user_id, token, event.commentId, firstMessage);
 
     if (automation.follow_gate && sent.recipient_id) {
       await db.from("conversations").upsert(
@@ -181,7 +217,7 @@ export async function handleComment(igUserId: string, value: CommentValue): Prom
           ig_account_id: account.id,
           automation_id: automation.id,
           igsid: sent.recipient_id,
-          comment_id: value.id,
+          comment_id: event.commentId,
           stage: "awaiting_reply",
           updated_at: new Date().toISOString(),
         },
@@ -191,18 +227,75 @@ export async function handleComment(igUserId: string, value: CommentValue): Prom
 
     const replies = (automation.public_replies ?? []).filter(Boolean);
     if (replies.length) {
-      const reply = fillTemplate(replies[Math.floor(Math.random() * replies.length)], { username: value.from.username });
-      await replyToComment(value.id, token, reply).catch(() => undefined);
+      const reply = fillTemplate(replies[Math.floor(Math.random() * replies.length)], { username });
+      await replyToComment(event.commentId, token, reply).catch(() => undefined);
     }
 
-    await db.from("events").update({ status: "sent", recipient_id: sent.recipient_id ?? null }).eq("id", event.id);
+    await db
+      .from("events")
+      .update({ status: "sent", error: null, recipient_id: sent.recipient_id ?? null, sent_at: new Date().toISOString() })
+      .eq("id", event.id);
     await db.rpc("increment_sent", { a_id: automation.id });
-    await rememberContact(account, sent.recipient_id, value.from.username);
+    await rememberContact(account, sent.recipient_id, username);
     return "sent";
   } catch (e) {
+    if (isRateLimitError(e)) {
+      await db.from("events").update({ status: "queued", error: "Instagram asked us to slow down; retrying shortly" }).eq("id", event.id);
+      return "queued: rate limited";
+    }
     await db.from("events").update({ status: "failed", error: errorMessage(e) }).eq("id", event.id);
     return `failed: ${errorMessage(e)}`;
   }
+}
+
+/** Sends queued comment DMs, oldest first, while each account has hourly capacity. */
+export async function drainQueue(maxPerRun = 200): Promise<{ sent: number; still_queued: number; expired: number }> {
+  const db = supabaseAdmin();
+  const cutoff = new Date(Date.now() - 7 * 86_400_000 + 15 * 60_000).toISOString();
+
+  const { count: expired } = await db
+    .from("events")
+    .update({ status: "failed", error: "Instagram only allows a reply within 7 days of the comment" }, { count: "exact" })
+    .eq("status", "queued")
+    .lt("created_at", cutoff);
+
+  const { data: rows } = await db
+    .from("events")
+    .select("id,external_id,from_username,ig_account_id,automation_id")
+    .eq("status", "queued")
+    .eq("kind", "comment")
+    .order("created_at", { ascending: true })
+    .limit(maxPerRun);
+
+  let sent = 0;
+  const blocked = new Set<string>();
+  const accounts = new Map<string, Account | null>();
+  const automations = new Map<string, Automation | null>();
+  const started = Date.now();
+
+  for (const row of rows ?? []) {
+    if (Date.now() - started > 50_000) break;
+    if (blocked.has(row.ig_account_id) || !row.automation_id) continue;
+
+    if (!accounts.has(row.ig_account_id)) {
+      const { data } = await db.from("ig_accounts").select("id,user_id,ig_user_id,username,access_token_enc").eq("id", row.ig_account_id).maybeSingle();
+      accounts.set(row.ig_account_id, (data as Account | null) ?? null);
+    }
+    if (!automations.has(row.automation_id)) {
+      const { data } = await db.from("automations").select("*").eq("id", row.automation_id).maybeSingle();
+      automations.set(row.automation_id, (data as Automation | null) ?? null);
+    }
+    const account = accounts.get(row.ig_account_id);
+    const automation = automations.get(row.automation_id);
+    if (!account || !automation) continue;
+
+    const result = await deliverComment(account, automation, { id: row.id, commentId: row.external_id, username: row.from_username });
+    if (result === "sent") sent++;
+    else if (result.startsWith("queued")) blocked.add(row.ig_account_id);
+  }
+
+  const { count: stillQueued } = await db.from("events").select("id", { count: "exact", head: true }).eq("status", "queued");
+  return { sent, still_queued: stillQueued ?? 0, expired: expired ?? 0 };
 }
 
 export async function handleMessaging(igUserId: string, m: MessagingEvent): Promise<string> {

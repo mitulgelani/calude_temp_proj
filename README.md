@@ -11,7 +11,7 @@ Without any environment variables the app runs in **demo mode**: the marketing s
 | Area | Details |
 | --- | --- |
 | Marketing | Landing page with live comment-to-DM simulation, time-saved calculator, pricing (USD/INR, monthly/yearly), FAQ, 3 SEO guides, 2 comparison pages, privacy, terms, data deletion |
-| Engine | Instagram webhook (signature-verified), keyword matching, private replies, public comment replies with rotation, follow-to-unlock, DM and Story-reply keywords, retry-safe dedupe, Free-plan quota, re-run on last 7 days |
+| Engine | Instagram webhook (signature-verified), keyword matching, private replies, public comment replies with rotation, follow-to-unlock, DM and Story-reply keywords, retry-safe dedupe, Free-plan quota, re-run on last 7 days, viral-spike queue that stays under Meta's 750 private replies/hour per account and sends the backlog within the 7-day window |
 | Dashboard | Overview stats, activity feed, automations list with on/off and re-run, automation builder with live DM preview and keyword tester, contacts with CSV export, settings with account connect/disconnect and plan |
 | SEO / AEO / GEO | Metadata + canonicals, `sitemap.xml`, `robots.txt` welcoming AI crawlers, `llms.txt` and `llms-full.txt`, JSON-LD typed with Google's open-source [`schema-dts`](https://github.com/google/schema-dts) (Organization, WebSite, SoftwareApplication, FAQPage, Article, BreadcrumbList), generated Open Graph image |
 | Security | AES-256-GCM encrypted tokens, row-level security on every table, tokens never readable from the browser, CSRF state on OAuth, Meta signed_request verification |

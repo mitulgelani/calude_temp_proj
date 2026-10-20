@@ -78,12 +78,15 @@ create table if not exists public.events (
   from_username text,
   recipient_id text,
   text text,
-  status text not null default 'matched' check (status in ('matched', 'sent', 'failed', 'skipped')),
+  status text not null default 'matched' check (status in ('matched', 'sent', 'failed', 'skipped', 'queued')),
   error text,
+  sent_at timestamptz,
   created_at timestamptz not null default now(),
   unique (ig_account_id, external_id)
 );
 create index if not exists events_user_created_idx on public.events (user_id, created_at desc);
+create index if not exists events_queue_idx on public.events (status, created_at) where status = 'queued';
+create index if not exists events_account_sent_idx on public.events (ig_account_id, sent_at);
 
 -- Follow-to-unlock conversations -------------------------------------------------
 create table if not exists public.conversations (
@@ -135,8 +138,9 @@ begin
   return target;
 end $$;
 
-revoke execute on function public.increment_sent(uuid) from anon, authenticated;
-grant execute on function public.register_click(text) to anon, authenticated;
+revoke execute on function public.increment_sent(uuid) from public, anon, authenticated;
+revoke execute on function public.register_click(text) from public, anon, authenticated;
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
 
 -- Row level security: users only ever see their own rows ---------------------------
 alter table public.profiles enable row level security;

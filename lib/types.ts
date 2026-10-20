@@ -38,7 +38,7 @@ export type EventView = {
   kind: "comment" | "dm";
   from_username: string | null;
   text: string | null;
-  status: "matched" | "sent" | "failed" | "skipped";
+  status: "matched" | "sent" | "failed" | "skipped" | "queued";
   error: string | null;
   created_at: string;
 };

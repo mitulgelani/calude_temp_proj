@@ -31,7 +31,9 @@ type WebhookBody = {
 
 export async function POST(req: NextRequest) {
   const raw = await req.text();
-  if (!verifyMetaSignature(raw, req.headers.get("x-hub-signature-256"), env.igAppSecret)) {
+  const validSig = verifyMetaSignature(raw, req.headers.get("x-hub-signature-256"), env.igAppSecret);
+  console.log("[webhook] received", { validSig, bytes: raw.length, preview: raw.slice(0, 300) });
+  if (!validSig) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
   if (!isBackendConfigured()) return NextResponse.json({ ok: true, skipped: "backend not configured" });

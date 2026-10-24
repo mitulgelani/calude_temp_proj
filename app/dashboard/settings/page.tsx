@@ -1,9 +1,10 @@
 import { DisconnectButton } from "@/components/dashboard/DisconnectButton";
 import { getDashboardData } from "@/lib/dashboard";
 import { env, isBackendConfigured, isInstagramConfigured, isSupabaseConfigured } from "@/lib/env";
+import { customerPortalUrl } from "@/lib/billing";
 import { PLANS, checkoutUrl, formatPrice, planLabel } from "@/lib/plans";
 
-type Props = { searchParams: Promise<{ connected?: string; error?: string }> };
+type Props = { searchParams: Promise<{ connected?: string; error?: string; upgraded?: string }> };
 
 const ERRORS: Record<string, string> = {
   denied: "Instagram access wasn't approved, so nothing was connected.",
@@ -114,7 +115,21 @@ export default async function SettingsPage({ searchParams }: Props) {
             );
           })}
         </div>
-        <p className="mt-3 text-xs text-muted">Use the same email at checkout as your LinkPlz account so the upgrade applies automatically.</p>
+        {sp.upgraded && data.plan === "free" ? (
+          <p className="mt-3 rounded-xl bg-mist p-3 text-sm" role="status">
+            Payment received. Your plan updates within a minute; refresh this page if it still says Free.
+          </p>
+        ) : null}
+        <p className="mt-3 text-xs text-muted">
+          Payments are handled by Dodo Payments.{" "}
+          {data.plan !== "free" ? (
+            <a href={customerPortalUrl()} className="underline" target="_blank" rel="noopener noreferrer">
+              Manage or cancel your subscription
+            </a>
+          ) : (
+            "Cancel any time."
+          )}
+        </p>
       </section>
 
       {!ready ? (

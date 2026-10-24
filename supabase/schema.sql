@@ -8,8 +8,12 @@ create table if not exists public.profiles (
   full_name text,
   plan text not null default 'free' check (plan in ('free', 'creator', 'studio')),
   plan_renews_at timestamptz,
+  dodo_customer_id text,
+  dodo_subscription_id text,
   created_at timestamptz not null default now()
 );
+alter table public.profiles add column if not exists dodo_customer_id text;
+alter table public.profiles add column if not exists dodo_subscription_id text;
 
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$

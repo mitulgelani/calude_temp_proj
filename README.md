@@ -40,7 +40,7 @@ Without any environment variables the app runs in **demo mode**: the marketing s
 8. Later: apply for **Meta Tech Provider** verification (business verification) to remove limits and earn the trust badge competitors show.
 
 ### 4. Payments (optional)
-Create Creator and Studio subscription products in Dodo Payments, put the static checkout links in `NEXT_PUBLIC_CHECKOUT_*`, the webhook secret in `DODO_WEBHOOK_SECRET`, and product IDs in `DODO_PRODUCTS_CREATOR` / `DODO_PRODUCTS_STUDIO`. Webhook URL: `https://YOUR-DOMAIN/api/billing/webhook`.
+Payments run on Dodo Payments (live mode). The four live product IDs and the business ID are defaults in `lib/billing.ts`; override them with `DODO_PRODUCT_CREATOR_MONTHLY`, `DODO_PRODUCT_CREATOR_YEARLY`, `DODO_PRODUCT_STUDIO_MONTHLY`, `DODO_PRODUCT_STUDIO_YEARLY` and `DODO_BUSINESS_ID`, and set `DODO_CHECKOUT_BASE=https://test.checkout.dodopayments.com` to use test mode. Paid buttons go to `/api/billing/checkout`, which signs the user in and opens Dodo checkout with their email locked and `metadata_user_id` attached. Put the endpoint's signing secret in `DODO_WEBHOOK_SECRET`. Webhook URL: `https://YOUR-DOMAIN/api/billing/webhook` (subscription events).
 
 ### 5. Organic traffic
 Add the domain to Google Search Console and Bing Webmaster Tools and submit `/sitemap.xml`. Add guides to `lib/content.ts`; they automatically appear in the sitemap, `llms.txt` and footer.

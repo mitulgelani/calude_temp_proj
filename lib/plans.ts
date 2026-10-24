@@ -76,15 +76,10 @@ export function formatPrice(amount: number, currency: Currency): string {
   return `$${Number.isInteger(amount) ? amount : amount.toFixed(2)}`;
 }
 
-/** Checkout links come from your payment provider (e.g. Dodo Payments static links). */
+/** Paid plans go through our checkout route, which signs the user in and opens Dodo Payments checkout. */
 export function checkoutUrl(plan: PlanId, billing: Billing): string | null {
-  const map: Record<string, string | undefined> = {
-    "creator-monthly": process.env.NEXT_PUBLIC_CHECKOUT_CREATOR_MONTHLY,
-    "creator-yearly": process.env.NEXT_PUBLIC_CHECKOUT_CREATOR_YEARLY,
-    "studio-monthly": process.env.NEXT_PUBLIC_CHECKOUT_STUDIO_MONTHLY,
-    "studio-yearly": process.env.NEXT_PUBLIC_CHECKOUT_STUDIO_YEARLY,
-  };
-  return map[`${plan}-${billing}`] || null;
+  if (plan === "free") return null;
+  return `/api/billing/checkout?plan=${plan}&billing=${billing}`;
 }
 
 export function planLabel(id: string): string {

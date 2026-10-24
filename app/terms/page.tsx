@@ -4,7 +4,7 @@ import { SUPPORT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Terms of service",
-  description: "The terms for using Hookline, the Instagram comment-to-DM automation tool.",
+  description: "The terms for using LinkPlz, the Instagram comment-to-DM automation tool.",
   alternates: { canonical: "/terms" },
 };
 
@@ -14,7 +14,7 @@ export default function TermsPage() {
       title="Terms of service"
       sections={[
         {
-          heading: "Using Hookline",
+          heading: "Using LinkPlz",
           body: [
             "By creating an account you agree to these terms. You must be at least 18, and you may only connect Instagram accounts you own or are authorised to manage.",
           ],
@@ -22,7 +22,7 @@ export default function TermsPage() {
         {
           heading: "Acceptable use",
           body: [
-            "You agree to follow Instagram's Terms of Use, Community Guidelines and Meta's Platform policies. You may not use Hookline to send spam, misleading links, malware, or messages to people who did not interact with your account.",
+            "You agree to follow Instagram's Terms of Use, Community Guidelines and Meta's Platform policies. You may not use LinkPlz to send spam, misleading links, malware, or messages to people who did not interact with your account.",
           ],
         },
         {
@@ -34,13 +34,13 @@ export default function TermsPage() {
         {
           heading: "Availability",
           body: [
-            "Hookline depends on Instagram's API. If Meta changes, limits or suspends API access, some features may stop working, and we are not liable for messages Instagram declines to deliver.",
+            "LinkPlz depends on Instagram's API. If Meta changes, limits or suspends API access, some features may stop working, and we are not liable for messages Instagram declines to deliver.",
           ],
         },
         {
           heading: "Liability",
           body: [
-            "Hookline is provided as is. To the extent permitted by law, our total liability is limited to the amount you paid us in the 12 months before the claim.",
+            "LinkPlz is provided as is. To the extent permitted by law, our total liability is limited to the amount you paid us in the 12 months before the claim.",
           ],
         },
         {

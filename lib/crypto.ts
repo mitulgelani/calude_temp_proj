@@ -8,6 +8,7 @@ function key(): Buffer {
     return createHash("sha256").update(env.encryptionKey).digest();
   }
   // Fallback so a fresh deploy still works; set ENCRYPTION_KEY in production.
+  // Legacy salt: do not rename. Changing it would make already-stored tokens undecryptable.
   return createHash("sha256").update(`hookline:${env.igAppSecret}`).digest();
 }
 

@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Hookline — auto-DM everyone who comments on your Reels";
+export const alt = "LinkPlz — auto-DM everyone who comments on your Reels";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -21,7 +21,7 @@ export default function OpengraphImage() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 40, fontWeight: 700 }}>
           <div style={{ width: 56, height: 56, borderRadius: 16, background: "#16132B", display: "flex" }} />
-          Hookline
+          LinkPlz
         </div>
         <div style={{ display: "flex", fontSize: 84, fontWeight: 800, lineHeight: 1, letterSpacing: -3, maxWidth: 980 }}>
           Auto-DM everyone who comments on your Reels.

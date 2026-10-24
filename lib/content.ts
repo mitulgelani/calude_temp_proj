@@ -6,8 +6,8 @@ export const HOME_FAQS: Faq[] = [
     a: "It sends a private Instagram message to anyone who comments a keyword you choose. You post a Reel that says \"comment LINK\", and everyone who comments LINK gets your link in their DMs within seconds, without you opening the app.",
   },
   {
-    q: "Is Hookline safe for my Instagram account?",
-    a: "Hookline only uses Meta's official Instagram API with Instagram Login. You never share your password, nothing runs in a browser pretending to be you, and every message goes through the same private-reply endpoint Instagram built for this.",
+    q: "Is LinkPlz safe for my Instagram account?",
+    a: "LinkPlz only uses Meta's official Instagram API with Instagram Login. You never share your password, nothing runs in a browser pretending to be you, and every message goes through the same private-reply endpoint Instagram built for this.",
   },
   {
     q: "Do I need a Business or Creator account?",
@@ -15,11 +15,11 @@ export const HOME_FAQS: Faq[] = [
   },
   {
     q: "How fast do people get the DM?",
-    a: "Usually within two to five seconds of commenting. Instagram notifies Hookline the moment a comment lands, Hookline checks your keyword and sends the message straight away.",
+    a: "Usually within two to five seconds of commenting. Instagram notifies LinkPlz the moment a comment lands, LinkPlz checks your keyword and sends the message straight away.",
   },
   {
     q: "Can I make people follow me before they get the link?",
-    a: "Yes, on the Creator plan. Hookline sends a short opener, and when the person replies it checks whether they follow you. Followers get the link right away; everyone else is asked to follow first.",
+    a: "Yes, on the Creator plan. LinkPlz sends a short opener, and when the person replies it checks whether they follow you. Followers get the link right away; everyone else is asked to follow first.",
   },
   {
     q: "What if someone commented before I set up the automation?",
@@ -49,11 +49,11 @@ export const COMPARE_PAGES: ComparePage[] = [
   {
     slug: "manychat",
     competitor: "ManyChat",
-    title: "Hookline vs ManyChat: Instagram comment-to-DM compared",
+    title: "LinkPlz vs ManyChat: Instagram comment-to-DM compared",
     description:
-      "ManyChat is a full chatbot builder. Hookline does one thing: send your link to everyone who comments a keyword. Compare pricing, setup time and features.",
+      "ManyChat is a full chatbot builder. LinkPlz does one thing: send your link to everyone who comments a keyword. Compare pricing, setup time and features.",
     intro:
-      "ManyChat is a capable visual chatbot builder that covers Instagram, Facebook Messenger, WhatsApp and SMS. Most creators use it for a single flow: comment a keyword, receive a link. Hookline is built only for that flow, which keeps setup to one screen and pricing flat.",
+      "ManyChat is a capable visual chatbot builder that covers Instagram, Facebook Messenger, WhatsApp and SMS. Most creators use it for a single flow: comment a keyword, receive a link. LinkPlz is built only for that flow, which keeps setup to one screen and pricing flat.",
     rows: [
       { label: "Built on Meta's official API", hookline: "Yes", them: "Yes" },
       { label: "Setup", hookline: "One form, about two minutes", them: "Visual flow builder" },
@@ -65,16 +65,16 @@ export const COMPARE_PAGES: ComparePage[] = [
       { label: "Pricing in Indian rupees", hookline: "Yes, from ₹399", them: "USD" },
     ],
     verdict:
-      "Choose ManyChat if you need multi-channel chatbots and complex branching flows. Choose Hookline if you want comment-to-DM working on your next Reel today at a flat price that doesn't grow with your audience.",
+      "Choose ManyChat if you need multi-channel chatbots and complex branching flows. Choose LinkPlz if you want comment-to-DM working on your next Reel today at a flat price that doesn't grow with your audience.",
   },
   {
     slug: "linkdm",
     competitor: "LinkDM",
-    title: "Hookline vs LinkDM: which Instagram auto-DM tool fits you?",
+    title: "LinkPlz vs LinkDM: which Instagram auto-DM tool fits you?",
     description:
-      "LinkDM and Hookline both send links to commenters through Instagram's official API. Compare plans, follow gates, re-runs and pricing in rupees.",
+      "LinkDM and LinkPlz both send links to commenters through Instagram's official API. Compare plans, follow gates, re-runs and pricing in rupees.",
     intro:
-      "LinkDM and Hookline solve the same problem with the same official Instagram API. The differences are in limits, pricing and a few creator-focused features.",
+      "LinkDM and LinkPlz solve the same problem with the same official Instagram API. The differences are in limits, pricing and a few creator-focused features.",
     rows: [
       { label: "Built on Meta's official API", hookline: "Yes", them: "Yes" },
       { label: "Free plan", hookline: "1,000 DMs a month", them: "1,000 DMs a month" },
@@ -85,7 +85,7 @@ export const COMPARE_PAGES: ComparePage[] = [
       { label: "Accounts on top plan", hookline: "5 on Studio", them: "10 on Platinum+" },
     ],
     verdict:
-      "If you run more than five accounts, LinkDM's top tier fits. For a single creator account, Hookline's Creator plan gives unlimited DMs for less than half the price.",
+      "If you run more than five accounts, LinkDM's top tier fits. For a single creator account, LinkPlz's Creator plan gives unlimited DMs for less than half the price.",
   },
 ];
 
@@ -121,9 +121,9 @@ export const GUIDES: Guide[] = [
         ],
       },
       {
-        heading: "Set it up in Hookline",
+        heading: "Set it up in LinkPlz",
         body: [
-          "Create a free account and connect Instagram. You log in on Instagram's own page, so Hookline never sees your password.",
+          "Create a free account and connect Instagram. You log in on Instagram's own page, so LinkPlz never sees your password.",
           "Create an automation: choose a specific post or any post, type your keywords (for example LINK, GUIDE, SEND), write the DM and paste your link. The preview shows exactly what people will receive.",
           "Add a public reply such as \"Sent! Check your DMs 📩\" so other viewers see that commenting works. Rotate two or three versions so your comment section doesn't look automated.",
         ],
@@ -138,7 +138,7 @@ export const GUIDES: Guide[] = [
       {
         heading: "Check it works",
         body: [
-          "Ask a friend to comment your keyword from another account. The DM should arrive within a few seconds and the click appears in your Hookline dashboard when they open the link.",
+          "Ask a friend to comment your keyword from another account. The DM should arrive within a few seconds and the click appears in your LinkPlz dashboard when they open the link.",
           "If nothing arrives, check that message access is turned on in Instagram and that the automation is active and pointed at the right post.",
         ],
       },
@@ -146,11 +146,11 @@ export const GUIDES: Guide[] = [
     faqs: [
       {
         q: "Can I DM people who commented before I set it up?",
-        a: "Yes, as long as the comment is less than seven days old. Hookline's re-run sends the DM to matching comments from the last seven days.",
+        a: "Yes, as long as the comment is less than seven days old. LinkPlz's re-run sends the DM to matching comments from the last seven days.",
       },
       {
         q: "Will Instagram ban me for auto-DMs?",
-        a: "Tools built on Meta's official API, like Hookline, use the private-reply feature Instagram created for this purpose. Tools that ask for your password or automate a browser are the ones that put accounts at risk.",
+        a: "Tools built on Meta's official API, like LinkPlz, use the private-reply feature Instagram created for this purpose. Tools that ask for your password or automate a browser are the ones that put accounts at risk.",
       },
     ],
   },
@@ -177,7 +177,7 @@ export const GUIDES: Guide[] = [
       {
         heading: "The 24-hour window",
         body: [
-          "When someone replies to your DM, you can message them freely for the next 24 hours. Hookline's follow-to-unlock feature relies on this: the opener asks them to reply, and their reply opens the window to send the link.",
+          "When someone replies to your DM, you can message them freely for the next 24 hours. LinkPlz's follow-to-unlock feature relies on this: the opener asks them to reply, and their reply opens the window to send the link.",
         ],
       },
       {
@@ -190,7 +190,7 @@ export const GUIDES: Guide[] = [
     faqs: [
       {
         q: "Can private replies include buttons?",
-        a: "Meta documents private replies as text messages. Hookline sends your link as a tracked URL inside that text, which Instagram turns into a tappable link.",
+        a: "Meta documents private replies as text messages. LinkPlz sends your link as a tracked URL inside that text, which Instagram turns into a tappable link.",
       },
     ],
   },
@@ -205,7 +205,7 @@ export const GUIDES: Guide[] = [
         heading: "How to pick a keyword",
         body: [
           "Use one word, easy to spell on a phone, that hints at the reward. Capitalise it in your caption. Avoid words people type anyway, like \"wow\", or your automation will fire on compliments.",
-          "Add two or three spelling variants as extra keywords: LINK, LINKS and LNK all send the same DM in Hookline.",
+          "Add two or three spelling variants as extra keywords: LINK, LINKS and LNK all send the same DM in LinkPlz.",
         ],
       },
       {
@@ -228,7 +228,7 @@ export const GUIDES: Guide[] = [
     faqs: [
       {
         q: "Should the keyword be in capitals?",
-        a: "In your caption, yes, because it stands out. Hookline ignores case when matching, so link, Link and LINK all trigger the DM.",
+        a: "In your caption, yes, because it stands out. LinkPlz ignores case when matching, so link, Link and LINK all trigger the DM.",
       },
     ],
   },

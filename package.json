@@ -1,8 +1,8 @@
 {
-  "name": "hookline",
+  "name": "linkplz",
   "version": "1.0.0",
   "private": true,
-  "description": "Hookline — Instagram comment-to-DM automation for creators, built on Meta's official Instagram API.",
+  "description": "LinkPlz — Instagram comment-to-DM automation for creators, built on Meta's official Instagram API.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

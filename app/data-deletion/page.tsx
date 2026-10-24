@@ -4,7 +4,7 @@ import { SUPPORT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Data deletion instructions",
-  description: "How to delete the data Hookline stores about your Instagram account.",
+  description: "How to delete the data LinkPlz stores about your Instagram account.",
   alternates: { canonical: "/data-deletion" },
 };
 
@@ -16,13 +16,13 @@ export default function DataDeletionPage() {
         {
           heading: "From the dashboard",
           body: [
-            "Open Settings in your Hookline dashboard and choose Disconnect next to your Instagram account. This immediately deletes the access token, automations, activity log and contacts for that account.",
+            "Open Settings in your LinkPlz dashboard and choose Disconnect next to your Instagram account. This immediately deletes the access token, automations, activity log and contacts for that account.",
           ],
         },
         {
           heading: "From Instagram",
           body: [
-            "In Instagram, open Settings, then Website permissions, then Apps and websites, and remove Hookline. Instagram notifies us and we delete the account's data automatically.",
+            "In Instagram, open Settings, then Website permissions, then Apps and websites, and remove LinkPlz. Instagram notifies us and we delete the account's data automatically.",
           ],
         },
         {

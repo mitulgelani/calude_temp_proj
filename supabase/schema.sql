@@ -1,4 +1,4 @@
--- Hookline database schema. Paste into Supabase → SQL Editor → Run. Safe to re-run.
+-- LinkPlz database schema. Paste into Supabase → SQL Editor → Run. Safe to re-run.
 create extension if not exists pgcrypto;
 
 -- Profiles (one per auth user) -------------------------------------------------

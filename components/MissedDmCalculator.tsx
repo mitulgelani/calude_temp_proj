@@ -70,7 +70,7 @@ export function MissedDmCalculator() {
             <span className="ml-2 text-2xl font-semibold tracking-normal text-white/70">hours</span>
           </p>
           <p className="mt-3 text-white/70">
-            typing {fmt.format(dms)} DMs. Hookline sends each one in about two seconds, including the ones that arrive at 3am.
+            typing {fmt.format(dms)} DMs. LinkPlz sends each one in about two seconds, including the ones that arrive at 3am.
           </p>
         </div>
         <p className="text-sm text-white/50">

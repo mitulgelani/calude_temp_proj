@@ -35,7 +35,7 @@ const app: WithContext<SoftwareApplication> = {
 const STEPS = [
   {
     title: "Connect Instagram",
-    body: "Log in on Instagram's own page and approve access. Hookline never sees your password.",
+    body: "Log in on Instagram's own page and approve access. LinkPlz never sees your password.",
     art: (
       <div className="flex items-center gap-3">
         <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[linear-gradient(135deg,#ffb36b,#ff5fa2_55%,#5b32ff)] text-white">
@@ -111,7 +111,7 @@ export default function HomePage() {
             Auto-DM everyone who comments on your Reels.
           </h1>
           <p className="mt-6 max-w-[46ch] text-lg leading-relaxed text-ink-soft md:text-xl">
-            Tell viewers to comment a word like LINK. Hookline sends each of them your link in their DMs within seconds, on Instagram&apos;s official API.
+            Tell viewers to comment a word like LINK. LinkPlz sends each of them your link in their DMs within seconds, on Instagram&apos;s official API.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link href="/login?mode=signup" className="btn btn-violet px-6 py-4 text-base">
@@ -127,7 +127,7 @@ export default function HomePage() {
       </section>
 
       {/* Reassurance */}
-      <section aria-label="How Hookline connects" className="border-y border-line bg-paper">
+      <section aria-label="How LinkPlz connects" className="border-y border-line bg-paper">
         <div className="wrap grid gap-6 py-8 text-[0.95rem] text-ink-soft sm:grid-cols-3">
           <p>
             <strong className="block text-ink">Official Instagram API</strong>
@@ -169,7 +169,7 @@ export default function HomePage() {
               Everything that happens after the comment.
             </h2>
             <p className="mt-5 max-w-[40ch] text-lg text-ink-soft">
-              The DM is the start. Hookline also handles the follow ask, the public reply and the people who commented before you were ready.
+              The DM is the start. LinkPlz also handles the follow ask, the public reply and the people who commented before you were ready.
             </p>
           </div>
           <dl className="divide-y divide-line border-y border-line">
@@ -189,11 +189,11 @@ export default function HomePage() {
           <div className="mx-auto max-w-sm space-y-3 rounded-[30px] bg-paper p-5 ring-1 ring-line">
             <div className="dm-bubble ml-auto w-fit max-w-[85%] px-4 py-2.5 text-sm">Hey! Reply to this message with anything and I&apos;ll send the link right over 👇</div>
             <div className="w-fit max-w-[80%] rounded-[22px] rounded-bl-md bg-mist px-4 py-2.5 text-sm">yes pls!</div>
-            <p className="py-1 text-center text-xs text-muted">Hookline checks: follows you? Yes</p>
+            <p className="py-1 text-center text-xs text-muted">LinkPlz checks: follows you? Yes</p>
             <div className="dm-bubble ml-auto w-fit max-w-[85%] px-4 py-2.5 text-sm">
               Here&apos;s the 30-day workout plan 💪
               <span className="mt-1.5 block rounded-lg px-2 py-1 text-xs underline" style={{ backgroundColor: "rgb(255 255 255 / 0.18)" }}>
-                hookline.app/r/plan30
+                linkplz.online/r/plan30
               </span>
             </div>
           </div>
@@ -201,7 +201,7 @@ export default function HomePage() {
         <div className="order-1 lg:order-2">
           <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-bold leading-[1.02] tracking-[-0.04em]">Turn the people who want your link into followers.</h2>
           <p className="mt-5 max-w-[46ch] text-lg text-ink-soft">
-            With follow-to-unlock on, Hookline starts a conversation instead of dropping the link. When they reply, it checks whether they follow you, then delivers the link or asks them to follow first.
+            With follow-to-unlock on, LinkPlz starts a conversation instead of dropping the link. When they reply, it checks whether they follow you, then delivers the link or asks them to follow first.
           </p>
           <p className="mt-4 max-w-[46ch] text-ink-soft">
             The reply also opens Instagram&apos;s 24-hour messaging window, so you can keep the conversation going by hand.

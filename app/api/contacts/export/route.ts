@@ -33,7 +33,7 @@ export async function GET() {
   return new Response(`${header}\n${body}\n`, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="hookline-contacts.csv"`,
+      "Content-Disposition": `attachment; filename="linkplz-contacts.csv"`,
     },
   });
 }

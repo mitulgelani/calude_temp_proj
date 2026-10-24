@@ -109,7 +109,7 @@ export const DEMO_CONTACTS: ContactView[] = names.map((n, i) => ({
 
 export const DEMO_DATA: DashboardData = {
   demo: true,
-  email: "demo@hookline.app",
+  email: "demo@linkplz.online",
   plan: "creator",
   accounts: [DEMO_ACCOUNT],
   automations: DEMO_AUTOMATIONS,

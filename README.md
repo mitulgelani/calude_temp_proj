@@ -1,6 +1,6 @@
-# Hookline
+# LinkPlz
 
-Instagram comment-to-DM automation for creators. Someone comments a keyword like **LINK** on a Reel, and Hookline sends them a DM with your link within seconds, using Meta's official Instagram API with Instagram Login.
+Instagram comment-to-DM automation for creators. Someone comments a keyword like **LINK** on a Reel, and LinkPlz sends them a DM with your link within seconds, using Meta's official Instagram API with Instagram Login.
 
 **Stack:** Next.js 15 (App Router) · Tailwind CSS 4 · Supabase (Postgres + Auth) · Vercel. Running cost at launch: $0 on free tiers (Vercel Hobby is non-commercial, so move to Pro at $20/month once you charge customers).
 

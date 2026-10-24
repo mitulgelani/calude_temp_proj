@@ -46,7 +46,7 @@ jobs:
         if: always()
         run: |
           cp -r ci-out /tmp/ci-out
-          git config user.name "hookline-ci"
+          git config user.name "linkplz-ci"
           git config user.email "ci@users.noreply.github.com"
           git checkout --orphan ci-results
           git rm -rf . >/dev/null 2>&1 || true

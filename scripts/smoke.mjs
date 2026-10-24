@@ -19,7 +19,7 @@ await check("/privacy", 200, "Privacy");
 await check("/data-deletion", 200, "Delete your data");
 await check("/sitemap.xml", 200, "<urlset");
 await check("/robots.txt", 200, "GPTBot");
-await check("/llms.txt", 200, "# Hookline");
+await check("/llms.txt", 200, "# LinkPlz");
 await check("/llms-full.txt", 200, "Plans");
 await check("/opengraph-image", 200);
 await check("/dashboard", 200, "Overview");

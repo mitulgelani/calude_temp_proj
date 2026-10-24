@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HookMark } from "@/components/Logo";
+import { LinkMark } from "@/components/Logo";
 import { COMPARE_PAGES, GUIDES } from "@/lib/content";
 import { SUPPORT_EMAIL } from "@/lib/site";
 
@@ -9,8 +9,8 @@ export function SiteFooter() {
       <div className="wrap grid gap-12 py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="max-w-xs">
           <div className="flex items-center gap-2.5 text-white">
-            <HookMark className="h-7 w-7" />
-            <span className="text-lg font-bold tracking-[-0.03em]">Hookline</span>
+            <LinkMark className="h-7 w-7" />
+            <span className="text-lg font-bold tracking-[-0.03em]">LinkPlz</span>
           </div>
           <p className="mt-4 text-sm leading-relaxed">
             Instagram comment-to-DM automation for creators. Built on Meta&apos;s official Instagram API.
@@ -32,7 +32,7 @@ export function SiteFooter() {
           title="Learn"
           links={[
             ...GUIDES.map((g) => ({ href: `/guides/${g.slug}`, label: g.title.split(":")[0].replace(/\s*\(.*\)$/, "") })),
-            ...COMPARE_PAGES.map((c) => ({ href: `/compare/${c.slug}`, label: `Hookline vs ${c.competitor}` })),
+            ...COMPARE_PAGES.map((c) => ({ href: `/compare/${c.slug}`, label: `LinkPlz vs ${c.competitor}` })),
           ]}
         />
         <FooterCol
@@ -45,8 +45,8 @@ export function SiteFooter() {
         />
       </div>
       <div className="wrap flex flex-col gap-2 border-t border-white/10 py-6 text-xs sm:flex-row sm:justify-between">
-        <p>© {new Date().getFullYear()} Hookline. All rights reserved.</p>
-        <p>Instagram is a trademark of Meta Platforms, Inc. Hookline is not affiliated with or endorsed by Meta.</p>
+        <p>© {new Date().getFullYear()} LinkPlz. All rights reserved.</p>
+        <p>Instagram is a trademark of Meta Platforms, Inc. LinkPlz is not affiliated with or endorsed by Meta.</p>
       </div>
     </footer>
   );

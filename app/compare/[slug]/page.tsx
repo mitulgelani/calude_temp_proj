@@ -32,7 +32,7 @@ export default async function ComparePage({ params }: Props) {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-      { "@type": "ListItem", position: 2, name: `Hookline vs ${page.competitor}`, item: absoluteUrl(`/compare/${page.slug}`) },
+      { "@type": "ListItem", position: 2, name: `LinkPlz vs ${page.competitor}`, item: absoluteUrl(`/compare/${page.slug}`) },
     ],
   };
 
@@ -49,7 +49,7 @@ export default async function ComparePage({ params }: Props) {
         <div className="mt-12 overflow-x-auto rounded-[24px] bg-paper ring-1 ring-line">
           <table className="w-full min-w-[560px] text-left text-[0.95rem]">
             <caption className="sr-only">
-              Feature comparison between Hookline and {page.competitor}
+              Feature comparison between LinkPlz and {page.competitor}
             </caption>
             <thead>
               <tr className="border-b border-line">
@@ -57,7 +57,7 @@ export default async function ComparePage({ params }: Props) {
                   Feature
                 </th>
                 <th scope="col" className="px-5 py-4 font-bold">
-                  Hookline
+                  LinkPlz
                 </th>
                 <th scope="col" className="px-5 py-4 font-bold">
                   {page.competitor}
@@ -85,7 +85,7 @@ export default async function ComparePage({ params }: Props) {
         </p>
         <div className="mt-10 flex flex-wrap gap-3">
           <Link href="/login?mode=signup" className="btn btn-violet">
-            Try Hookline free
+            Try LinkPlz free
           </Link>
           <Link href="/pricing" className="btn btn-ghost">
             See pricing

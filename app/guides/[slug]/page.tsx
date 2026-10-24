@@ -88,7 +88,7 @@ export default async function GuidePage({ params }: Props) {
 
         <aside className="mt-14 rounded-[28px] bg-ink p-8 text-white">
           <p className="text-2xl font-bold tracking-[-0.02em]">Set this up in two minutes</p>
-          <p className="mt-2 text-white/75">Hookline is free for your first 1,000 DMs every month.</p>
+          <p className="mt-2 text-white/75">LinkPlz is free for your first 1,000 DMs every month.</p>
           <Link href="/login?mode=signup" className="btn btn-violet mt-6">
             Start free
           </Link>

@@ -135,7 +135,7 @@ export function HeroSimulation() {
                   <div className="dm-bubble ml-auto max-w-[92%] px-3.5 py-2.5 text-[0.8rem] leading-snug">
                     Hey {latestHit.name}! Here&apos;s the Lisbon preset pack ✨
                     <span className="mt-1.5 block truncate rounded-lg bg-white/18 px-2 py-1 text-[0.72rem] underline decoration-white/60" style={{ backgroundColor: "rgb(255 255 255 / 0.18)" }}>
-                      hookline.app/r/lisbon
+                      linkplz.online/r/lisbon
                     </span>
                   </div>
                   <p className="mt-1.5 text-right text-[0.62rem] text-muted">Delivered · 1.8s after comment</p>

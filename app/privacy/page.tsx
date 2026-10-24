@@ -4,7 +4,7 @@ import { SUPPORT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy policy",
-  description: "How Hookline collects, uses and deletes data from your Instagram account and the people who message you.",
+  description: "How LinkPlz collects, uses and deletes data from your Instagram account and the people who message you.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
         {
           heading: "Who we are",
           body: [
-            `Hookline provides Instagram comment-to-DM automation for creators and businesses. Contact us at ${SUPPORT_EMAIL} for any privacy question.`,
+            `LinkPlz provides Instagram comment-to-DM automation for creators and businesses. Contact us at ${SUPPORT_EMAIL} for any privacy question.`,
           ],
         },
         {
@@ -36,7 +36,7 @@ export default function PrivacyPage() {
         {
           heading: "Instagram Platform data",
           body: [
-            "We follow Meta's Platform Terms and Developer Policies. Instagram data is used only to provide Hookline's features to the account owner who connected it, and is deleted when that account is disconnected or the owner requests deletion.",
+            "We follow Meta's Platform Terms and Developer Policies. Instagram data is used only to provide LinkPlz's features to the account owner who connected it, and is deleted when that account is disconnected or the owner requests deletion.",
           ],
         },
         {
@@ -48,7 +48,7 @@ export default function PrivacyPage() {
         {
           heading: "Retention and deletion",
           body: [
-            "Disconnecting an Instagram account deletes its token, automations, activity and contacts. Deleting your Hookline account removes everything. You can also request deletion at any time, see our data deletion page.",
+            "Disconnecting an Instagram account deletes its token, automations, activity and contacts. Deleting your LinkPlz account removes everything. You can also request deletion at any time, see our data deletion page.",
           ],
         },
         {

@@ -5,11 +5,11 @@ import { SITE_DESCRIPTION, absoluteUrl } from "@/lib/site";
 export const dynamic = "force-static";
 
 export function GET() {
-  const body = `# Hookline
+  const body = `# LinkPlz
 
 > ${SITE_DESCRIPTION}
 
-Hookline is a web app for Instagram creators and businesses. When someone comments a chosen keyword (for example "LINK") on a Reel, post, Story or Live, Hookline sends that person a private Instagram DM with the creator's link within seconds. It uses Meta's official Instagram API with Instagram Login; users never share their password.
+LinkPlz is a web app for Instagram creators and businesses. When someone comments a chosen keyword (for example "LINK") on a Reel, post, Story or Live, LinkPlz sends that person a private Instagram DM with the creator's link within seconds. It uses Meta's official Instagram API with Instagram Login; users never share their password.
 
 Key facts:
 - Works with Instagram Creator and Business (professional) accounts.

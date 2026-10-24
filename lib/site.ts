@@ -1,8 +1,8 @@
-export const SITE_NAME = "Hookline";
-export const SITE_TITLE = "Hookline — Instagram Comment-to-DM Automation for Creators";
+export const SITE_NAME = "LinkPlz";
+export const SITE_TITLE = "LinkPlz — Instagram Comment-to-DM Automation for Creators";
 export const SITE_DESCRIPTION =
   "Auto-DM everyone who comments a keyword on your Instagram Reels, posts and Stories. Free plan, built on Meta's official Instagram API, set up in two minutes.";
-export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "hello@hookline.app";
+export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "hello@linkplz.online";
 export const LAST_UPDATED = "2026-10-19";
 
 export function siteUrl(): string {

@@ -5,7 +5,7 @@ import { env, isBackendConfigured } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
-/** Meta calls this when someone removes Hookline from their Instagram account. */
+/** Meta calls this when someone removes LinkPlz from their Instagram account. */
 export async function POST(req: NextRequest) {
   const form = await req.formData().catch(() => null);
   const signed = form?.get("signed_request");

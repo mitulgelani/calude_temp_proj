@@ -35,7 +35,7 @@ export function AutomationForm({
   const [opener, setOpener] = useState(initial?.opener_message ?? "");
   const [replies, setReplies] = useState((initial?.public_replies ?? ["Sent! Check your DMs 📩", "Just sent it over 💌"]).join("\n"));
   const [testComment, setTestComment] = useState("LINK please!");
-  const [host, setHost] = useState("hookline.app");
+  const [host, setHost] = useState("linkplz.online");
 
   useEffect(() => setHost(window.location.host), []);
 
@@ -248,7 +248,7 @@ export function AutomationForm({
               <span>
                 <span className="block font-semibold">Only send the link to followers</span>
                 <span className="mt-0.5 block text-sm text-ink-soft">
-                  Hookline sends a short opener first. When they reply, followers get the link and everyone else is asked to follow.
+                  LinkPlz sends a short opener first. When they reply, followers get the link and everyone else is asked to follow.
                   {freePlan ? " Available on the Creator plan." : ""}
                 </span>
               </span>
@@ -279,7 +279,7 @@ export function AutomationForm({
                 Public replies under the comment
               </label>
               <textarea id="public_replies" name="public_replies" rows={3} className="field" value={replies} onChange={(e) => setReplies(e.target.value)} placeholder={"Sent! Check your DMs 📩"} />
-              <p className="hint">One per line. Hookline picks one at random each time. Leave empty to reply only in DMs.</p>
+              <p className="hint">One per line. LinkPlz picks one at random each time. Leave empty to reply only in DMs.</p>
             </div>
           ) : null}
         </Section>

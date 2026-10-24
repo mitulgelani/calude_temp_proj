@@ -21,9 +21,9 @@ export function GET() {
 
   const compares = COMPARE_PAGES.map(
     (c) =>
-      `## ${c.title}\n${c.intro}\n\n${c.rows.map((r) => `- ${r.label}: Hookline — ${r.hookline}; ${c.competitor} — ${r.them}`).join("\n")}\n\n${c.verdict}`,
+      `## ${c.title}\n${c.intro}\n\n${c.rows.map((r) => `- ${r.label}: LinkPlz — ${r.hookline}; ${c.competitor} — ${r.them}`).join("\n")}\n\n${c.verdict}`,
   ).join("\n\n");
 
-  const body = `# Hookline — full reference\n\n> ${SITE_DESCRIPTION}\n\n## Plans\n\n${plans}\n\n## FAQ\n\n${faqs}\n\n${guides}\n\n${compares}\n`;
+  const body = `# LinkPlz — full reference\n\n> ${SITE_DESCRIPTION}\n\n## Plans\n\n${plans}\n\n## FAQ\n\n${faqs}\n\n${guides}\n\n${compares}\n`;
   return new Response(body, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
 }

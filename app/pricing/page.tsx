@@ -8,14 +8,14 @@ import type { Faq } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Pricing — free plan, then $9 or ₹399 a month",
   description:
-    "Hookline pricing: 1,000 free DMs a month, unlimited DMs from $9 or ₹399 a month, and a Studio plan for five Instagram accounts. No per-contact fees.",
+    "LinkPlz pricing: 1,000 free DMs a month, unlimited DMs from $9 or ₹399 a month, and a Studio plan for five Instagram accounts. No per-contact fees.",
   alternates: { canonical: "/pricing" },
 };
 
 const PRICING_FAQS: Faq[] = [
   {
     q: "What happens when I hit 1,000 DMs on the Free plan?",
-    a: "Hookline stops sending new DMs until the next calendar month and shows the skipped comments in your activity. Upgrade at any time and they can be re-run, as long as they're under seven days old.",
+    a: "LinkPlz stops sending new DMs until the next calendar month and shows the skipped comments in your activity. Upgrade at any time and they can be re-run, as long as they're under seven days old.",
   },
   {
     q: "Do you charge per contact like some chatbot tools?",

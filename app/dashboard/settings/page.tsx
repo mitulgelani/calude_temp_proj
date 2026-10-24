@@ -10,7 +10,7 @@ const ERRORS: Record<string, string> = {
   state: "The connection link expired. Start again from this page.",
   exchange: "Instagram didn't accept the connection. Make sure it's a Creator or Business account and try again.",
   limit: "Your plan's account limit is reached. Upgrade to Studio to connect up to five accounts.",
-  taken: "That Instagram account is already connected to another Hookline workspace.",
+  taken: "That Instagram account is already connected to another LinkPlz workspace.",
   setup: "Instagram connections aren't switched on yet: the app's Instagram and database keys still need to be added.",
 };
 
@@ -114,7 +114,7 @@ export default async function SettingsPage({ searchParams }: Props) {
             );
           })}
         </div>
-        <p className="mt-3 text-xs text-muted">Use the same email at checkout as your Hookline account so the upgrade applies automatically.</p>
+        <p className="mt-3 text-xs text-muted">Use the same email at checkout as your LinkPlz account so the upgrade applies automatically.</p>
       </section>
 
       {!ready ? (

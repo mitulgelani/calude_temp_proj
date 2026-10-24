@@ -45,7 +45,7 @@ export default async function LoginPage({ searchParams }: Props) {
             </div>
           )}
           <p className="mt-8 text-sm text-muted">
-            {signup ? "Already have an account? " : "New to Hookline? "}
+            {signup ? "Already have an account? " : "New to LinkPlz? "}
             <Link href={signup ? "/login" : "/login?mode=signup"} className="font-semibold text-ink underline underline-offset-2">
               {signup ? "Log in" : "Start free"}
             </Link>

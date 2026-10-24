@@ -1,0 +1,75 @@
+
+> linkplz@1.0.0 build
+> next build
+
+⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+   ▲ Next.js 15.5.28
+
+   Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled successfully in 7.6s
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/26) ...
+   Generating static pages (6/26) 
+   Generating static pages (12/26) 
+   Generating static pages (19/26) 
+ ✓ Generating static pages (26/26)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                       Size  First Load JS
+┌ ○ /                                          5.13 kB         111 kB
+├ ○ /_not-found                                  172 B         103 kB
+├ ƒ /api/billing/checkout                        172 B         103 kB
+├ ƒ /api/billing/webhook                         172 B         103 kB
+├ ƒ /api/contacts/export                         172 B         103 kB
+├ ƒ /api/cron/drain                              172 B         103 kB
+├ ƒ /api/cron/refresh-tokens                     172 B         103 kB
+├ ƒ /api/instagram/callback                      172 B         103 kB
+├ ƒ /api/instagram/connect                       172 B         103 kB
+├ ƒ /api/instagram/data-deletion                 172 B         103 kB
+├ ƒ /api/instagram/deauthorize                   172 B         103 kB
+├ ƒ /api/instagram/media                         172 B         103 kB
+├ ƒ /api/webhooks/instagram                      172 B         103 kB
+├ ƒ /auth/callback                               172 B         103 kB
+├ ● /compare/[slug]                              174 B         106 kB
+├   ├ /compare/manychat
+├   └ /compare/linkdm
+├ ○ /dashboard                                   162 B         106 kB
+├ ƒ /dashboard/automations                      1.2 kB         107 kB
+├ ƒ /dashboard/automations/[id]                  124 B         111 kB
+├ ○ /dashboard/automations/new                   124 B         111 kB
+├ ○ /dashboard/contacts                          172 B         103 kB
+├ ƒ /dashboard/settings                          784 B         104 kB
+├ ○ /data-deletion                               174 B         106 kB
+├ ● /guides/[slug]                               174 B         106 kB
+├   ├ /guides/instagram-comment-to-dm
+├   ├ /guides/instagram-private-replies-rules
+├   └ /guides/comment-keyword-ideas
+├ ○ /icon.svg                                      0 B            0 B
+├ ○ /llms-full.txt                               172 B         103 kB
+├ ○ /llms.txt                                    172 B         103 kB
+├ ƒ /login                                     69.2 kB         175 kB
+├ ○ /manifest.webmanifest                        172 B         103 kB
+├ ○ /opengraph-image                             172 B         103 kB
+├ ○ /pricing                                   2.28 kB         108 kB
+├ ○ /privacy                                     174 B         106 kB
+├ ƒ /r/[code]                                    172 B         103 kB
+├ ○ /robots.txt                                  172 B         103 kB
+├ ○ /sitemap.xml                                 172 B         103 kB
+└ ○ /terms                                       174 B         106 kB
++ First Load JS shared by all                   103 kB
+  ├ chunks/255-b1e2483a7e02feee.js             46.6 kB
+  ├ chunks/4bd1b696-c023c6e3521b1417.js        54.2 kB
+  └ other shared chunks (total)                1.92 kB
+
+
+ƒ Middleware                                   93.8 kB
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

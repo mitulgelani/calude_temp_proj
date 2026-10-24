@@ -1,0 +1,20 @@
+PASS / -> 200 (contains "Auto-DM everyone": true)
+PASS /pricing -> 200 (contains "Creator": true)
+PASS /guides/instagram-comment-to-dm -> 200 (contains "comment-to-DM": true)
+PASS /compare/manychat -> 200 (contains "ManyChat": true)
+PASS /privacy -> 200 (contains "Privacy": true)
+PASS /data-deletion -> 200 (contains "Delete your data": true)
+PASS /sitemap.xml -> 200 (contains "<urlset": true)
+PASS /robots.txt -> 200 (contains "GPTBot": true)
+PASS /llms.txt -> 200 (contains "# LinkPlz": true)
+PASS /llms-full.txt -> 200 (contains "Plans": true)
+PASS /opengraph-image -> 200
+PASS /dashboard -> 200 (contains "Overview": true)
+PASS /dashboard/automations/new -> 200 (contains "New automation": true)
+PASS /api/webhooks/instagram?hub.mode=subscribe&hub.verify_token=ci-verify-token&hub.challenge=4242 -> 200 (contains "4242": true)
+PASS /api/webhooks/instagram?hub.mode=subscribe&hub.verify_token=wrong&hub.challenge=1 -> 403
+PASS POST webhook with bad signature -> 401
+PASS /does-not-exist -> 404
+
+Browser console errors:
+none

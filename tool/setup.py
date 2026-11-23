@@ -84,6 +84,11 @@ def patch_app():
           ("        ndk {\n            abiFilters %s\n        }\n" % abis)
     s = re.sub(r"(defaultConfig\s*\{\n)", lambda mm: mm.group(1) + ndk, s, count=1)
 
+    # Android lint crashes inside some plugins' generated code (webview_flutter) — skip release-only lint
+    lint = "    lint {\n        checkReleaseBuilds = false\n        abortOnError = false\n    }\n" if kts else \
+           "    lint {\n        checkReleaseBuilds false\n        abortOnError false\n    }\n"
+    s = re.sub(r"(\nandroid\s*\{\n)", lambda mm: mm.group(1) + lint, s, count=1)
+
     pip = "\n".join(('            install("%s")' if kts else "            install \"%s\"") % x for x in PIP)
     block = (
         "\nchaquopy {\n    defaultConfig {\n        version = \"%s\"\n        pip {\n%s\n        }\n    }\n}\n" % (PYTHON, pip)

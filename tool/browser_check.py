@@ -6,7 +6,7 @@ JS = open(os.path.join(os.path.dirname(__file__), "..", "assets", "pluck_page.js
 UA = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
 PAGES = [
     "https://www.instagram.com/reel/Df172vGP3bh/",
-    "https://www.instagram.com/p/C9wOqXyy0r6/",
+    "https://www.instagram.com/reel/DgA8hYVMZ2-/",
     "https://www.instagram.com/reels/",
     "https://www.tiktok.com/@scout2015/video/6718335390845095173",
     "https://m.facebook.com/watch/",
@@ -30,7 +30,7 @@ async def main():
             pg.on("response", on_resp)
             try:
                 await pg.goto(url, wait_until="domcontentloaded", timeout=45000)
-                await pg.wait_for_timeout(9000)
+                await pg.wait_for_timeout(12000)
                 last = await pg.evaluate("window.__last || null")
                 store = await pg.evaluate("JSON.stringify(window.__pluckMedia||{})")
                 store = json.loads(store)

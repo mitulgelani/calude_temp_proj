@@ -78,10 +78,19 @@
 
   // Stay in the browser: hide "open app" prompts and sign-up walls.
   var NAG = /^(open app|open instagram|use the app|get the app|open in app|open tiktok|open the app|switch to the app|continue in app|download the app|open facebook|open youtube|open pinterest|get app|use app)$/i;
+  var GO_WEB = /^(continue on web|continue on the web|continue in browser|stay on web|use the web|use web|not now|continue as guest|watch on web)$/i;
+  var NAG_TEXT = /^(watch this (reel|post|video) in the app|see this (post|reel) in the app|get the full experience on the app|open in the app.*)$/i;
   function clean() {
     document.querySelectorAll('a,button,div[role="button"],span[role="button"]').forEach(function (b) {
       var t = (b.innerText || '').trim();
-      if (t.length < 30 && NAG.test(t)) b.style.setProperty('display', 'none', 'important');
+      if (t.length >= 40) return;
+      if (GO_WEB.test(t) && !b.__plClicked) { b.__plClicked = 1; try { b.click(); } catch (e) {} return; }
+      if (NAG.test(t)) b.style.setProperty('display', 'none', 'important');
+    });
+    document.querySelectorAll('span,div,h2,h3').forEach(function (el) {
+      if (el.children.length > 2) return;
+      var t = (el.innerText || '').trim();
+      if (t.length < 60 && NAG_TEXT.test(t)) el.style.setProperty('display', 'none', 'important');
     });
     if (location.pathname.indexOf('/accounts/') < 0 && location.pathname.indexOf('/login') < 0) {
       document.querySelectorAll('div[role="dialog"]').forEach(function (d) {
@@ -125,7 +134,7 @@
   }
   window.__pluckScan = scan;
   window.__pluckGet = function (key) { return JSON.stringify(store[key] || null); };
-  setInterval(scan, 1000);
+  setInterval(scan, 700);
   document.addEventListener('scroll', function () { clearTimeout(window.__pt); window.__pt = setTimeout(scan, 150); }, true);
   if (document.readyState !== 'loading') scan(); else document.addEventListener('DOMContentLoaded', scan);
 })();

@@ -89,6 +89,7 @@ class _TabPageState extends State<TabPage> {
 
   /// Opens an Instagram post/reel in the browser, then pops the download sheet as soon as the page has it.
   void _openAndCapture(String url, String code) {
+    debugPrint('[pluck] open-and-capture $url code=$code');
     final tab = tabs.current;
     tab.pendingCode = code;
     final ig = code != '*';
@@ -117,6 +118,7 @@ class _TabPageState extends State<TabPage> {
   }
 
   Future<void> _download(String url, {bool retried = false}) async {
+    debugPrint('[pluck] download url=$url retried=$retried resolving=$_resolving page=${tabs.current.url}');
     if (_resolving && !retried) return;
     final src = Source.detect(url);
     if (src == Source.youtube && !Config.youtubeEnabled) {
@@ -133,6 +135,7 @@ class _TabPageState extends State<TabPage> {
       final key = _igCode.firstMatch(url)?.group(1) ?? _igStory.firstMatch(url)?.group(1);
       if (key != null && !tab.isStart) {
         final payload = await tab.captured(key);
+        debugPrint('[pluck] key=$key captured=${payload == null ? 'no' : '${payload.length} chars'} codes=${tab.codes.length}');
         if (payload != null) info = await bridge.fromPage(payload, url);
       }
       if (info == null && key != null && src == Source.instagram && !retried && !url.contains('/stories/')) {
@@ -160,7 +163,11 @@ class _TabPageState extends State<TabPage> {
       setState(() => _resolving = false);
       await showResultSheet(context, found);
     } on PluckException catch (e) {
+      debugPrint('[pluck] error ${e.message} | ${e.detail}');
       if (mounted) _showError(e);
+    } catch (e, st) {
+      debugPrint('[pluck] crash $e\n$st');
+      if (mounted) _showError(PluckException('Something went wrong.', '$e'));
     } finally {
       if (mounted && tabs.current.pendingCode == null) setState(() => _resolving = false);
     }

@@ -37,11 +37,11 @@ python3 tool/ui.py show "instagram reels in browser"
 adb exec-out screencap -p > s4_reels.png
 adb shell input swipe 160 500 160 200 300; sleep 8   # scroll to the next reel like a user would
 python3 tool/ui.py show "next reel"
-python3 tool/ui.py tap "Download video"; sleep 20
+python3 tool/ui.py tap "Download video"; sleep 40
 python3 tool/ui.py show "sheet from red button"
 python3 tool/ui.py tap "Download" && sleep 35
 python3 tool/ui.py tap "Finished"; sleep 3
 python3 tool/ui.py show "finished after red button"
 echo "=== gallery files (end)"; adb shell ls -la /sdcard/Pictures/Pluck 2>&1
 echo "=== logcat"
-adb logcat -d | grep -iE "flutter|python|chaquo|pluck|AndroidRuntime" | grep -v "^--" | tail -120
+adb logcat -d | grep -E "\[pluck\]|python.stderr|AndroidRuntime|E flutter" | tail -80

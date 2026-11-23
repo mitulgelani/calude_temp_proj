@@ -35,7 +35,9 @@ python3 tool/ui.py show "new tab"
 python3 tool/ui.py tap "Instagram"; sleep 30
 python3 tool/ui.py show "instagram reels in browser"
 adb exec-out screencap -p > s4_reels.png
-python3 tool/ui.py tap "Download video" || python3 tool/ui.py tap "Download"; sleep 20
+adb shell input swipe 160 500 160 200 300; sleep 8   # scroll to the next reel like a user would
+python3 tool/ui.py show "next reel"
+python3 tool/ui.py tap "Download video"; sleep 20
 python3 tool/ui.py show "sheet from red button"
 python3 tool/ui.py tap "Download" && sleep 35
 python3 tool/ui.py tap "Finished"; sleep 3

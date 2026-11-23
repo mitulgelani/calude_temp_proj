@@ -125,6 +125,7 @@ class _TabPageState extends State<TabPage> {
     }
     final bridge = context.read<NativeBridge>();
     final tab = tabs.current;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     HapticFeedback.mediumImpact();
     setState(() => _resolving = true);
     try {
@@ -275,7 +276,7 @@ class _TabPageState extends State<TabPage> {
                   ),
                 Positioned(
                   right: 16,
-                  bottom: 24,
+                  bottom: 110, // clear of snackbars and the site's own bottom bars
                   child: AnimatedScale(
                     scale: tab.target == null ? 0 : 1,
                     duration: Motion.base,

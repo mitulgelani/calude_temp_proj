@@ -59,6 +59,7 @@ class _ResultSheetState extends State<ResultSheet> {
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(
+        duration: const Duration(seconds: 3),
         content: Text(items.length > 1 ? 'Downloading ${items.length} items' : 'Download started'),
         action: SnackBarAction(label: 'VIEW', textColor: Palette.brand, onPressed: () => shellTab.value = 1),
       ));

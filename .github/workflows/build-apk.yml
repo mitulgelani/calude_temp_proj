@@ -44,7 +44,7 @@ jobs:
         run: |
           YT=true
           if [ "${{ inputs.play_store }}" = "true" ]; then YT=false; fi
-          flutter build apk --release --dart-define=PLUCK_YOUTUBE=$YT
+          flutter build apk --release --target-platform android-arm64,android-x64 --dart-define=PLUCK_YOUTUBE=$YT
           cp build/app/outputs/flutter-apk/app-release.apk pluck-${{ github.run_number }}.apk
 
       - uses: actions/upload-artifact@v4

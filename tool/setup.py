@@ -106,7 +106,7 @@ def main():
     patch_settings()
     patch_app()
     run(["flutter", "pub", "get"])
-    print("\nDone. Next:\n  flutter run                      (phone connected)\n  flutter build apk --release      (installable APK)")
+    print("\nDone. Next:\n  flutter run                      (phone connected)\n  flutter build apk --release --target-platform android-arm64,android-x64")
 
 
 if __name__ == "__main__":

@@ -372,6 +372,40 @@ def ig_post(shortcode, url):
     }
 
 
+def ig_embed(shortcode, url):
+    """Login-free: Instagram's public embed page carries the media URLs for public posts and reels."""
+    page = "https://www.instagram.com/p/%s/embed/captioned/" % shortcode
+    req = urllib.request.Request(page, headers={"User-Agent": UA, "Accept-Language": "en"})
+    raw = urllib.request.urlopen(req, timeout=20).read(3_000_000).decode("utf-8", "ignore")
+    t = raw
+    for _ in range(4):
+        t = t.replace("\\\\", "\\").replace('\\"', '"').replace("\\/", "/")
+    t = t.replace("\\u0026", "&").replace("&amp;", "&")
+    videos = list(dict.fromkeys(re.findall(r'"video_url"\s*:\s*"(https[^"]+)"', t)))
+    images = list(dict.fromkeys(re.findall(r'"display_url"\s*:\s*"(https[^"]+)"', t)))
+    if not images:
+        m = re.search(r'class="EmbeddedMediaImage"[^>]*src="([^"]+)"', t)
+        if m:
+            images = [m.group(1)]
+    owner = re.search(r'"username"\s*:\s*"([A-Za-z0-9._]+)"', t)
+    items = []
+    for i, v in enumerate(videos, 1):
+        items.append({"id": "ev%d" % i, "kind": "video", "label": "Video %d" % i if len(videos) > 1 else "Original",
+                      "ext": "mp4", "bytes": None, "thumb": images[i - 1] if i - 1 < len(images) else None,
+                      "spec": {"mode": "direct", "url": v, "ext": "mp4"}})
+    if not videos:
+        for i, im in enumerate(images[:20], 1):
+            items.append({"id": "ei%d" % i, "kind": "image", "label": "Photo %d" % i if len(images) > 1 else "Photo",
+                          "ext": _img_ext(im), "bytes": None, "thumb": im,
+                          "spec": {"mode": "direct", "url": im, "ext": _img_ext(im)}})
+    if not items:
+        raise PluckError("Nothing public found in that post.")
+    return {"source": "instagram", "kind_label": kind_label(url, "instagram"),
+            "title": ("Post by @" + owner.group(1)) if owner else "Instagram " + kind_label(url, "instagram"),
+            "author": ("@" + owner.group(1)) if owner else None, "thumbnail": images[0] if images else None,
+            "duration": None, "vertical": "/reel" in url.lower(), "items": items}
+
+
 def og_fallback(url, src):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "en"})
     html = urllib.request.urlopen(req, timeout=20).read(2_000_000).decode("utf-8", "ignore")
@@ -399,10 +433,10 @@ def friendly(err, src):
     m = str(err).lower()
     if "cancel" in m:
         return "Cancelled."
-    if src == "instagram" and any(k in m for k in ("login", "cookies", "private", "401", "checkpoint", "rate-limit")):
-        return "Instagram wants you logged in for this one. Connect Instagram in Settings, then try again."
+    if src == "instagram" and any(k in m for k in ("rate-limit", "429", "checkpoint", "please wait")):
+        return "Instagram is slowing requests down right now. Wait a minute and try again."
     if "private" in m or "login" in m:
-        return "This post is private or needs a login."
+        return "This one is private, so it can’t be saved. Public posts work without login."
     if "unsupported url" in m:
         return "That link doesn’t point to a video, photo or post."
     if "404" in m or "not found" in m or "unavailable" in m or "removed" in m:
@@ -429,6 +463,9 @@ def resolve(url):
 
 def _resolve(url, src):
     if src == "instagram":
+        if "/stories/" in url.lower():  # don't waste the user's time: Instagram never serves these anonymously
+            raise PluckError("Instagram only shows stories to logged-in accounts, so they can’t be saved without one. "
+                             "Reels, posts and profile photos work without login.")
         m = IG_PROFILE.match(url)
         if m and m.group(1).lower() not in IG_RESERVED:
             return ig_profile(m.group(1))
@@ -451,10 +488,11 @@ def _resolve(url, src):
     if src == "instagram":
         sc = IG_SHORTCODE.search(url)
         if sc:
-            try:
-                return ig_post(sc.group(1), url)
-            except Exception:
-                pass
+            for fn in (ig_post, ig_embed):
+                try:
+                    return fn(sc.group(1), url)
+                except Exception:
+                    pass
     if src in ("pinterest", "facebook", "instagram"):
         try:
             return og_fallback(url, src)

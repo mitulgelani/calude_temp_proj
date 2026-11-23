@@ -13,7 +13,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.DocumentsContract
-import android.webkit.CookieManager
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
@@ -69,13 +68,6 @@ class MainActivity : FlutterActivity() {
                 "cancel" -> { io.execute { runCatching { py().callAttr("cancel", call.argument<String>("id")) } }; result.success(null) }
                 "engineVersion" -> background(result) { py().callAttr("version").toString() }
                 "updateEngine" -> background(result) { updateEngine() }
-                "exportCookies" -> result.success(exportCookies())
-                "hasCookies" -> result.success(File(filesDir, "cookies.txt").exists())
-                "clearCookies" -> {
-                    File(filesDir, "cookies.txt").delete()
-                    CookieManager.getInstance().removeAllCookies(null)
-                    result.success(null)
-                }
                 "pickStatusTree" -> pickTree(call.argument<String>("variant") ?: "whatsapp", result)
                 "listStatuses" -> background(result) { listStatuses(Uri.parse(call.argument<String>("tree")!!)) }
                 "copyToCache" -> background(result) { copyToCache(Uri.parse(call.argument<String>("uri")!!), call.argument<String>("name")!!) }
@@ -199,21 +191,6 @@ class MainActivity : FlutterActivity() {
         if (tmp.length() < 1_000_000) throw Exception("Update file looks wrong. Try again later.")
         tmp.renameTo(File(filesDir, "yt-dlp.zip"))
         return Regex("/download/([0-9.]+)/").find(url.toString())?.groupValues?.get(1) ?: "latest"
-    }
-
-    // ── Instagram session (for stories) ───────────────────────────────────
-    private fun exportCookies(): Boolean {
-        val raw = CookieManager.getInstance().getCookie("https://www.instagram.com") ?: return false
-        if (!raw.contains("sessionid=")) return false
-        val sb = StringBuilder("# Netscape HTTP Cookie File\n")
-        raw.split(";").map { it.trim() }.filter { it.contains("=") }.forEach {
-            val name = it.substringBefore("=")
-            val value = it.substringAfter("=")
-            sb.append(".instagram.com\tTRUE\t/\tTRUE\t2147483647\t$name\t$value\n")
-        }
-        File(filesDir, "cookies.txt").writeText(sb.toString())
-        CookieManager.getInstance().flush()
-        return true
     }
 
     // ── Share-to-Pluck ────────────────────────────────────────────────────

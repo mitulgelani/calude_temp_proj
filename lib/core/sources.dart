@@ -14,7 +14,7 @@ class KindGuide {
 /// Every app Pluck can save from. Brand colours are only used once a link is detected,
 /// and monograms (not official logos) keep the app clear of trademark complaints.
 enum Source {
-  instagram('Instagram', 'IG', Color(0xFFFF4F8B), 'Reels, posts, carousels, stories and full-size profile photos.'),
+  instagram('Instagram', 'IG', Color(0xFFFF4F8B), 'Reels, posts, carousels and full-size profile photos. No login.'),
   youtube('YouTube', 'YT', Color(0xFFFF4A3D), 'Videos and Shorts up to 1080p, or just the audio.'),
   tiktok('TikTok', 'TT', Color(0xFF2CF0E8), 'Clean videos without the watermark, plus the sound.'),
   facebook('Facebook', 'FB', Color(0xFF5B8CFF), 'Videos and Reels in HD from public posts.'),
@@ -86,7 +86,7 @@ enum Source {
           KindGuide('Reels', ['Open the Reel', 'Tap the paper-plane icon', 'Tap “Copy link” and come back']),
           KindGuide('Posts', ['Open the post or carousel', 'Tap ··· then “Copy link”', 'Every photo and video in it is saved']),
           KindGuide('Stories', ['Open the story', 'Tap ··· then “Copy link”', 'Paste it here'],
-              note: 'Stories need you to connect Instagram once in Settings. Your login stays on this phone.'),
+              note: 'Instagram only shows stories to logged-in accounts, so Pluck can’t save them without one. Reels, posts and profile photos need no login.'),
           KindGuide('Profile photo', ['Type the username', 'Get the full-size photo, not the tiny circle'], usernameMode: true),
         ];
       case Source.youtube:

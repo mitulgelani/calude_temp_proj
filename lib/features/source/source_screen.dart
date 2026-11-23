@@ -8,7 +8,6 @@ import '../../widgets/enter.dart';
 import '../../widgets/ui.dart';
 import '../home/link_cubit.dart';
 import '../result/result_sheet.dart';
-import '../settings/settings_screen.dart';
 
 class SourceScreen extends StatefulWidget {
   const SourceScreen({super.key, required this.source});
@@ -232,15 +231,10 @@ class _GuideCard extends StatelessWidget {
             padding: const EdgeInsets.all(Space.md),
             decoration: BoxDecoration(color: Palette.surfaceHi, borderRadius: BorderRadius.circular(Radii.sm)),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Icon(Icons.lock_outline_rounded, size: 18, color: Palette.muted),
+              const Icon(Icons.info_outline_rounded, size: 18, color: Palette.muted),
               const SizedBox(width: Space.sm),
               Expanded(child: Text(guide.note!, style: TextStyles.small)),
             ]),
-          ),
-          const SizedBox(height: Space.md),
-          Pressable(
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
-            child: MonoLabel('Connect in Settings  →', color: Palette.text),
           ),
         ],
       ]),

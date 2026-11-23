@@ -83,11 +83,6 @@ class NativeBridge {
     }
   }
 
-  // ── Instagram login for stories (cookies stay on the phone) ──────────────
-  Future<bool> exportInstagramCookies() async => (await _ch.invokeMethod<bool>('exportCookies')) ?? false;
-  Future<bool> hasInstagramSession() async => (await _ch.invokeMethod<bool>('hasCookies')) ?? false;
-  Future<void> clearInstagramSession() => _ch.invokeMethod('clearCookies');
-
   // ── Share-to-Pluck ────────────────────────────────────────────────────────
   Future<String?> takeSharedText() async => supported ? _ch.invokeMethod<String>('takeSharedText') : null;
 

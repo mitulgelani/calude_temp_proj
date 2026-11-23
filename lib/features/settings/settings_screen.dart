@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/config.dart';
-import '../../core/sources.dart';
 import '../../core/tokens.dart';
 import '../../data/downloader.dart';
 import '../../data/native_bridge.dart';
 import '../../widgets/ui.dart';
 import '../library/library_cubit.dart';
-import 'connect_instagram.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -17,7 +15,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _igConnected = false;
   String _engine = '…';
   bool _updating = false;
 
@@ -31,12 +28,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _refresh() async {
     if (!bridge.supported) return;
-    final ig = await bridge.hasInstagramSession();
     final v = await bridge.engineVersion();
-    if (mounted) setState(() {
-      _igConnected = ig;
-      _engine = v;
-    });
+    if (mounted) setState(() => _engine = v);
   }
 
   Future<void> _update() async {
@@ -77,29 +70,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ]),
         const SizedBox(height: Space.xl),
-        const MonoLabel('Instagram stories'),
-        const SizedBox(height: Space.md),
-        _Group(children: [
-          _Row(
-            leading: const MonogramTile(Source.instagram, size: 40),
-            title: _igConnected ? 'Connected' : 'Not connected',
-            subtitle: _igConnected
-                ? 'Stories and private-to-you posts work. Your login never leaves this phone.'
-                : 'Log in once to save stories. Your login stays on this phone.',
-            trailing: Pressable(
-              onTap: () async {
-                if (_igConnected) {
-                  await bridge.clearInstagramSession();
-                } else {
-                  await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ConnectInstagramScreen()));
-                }
-                _refresh();
-              },
-              child: MonoLabel(_igConnected ? 'Log out' : 'Connect', color: _igConnected ? Palette.danger : Palette.volt),
-            ),
-          ),
-        ]),
-        const SizedBox(height: Space.xl),
         const MonoLabel('Download engine'),
         const SizedBox(height: Space.md),
         _Group(children: [
@@ -131,7 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Text('Pluck ${Config.version}', style: TextStyles.h2.copyWith(color: Palette.faint)),
         const SizedBox(height: Space.sm),
         Text(
-          'Runs entirely on your phone. No account, no servers, no tracking. Pluck isn’t affiliated with Instagram, YouTube, TikTok, Facebook, Pinterest or WhatsApp. Save only content you own or have permission to use.',
+          'Runs entirely on your phone. No login, no account, no servers, no tracking. Pluck isn’t affiliated with Instagram, YouTube, TikTok, Facebook, Pinterest or WhatsApp. Save only content you own or have permission to use.',
           style: TextStyles.small.copyWith(color: Palette.faint),
         ),
       ]),

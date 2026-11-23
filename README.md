@@ -1,6 +1,6 @@
 # Pluck — all-in-one downloader (Flutter)
 
-Save Instagram Reels, posts, carousels, stories and profile photos; YouTube videos and Shorts (up to 1080p) and audio; TikTok videos without the watermark; Facebook videos and Reels; Pinterest video and image pins; and WhatsApp / WhatsApp Business statuses.
+Save Instagram Reels, posts, carousels and profile photos; YouTube videos and Shorts (up to 1080p) and audio; TikTok videos without the watermark; Facebook videos and Reels; Pinterest video and image pins; and WhatsApp / WhatsApp Business statuses.
 
 **100% free, no APIs, no server.** Everything runs on the phone:
 
@@ -63,7 +63,7 @@ tool/setup.py                  one-time Gradle wiring
 ## Things to know before you ship
 
 - **Google Play:** Play removes apps that download from YouTube. Build with `--dart-define=PLUCK_YOUTUBE=false` for Play. Downloaders for the other platforms also get reported often. Many apps in this category ship as a direct APK, or keep the Play version to WhatsApp statuses only.
-- **Instagram stories** need a logged-in session. The user taps *Connect Instagram* once in Settings, and the cookie stays in the app's private storage. Public Reels and posts usually work without logging in. Instagram rate-limits anonymous requests, so heavy users should connect.
+- **No login anywhere.** Public Instagram Reels, posts and profile photos work without an account (fallback order: yt-dlp → instaloader → public embed page → page metadata). **Stories are the exception.** Instagram only serves them to logged-in accounts, so the app explains this instead of failing silently. If Instagram rate-limits the phone, it asks the user to wait a minute.
 - **App size:** bundling Python makes the APK about 35–60 MB. Ship an App Bundle (`flutter build appbundle`) so each phone downloads only its own CPU's files.
 - **Android only.** iOS doesn't allow an embedded engine like this or reading WhatsApp's folder.
 - **Monograms, not logos.** The app uses "IG / YT / TT" type tiles instead of brand logos. That keeps it clear of trademark takedowns.

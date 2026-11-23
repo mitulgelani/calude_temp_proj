@@ -6,7 +6,7 @@ name: Build APK
 on:
   push:
     branches: [main, master, pluck-app]
-    paths-ignore: ["tool/*_check.py", ".github/workflows/*-test.yml"]
+    paths-ignore: ["tool/*_check.py", "tool/emulator_test.sh", "tool/ui.py", ".github/workflows/*-test.yml"]
   workflow_dispatch:
     inputs:
       play_store:

@@ -26,15 +26,16 @@ python3 tool/ui.py tap "Tab"; sleep 2
 adb shell am start -a android.intent.action.SEND -t text/plain --es android.intent.extra.TEXT "'https://www.tiktok.com/@scout2015/video/6718335390845095173'" -n $PKG/.MainActivity
 sleep 60
 python3 tool/ui.py show "tiktok"
-python3 tool/ui.py tap "Download" && sleep 30 && python3 tool/ui.py tap "Finished" && sleep 3 && python3 tool/ui.py show "finished after tiktok"
+if python3 tool/ui.py tap "Download"; then sleep 30; python3 tool/ui.py tap "Finished"; sleep 3; python3 tool/ui.py show "finished after tiktok"; else python3 tool/ui.py tap "OK"; fi
 python3 tool/ui.py tap "Tab"; sleep 2
 
 echo "=== browse: Instagram tile -> reels feed -> red button"
-adb shell input keyevent KEYCODE_BACK; sleep 2
+python3 tool/ui.py tap "Show menu"; sleep 2; python3 tool/ui.py tap "New tab"; sleep 3
+python3 tool/ui.py show "new tab"
 python3 tool/ui.py tap "Instagram"; sleep 30
 python3 tool/ui.py show "instagram reels in browser"
 adb exec-out screencap -p > s4_reels.png
-python3 tool/ui.py tap "Download video" && sleep 20
+python3 tool/ui.py tap "Download video" || python3 tool/ui.py tap "Download"; sleep 20
 python3 tool/ui.py show "sheet from red button"
 python3 tool/ui.py tap "Download" && sleep 35
 python3 tool/ui.py tap "Finished"; sleep 3

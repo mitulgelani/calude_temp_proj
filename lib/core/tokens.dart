@@ -4,22 +4,25 @@ import 'package:flutter/material.dart';
 /// Single source of truth for every visual decision in Pluck.
 /// Nothing in the UI uses a raw colour, size or duration — only these.
 abstract final class Palette {
-  static const bg = Color(0xFF0B0A0F); // warm near-black ink
-  static const surface = Color(0xFF15131B);
-  static const surfaceHi = Color(0xFF1E1B26);
-  static const line = Color(0xFF2A2633);
-  static const text = Color(0xFFF4EFE7); // cream, never pure white
-  static const muted = Color(0xFF8B8496);
-  static const faint = Color(0xFF5A5466);
-  static const volt = Color(0xFFD6FF3D); // the one accent: action + success
-  static const voltInk = Color(0xFF0B0A0F);
-  static const danger = Color(0xFFFF6B5E);
+  static const brand = Color(0xFFFF6A00); // orange top bar
+  static const brandDark = Color(0xFFE85F00);
+  static const fab = Color(0xFFE8333A); // floating download button
+  static const bg = Color(0xFFF1F3F2); // grey page behind the grid
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceHi = Color(0xFFF5F5F5);
+  static const line = Color(0xFFE2E2E2);
+  static const text = Color(0xFF1E1E1E);
+  static const muted = Color(0xFF6E6E6E);
+  static const faint = Color(0xFF9E9E9E);
+  static const volt = brand; // primary action colour
+  static const voltInk = Color(0xFFFFFFFF); // text/icons on primary
+  static const danger = Color(0xFFE53935);
 }
 
 abstract final class Fonts {
-  static const display = 'Bricolage';
-  static const body = 'DMSans';
-  static const mono = 'JetBrainsMono';
+  static const display = 'Roboto';
+  static const body = 'Roboto';
+  static const mono = 'Roboto';
 }
 
 abstract final class Space {
@@ -95,9 +98,9 @@ abstract final class TextStyles {
   );
   static const label = TextStyle(
     fontFamily: Fonts.mono,
-    fontWeight: FontWeight.w500,
-    fontSize: 11,
-    letterSpacing: 1.4,
+    fontWeight: FontWeight.w700,
+    fontSize: 13,
+    letterSpacing: 0.6,
     color: Palette.muted,
   );
   static const number = TextStyle(
@@ -116,17 +119,17 @@ abstract final class TextStyles {
 }
 
 ThemeData buildTheme() {
-  const scheme = ColorScheme.dark(
+  const scheme = ColorScheme.light(
     surface: Palette.surface,
-    primary: Palette.volt,
-    onPrimary: Palette.voltInk,
-    secondary: Palette.volt,
+    primary: Palette.brand,
+    onPrimary: Colors.white,
+    secondary: Palette.brand,
     error: Palette.danger,
     onSurface: Palette.text,
   );
   return ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
+    brightness: Brightness.light,
     colorScheme: scheme,
     scaffoldBackgroundColor: Palette.bg,
     fontFamily: Fonts.body,
@@ -134,13 +137,13 @@ ThemeData buildTheme() {
     highlightColor: Colors.transparent,
     textSelectionTheme: const TextSelectionThemeData(
       cursorColor: Palette.volt,
-      selectionColor: Color(0x55D6FF3D),
+      selectionColor: Color(0x55FF6A00),
       selectionHandleColor: Palette.volt,
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: Palette.surfaceHi,
-      contentTextStyle: TextStyles.title.copyWith(fontSize: 14),
+      backgroundColor: const Color(0xFF2B2B2B),
+      contentTextStyle: TextStyles.title.copyWith(fontSize: 14, color: Colors.white),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.md)),
     ),
     pageTransitionsTheme: const PageTransitionsTheme(builders: {

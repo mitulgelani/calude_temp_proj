@@ -75,7 +75,7 @@ class _StatusViewerState extends State<StatusViewer> {
           child: Row(children: [
             IconCircle(icon: Icons.close_rounded, onTap: () => Navigator.of(context).pop(), tooltip: 'Close'),
             const Spacer(),
-            MonoLabel('${_index + 1} / ${widget.items.length} · ${statusAgo(current.modified)} ago', color: Palette.text),
+            MonoLabel('${_index + 1} / ${widget.items.length} · ${statusAgo(current.modified)} ago', color: Colors.white),
           ]),
         ),
         Positioned(

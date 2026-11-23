@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../core/tokens.dart';
-import '../../data/downloader.dart';
 import '../../data/models.dart';
-import '../../data/native_bridge.dart';
 import '../../widgets/ui.dart';
-import '../library/library_cubit.dart';
+import '../../app.dart';
+import '../downloads/download_manager.dart';
 
 Future<void> showResultSheet(BuildContext context, MediaInfo info) {
   return showModalBottomSheet(
@@ -31,11 +28,6 @@ class ResultSheet extends StatefulWidget {
 
 class _ResultSheetState extends State<ResultSheet> {
   late final Set<MediaItem> _selected;
-  double? _progress; // null idle, -1 indeterminate, 0..1
-  bool _done = false;
-  bool _error = false;
-  String? _currentJob;
-  final _saved = <DownloadRecord>[];
 
   MediaInfo get info => widget.info;
 
@@ -45,16 +37,8 @@ class _ResultSheetState extends State<ResultSheet> {
     _selected = info.isGallery ? info.items.where((i) => i.isImage || i.isVideo).toSet() : {info.items.first};
   }
 
-  @override
-  void dispose() {
-    if (_currentJob != null && !_done) context.read<NativeBridge>().cancel(_currentJob!);
-    super.dispose();
-  }
-
   void _toggle(MediaItem item) {
-    if (_progress != null && !_error) return;
     setState(() {
-      _error = false;
       if (info.isGallery) {
         _selected.contains(item) ? _selected.remove(item) : _selected.add(item);
       } else {
@@ -65,35 +49,19 @@ class _ResultSheetState extends State<ResultSheet> {
     });
   }
 
-  Future<void> _save() async {
+  void _save() {
     if (_selected.isEmpty) return;
-    final downloader = context.read<Downloader>();
-    final library = context.read<LibraryCubit>();
     final items = info.items.where(_selected.contains).toList(); // keep carousel order
-    setState(() {
-      _progress = -1;
-      _error = false;
-    });
-    try {
-      for (var i = 0; i < items.length; i++) {
-        _currentJob = '${DateTime.now().microsecondsSinceEpoch}';
-        final record = await downloader.download(info, items[i], jobId: _currentJob!, onProgress: (p) {
-          if (!mounted) return;
-          setState(() => _progress = p < 0 ? (items.length > 1 ? i / items.length : -1) : (i + p) / items.length);
-        });
-        _saved.add(record);
-      }
-      library.load();
-      HapticFeedback.heavyImpact();
-      if (mounted) setState(() => _done = true);
-    } on PluckException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _error = true;
-        _progress = null;
-      });
-      toast(context, e.message, error: true);
-    }
+    context.read<DownloadManager>().enqueue(info, items);
+    HapticFeedback.mediumImpact();
+    final messenger = ScaffoldMessenger.of(context);
+    Navigator.pop(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(items.length > 1 ? 'Downloading ${items.length} items' : 'Download started'),
+        action: SnackBarAction(label: 'VIEW', textColor: Palette.brand, onPressed: () => shellTab.value = 1),
+      ));
   }
 
   @override
@@ -152,42 +120,12 @@ class _ResultSheetState extends State<ResultSheet> {
           padding: EdgeInsets.fromLTRB(Space.page, Space.md, Space.page, bottom + Space.lg),
           decoration: const BoxDecoration(border: Border(top: BorderSide(color: Palette.line))),
           child: Column(children: [
-            LiquidButton(
-              progress: _progress,
-              done: _done,
-              error: _error,
-              idleLabel: _selected.length > 1
-                  ? 'Save ${_selected.length} items'
-                  : (_selected.isNotEmpty && _selected.first.isAudio ? 'Save audio' : 'Save to gallery'),
+            VoltButton(
+              label: _selected.length > 1
+                  ? 'Download ${_selected.length} items'
+                  : (_selected.isNotEmpty && _selected.first.isAudio ? 'Download audio' : 'Download'),
+              icon: Icons.download_rounded,
               onTap: _selected.isEmpty ? null : _save,
-            ),
-            AnimatedSize(
-              duration: Motion.base,
-              curve: Motion.curve,
-              child: !_done || _saved.isEmpty
-                  ? const SizedBox(width: double.infinity)
-                  : Padding(
-                      padding: const EdgeInsets.only(top: Space.sm + 2),
-                      child: Row(children: [
-                        Expanded(
-                          child: GhostButton(
-                            label: 'Open',
-                            icon: Icons.play_arrow_rounded,
-                            height: 52,
-                            onTap: () => OpenFilex.open(_saved.first.path),
-                          ),
-                        ),
-                        const SizedBox(width: Space.sm + 2),
-                        Expanded(
-                          child: GhostButton(
-                            label: 'Share',
-                            icon: Icons.ios_share_rounded,
-                            height: 52,
-                            onTap: () => Share.shareXFiles(_saved.map((r) => XFile(r.path)).toList()),
-                          ),
-                        ),
-                      ]),
-                    ),
             ),
           ]),
         ),

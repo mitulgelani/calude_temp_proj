@@ -54,7 +54,10 @@ class _StatusScreenState extends State<StatusScreen> with WidgetsBindingObserver
             sliver: SliverToBoxAdapter(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
-                  const MonogramTile(Source.whatsapp, size: 44),
+                  if (Navigator.of(context).canPop())
+                    IconCircle(icon: Icons.arrow_back_rounded, onTap: () => Navigator.of(context).pop(), tooltip: 'Back')
+                  else
+                    const MonogramTile(Source.whatsapp, size: 44),
                   const Spacer(),
                   if (s.phase == StatusPhase.ready) IconCircle(icon: Icons.refresh_rounded, onTap: cubit.load, tooltip: 'Refresh'),
                 ]),
@@ -305,11 +308,11 @@ class _StatusTile extends StatelessWidget {
             ),
           ),
           if (item.isVideo)
-            const Positioned(left: 8, top: 8, child: Icon(Icons.play_arrow_rounded, color: Palette.text, size: 20)),
+            const Positioned(left: 8, top: 8, child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20)),
           Positioned(
             left: 8,
             bottom: 9,
-            child: Text(_ago(item.modified), style: TextStyles.label.copyWith(color: Palette.text, letterSpacing: 0.4)),
+            child: Text(_ago(item.modified), style: TextStyles.label.copyWith(color: Colors.white, letterSpacing: 0.4, fontSize: 11)),
           ),
           Positioned(
             right: 6,

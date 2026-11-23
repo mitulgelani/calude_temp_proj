@@ -1,26 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/tokens.dart';
 import 'data/native_bridge.dart';
-import 'features/home/home_screen.dart';
-import 'features/home/link_cubit.dart';
-import 'features/library/library_screen.dart';
-import 'features/status/status_screen.dart';
-import 'widgets/ui.dart';
+import 'features/downloads/download_manager.dart';
+import 'features/downloads/downloads_screens.dart';
+import 'features/tabs/tab_page.dart';
+import 'features/tabs/tabs_controller.dart';
 
-/// Tab controller for the whole app. Screens call [ShellScope.of(context).go(i)].
-class ShellScope extends InheritedWidget {
-  const ShellScope({super.key, required this.go, required this.index, required super.child});
-  final void Function(int) go;
-  final int index;
-  static ShellScope of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<ShellScope>()!;
-  @override
-  bool updateShouldNotify(ShellScope old) => old.index != index;
-}
+/// Which bottom tab is showing. Any screen (including sheets and pushed pages) can switch it.
+final shellTab = ValueNotifier<int>(0);
 
+/// Bottom bar: Tab (browser + start page) · Progress · Finished.
 class Shell extends StatefulWidget {
   const Shell({super.key});
   @override
@@ -28,120 +22,113 @@ class Shell extends StatefulWidget {
 }
 
 class _ShellState extends State<Shell> {
-  int _index = 0;
   StreamSubscription<String>? _shareSub;
+  int get _index => shellTab.value;
 
   @override
   void initState() {
     super.initState();
     final bridge = context.read<NativeBridge>();
-    // Links shared into Pluck from Instagram/TikTok/etc. land straight in the Portal and auto-resolve.
     bridge.takeSharedText().then((t) {
       if (t != null && mounted) _receive(t);
     });
     _shareSub = bridge.sharedText.listen(_receive);
+    shellTab.addListener(_onTab);
   }
 
+  void _onTab() => setState(() {});
+
   void _receive(String text) {
-    setState(() => _index = 0);
-    context.read<LinkCubit>().setInput(text, auto: true);
+    shellTab.value = 0;
+    context.read<TabsController>().incoming.value = text;
+  }
+
+  Future<void> _onBack() async {
+    if (_index != 0) {
+      shellTab.value = 0;
+      return;
+    }
+    final handled = await context.read<TabsController>().current.back();
+    if (!handled) SystemNavigator.pop();
   }
 
   @override
   void dispose() {
     _shareSub?.cancel();
+    shellTab.removeListener(_onTab);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
-    return ShellScope(
-      index: _index,
-      go: (i) => setState(() => _index = i),
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Stack(children: [
-          IndexedStack(index: _index, children: const [HomeScreen(), StatusScreen(), LibraryScreen()]),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: IgnorePointer(
-              child: Container(
-                height: 120 + bottomInset,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0x000B0A0F), Palette.bg],
-                  ),
-                ),
+    final manager = context.read<DownloadManager>();
+    return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) _onBack();
+        },
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            systemNavigationBarColor: Colors.white,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          ),
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            resizeToAvoidBottomInset: true,
+            body: IndexedStack(index: _index, children: const [TabPage(), ProgressScreen(), FinishedScreen()]),
+            bottomNavigationBar: ListenableBuilder(
+              listenable: manager,
+              builder: (context, _) => _BottomBar(
+                index: _index,
+                running: manager.runningCount,
+                onTap: (i) => shellTab.value = i,
               ),
             ),
           ),
-          Positioned(
-            left: Space.page,
-            right: Space.page,
-            bottom: bottomInset + Space.md,
-            child: _NavBar(index: _index, onTap: (i) => setState(() => _index = i)),
-          ),
-        ]),
-      ),
+        ),
     );
   }
 }
 
-class _NavBar extends StatelessWidget {
-  const _NavBar({required this.index, required this.onTap});
+class _BottomBar extends StatelessWidget {
+  const _BottomBar({required this.index, required this.running, required this.onTap});
   final int index;
+  final int running;
   final ValueChanged<int> onTap;
-
-  static const _items = [
-    (Icons.south_rounded, 'Pluck'),
-    (Icons.blur_circular_rounded, 'Statuses'),
-    (Icons.grid_view_rounded, 'Library'),
-  ];
 
   @override
   Widget build(BuildContext context) {
+    const items = [
+      (Icons.filter_none_rounded, 'Tab'),
+      (Icons.download_rounded, 'Progress'),
+      (Icons.folder_rounded, 'Finished'),
+    ];
     return Container(
-      height: 66,
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: Palette.surface,
-        borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: Palette.line),
-        boxShadow: const [BoxShadow(color: Color(0x80000000), blurRadius: 30, offset: Offset(0, 12))],
-      ),
+      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Palette.line))),
+      padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
+      height: 68 + MediaQuery.paddingOf(context).bottom,
       child: Row(children: [
-        for (var i = 0; i < _items.length; i++)
+        for (var i = 0; i < items.length; i++)
           Expanded(
-            flex: i == index ? 14 : 10,
-            child: Pressable(
+            child: InkWell(
               onTap: () => onTap(i),
-              child: AnimatedContainer(
-                duration: Motion.base,
-                curve: Motion.curve,
-                decoration: BoxDecoration(
-                  color: i == index ? Palette.text : Colors.transparent,
-                  borderRadius: BorderRadius.circular(100),
+              child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Badge(
+                  isLabelVisible: i == 1 && running > 0,
+                  backgroundColor: Palette.fab,
+                  label: Text('$running'),
+                  child: Icon(items[i].$1, size: 28, color: i == index ? Palette.brand : Palette.faint),
                 ),
-                alignment: Alignment.center,
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(_items[i].$1, size: 20, color: i == index ? Palette.bg : Palette.muted),
-                  AnimatedSize(
-                    duration: Motion.base,
-                    curve: Motion.curve,
-                    child: i == index
-                        ? Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Text(_items[i].$2, style: TextStyles.button.copyWith(color: Palette.bg, fontSize: 14)),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                ]),
-              ),
+                const SizedBox(height: 3),
+                Text(items[i].$2,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: i == index ? FontWeight.w700 : FontWeight.w500,
+                      color: i == index ? Palette.brand : Palette.faint,
+                    )),
+              ]),
             ),
           ),
       ]),

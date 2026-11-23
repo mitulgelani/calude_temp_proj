@@ -8,25 +8,26 @@ import 'core/tokens.dart';
 import 'data/downloader.dart';
 import 'data/history_repo.dart';
 import 'data/native_bridge.dart';
+import 'data/web_store.dart';
+import 'features/downloads/download_manager.dart';
 import 'features/home/link_cubit.dart';
 import 'features/library/library_cubit.dart';
 import 'features/status/status_cubit.dart';
+import 'features/tabs/tabs_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarIconBrightness: Brightness.light,
-  ));
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   final prefs = await SharedPreferences.getInstance();
   final bridge = NativeBridge();
   final history = HistoryRepo(prefs);
   final downloader = Downloader(bridge: bridge, history: history, prefs: prefs);
+  final webStore = WebStore(prefs);
+  final tabs = TabsController(webStore);
+  final library = LibraryCubit(history)..load();
+  final manager = DownloadManager(downloader, bridge, library.load);
 
   runApp(MultiRepositoryProvider(
     providers: [
@@ -34,11 +35,14 @@ Future<void> main() async {
       RepositoryProvider.value(value: bridge),
       RepositoryProvider.value(value: history),
       RepositoryProvider.value(value: downloader),
+      RepositoryProvider.value(value: webStore),
+      RepositoryProvider.value(value: tabs),
+      RepositoryProvider.value(value: manager),
     ],
     child: MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => LinkCubit(bridge)),
-        BlocProvider(create: (_) => LibraryCubit(history)..load()),
+        BlocProvider.value(value: library),
         BlocProvider(create: (_) => StatusCubit(bridge, prefs)),
       ],
       child: MaterialApp(

@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.DocumentsContract
+import android.webkit.CookieManager
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
@@ -68,6 +69,12 @@ class MainActivity : FlutterActivity() {
                 "cancel" -> { io.execute { runCatching { py().callAttr("cancel", call.argument<String>("id")) } }; result.success(null) }
                 "engineVersion" -> background(result) { py().callAttr("version").toString() }
                 "updateEngine" -> background(result) { updateEngine() }
+                "clearBrowserData" -> {
+                    CookieManager.getInstance().removeAllCookies(null)
+                    CookieManager.getInstance().flush()
+                    File(filesDir, "cookies.txt").delete()
+                    result.success(null)
+                }
                 "pickStatusTree" -> pickTree(call.argument<String>("variant") ?: "whatsapp", result)
                 "listStatuses" -> background(result) { listStatuses(Uri.parse(call.argument<String>("tree")!!)) }
                 "copyToCache" -> background(result) { copyToCache(Uri.parse(call.argument<String>("uri")!!), call.argument<String>("name")!!) }
@@ -99,7 +106,25 @@ class MainActivity : FlutterActivity() {
         return mod
     }
 
+    /** If the user logged in to a site inside Pluck's browser, hand that session to the engine. Stays on the phone. */
+    private fun syncBrowserCookies() {
+        val cm = runCatching { CookieManager.getInstance() }.getOrNull() ?: return
+        val domains = listOf("instagram.com", "facebook.com", "tiktok.com", "x.com", "twitter.com", "pinterest.com", "youtube.com", "vimeo.com", "dailymotion.com")
+        val sb = StringBuilder("# Netscape HTTP Cookie File\n")
+        var any = false
+        for (d in domains) {
+            val raw = cm.getCookie("https://www.$d") ?: continue
+            raw.split(";").map { it.trim() }.filter { it.contains("=") }.forEach {
+                sb.append(".$d\tTRUE\t/\tTRUE\t2147483647\t${it.substringBefore("=")}\t${it.substringAfter("=")}\n")
+                any = true
+            }
+        }
+        val f = File(filesDir, "cookies.txt")
+        if (any) f.writeText(sb.toString()) else f.delete()
+    }
+
     private fun resolve(url: String): String {
+        syncBrowserCookies()
         val raw = py().callAttr("resolve", url).toString()
         val json = JSONObject(raw)
         if (json.has("error")) throw Exception(json.getString("error"))
@@ -114,6 +139,7 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun download(id: String, url: String, spec: String, outDir: String, baseName: String): String {
+        syncBrowserCookies()
         val raw = py().callAttr("download", url, spec, outDir, baseName, id, ProgressSink(id)).toString()
         val json = JSONObject(raw)
         if (json.has("error")) throw Exception(json.getString("error"))

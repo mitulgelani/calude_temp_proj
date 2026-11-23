@@ -70,6 +70,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ]),
         const SizedBox(height: Space.xl),
+        const MonoLabel('Browser'),
+        const SizedBox(height: Space.md),
+        _Group(children: [
+          _Row(
+            title: 'Log out of all sites',
+            subtitle: 'Clears logins and cookies from Pluck’s browser. Nothing ever leaves this phone.',
+            trailing: Pressable(
+              onTap: () async {
+                await bridge.clearBrowserData();
+                if (context.mounted) toast(context, 'Logged out everywhere');
+              },
+              child: const MonoLabel('Clear', color: Palette.danger),
+            ),
+          ),
+        ]),
+        const SizedBox(height: Space.xl),
         const MonoLabel('Download engine'),
         const SizedBox(height: Space.md),
         _Group(children: [

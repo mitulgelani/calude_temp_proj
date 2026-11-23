@@ -83,6 +83,9 @@ class NativeBridge {
     }
   }
 
+  /// Logs out of every site opened in Pluck's browser.
+  Future<void> clearBrowserData() => _ch.invokeMethod('clearBrowserData');
+
   // ── Share-to-Pluck ────────────────────────────────────────────────────────
   Future<String?> takeSharedText() async => supported ? _ch.invokeMethod<String>('takeSharedText') : null;
 

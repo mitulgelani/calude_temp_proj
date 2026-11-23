@@ -19,6 +19,9 @@ enum Source {
   tiktok('TikTok', 'TT', Color(0xFF2CF0E8), 'Clean videos without the watermark, plus the sound.'),
   facebook('Facebook', 'FB', Color(0xFF5B8CFF), 'Videos and Reels in HD from public posts.'),
   pinterest('Pinterest', 'PN', Color(0xFFFF3D5A), 'Video pins and full-resolution image pins.'),
+  twitter('X / Twitter', 'X', Color(0xFFE7E9EA), 'Videos and GIFs from posts, in the best quality available.'),
+  vimeo('Vimeo', 'VM', Color(0xFF1AB7EA), 'Public Vimeo videos in HD.'),
+  dailymotion('Dailymotion', 'DM', Color(0xFF8C6CFF), 'Dailymotion videos up to 1080p.'),
   whatsapp('WhatsApp', 'WA', Color(0xFF34E08A), 'Statuses from your contacts — before they vanish.');
 
   const Source(this.label, this.mono, this.color, this.pitch);
@@ -51,6 +54,9 @@ enum Source {
     if (any(['tiktok.com'])) return Source.tiktok;
     if (any(['facebook.com', 'fb.watch', 'fb.com'])) return Source.facebook;
     if (any(['pinterest.com', 'pin.it']) || host.contains('pinterest.')) return Source.pinterest;
+    if (any(['x.com', 'twitter.com'])) return Source.twitter;
+    if (any(['vimeo.com'])) return Source.vimeo;
+    if (any(['dailymotion.com', 'dai.ly'])) return Source.dailymotion;
     return null;
   }
 
@@ -74,9 +80,44 @@ enum Source {
         return 'Video';
       case Source.pinterest:
         return 'Pin';
+      case Source.twitter:
+      case Source.vimeo:
+      case Source.dailymotion:
+        return 'Video';
       case Source.whatsapp:
         return 'Status';
     }
+  }
+
+  /// Where the in-app browser starts for this app.
+  String get home => switch (this) {
+        Source.instagram => 'https://www.instagram.com/',
+        Source.youtube => 'https://m.youtube.com/',
+        Source.tiktok => 'https://www.tiktok.com/',
+        Source.facebook => 'https://m.facebook.com/',
+        Source.pinterest => 'https://www.pinterest.com/',
+        Source.twitter => 'https://x.com/',
+        Source.vimeo => 'https://vimeo.com/watch',
+        Source.dailymotion => 'https://www.dailymotion.com/',
+        Source.whatsapp => 'https://www.whatsapp.com/',
+      };
+
+  /// True when the URL points at one specific video/post (not a feed or profile).
+  static bool isItem(String url) {
+    final u = url.toLowerCase();
+    final src = detect(url);
+    if (src == null) return false;
+    return switch (src) {
+      Source.instagram => RegExp(r'/(p|reel|reels|tv)/[a-z0-9_-]+|/stories/[^/]+/\d+').hasMatch(u),
+      Source.youtube => u.contains('watch?') || u.contains('/shorts/') || u.contains('youtu.be/'),
+      Source.tiktok => u.contains('/video/') || u.contains('/photo/') || u.contains('vm.tiktok') || u.contains('vt.tiktok'),
+      Source.facebook => RegExp(r'/(reel|videos|watch|share/[rv])/|fb\.watch|story\.php|/posts/').hasMatch(u),
+      Source.pinterest => u.contains('/pin/') || u.contains('pin.it'),
+      Source.twitter => u.contains('/status/'),
+      Source.vimeo => RegExp(r'vimeo\.com/(\d+|.*/\d+)').hasMatch(u),
+      Source.dailymotion => u.contains('/video/') || u.contains('dai.ly'),
+      Source.whatsapp => false,
+    };
   }
 
   List<KindGuide> get guides {
@@ -85,8 +126,8 @@ enum Source {
         return const [
           KindGuide('Reels', ['Open the Reel', 'Tap the paper-plane icon', 'Tap “Copy link” and come back']),
           KindGuide('Posts', ['Open the post or carousel', 'Tap ··· then “Copy link”', 'Every photo and video in it is saved']),
-          KindGuide('Stories', ['Open the story', 'Tap ··· then “Copy link”', 'Paste it here'],
-              note: 'Instagram only shows stories to logged-in accounts, so Pluck can’t save them without one. Reels, posts and profile photos need no login.'),
+          KindGuide('Stories', ['Open Instagram in Pluck’s browser', 'Log in there if you want stories (optional)', 'Watch a story and tap the download button'],
+              note: 'Instagram only shows stories to logged-in accounts. Logging in inside Pluck’s browser is optional and stays on this phone.'),
           KindGuide('Profile photo', ['Type the username', 'Get the full-size photo, not the tiny circle'], usernameMode: true),
         ];
       case Source.youtube:
@@ -110,6 +151,12 @@ enum Source {
           KindGuide('Video pins', ['Open the pin', 'Tap Share then “Copy link”']),
           KindGuide('Image pins', ['Open the pin', 'Tap Share then “Copy link”', 'Saved at original resolution']),
         ];
+      case Source.twitter:
+        return const [KindGuide('Videos', ['Open the post', 'Tap Share then “Copy link”', 'Or browse X in Pluck and tap download'])];
+      case Source.vimeo:
+        return const [KindGuide('Videos', ['Open the video', 'Copy the link', 'Choose a quality'])];
+      case Source.dailymotion:
+        return const [KindGuide('Videos', ['Open the video', 'Tap Share then “Copy link”', 'Choose a quality'])];
       case Source.whatsapp:
         return const [
           KindGuide('Statuses', ['Watch the status in WhatsApp first', 'Open the Statuses tab here', 'Tap any status to save it']),

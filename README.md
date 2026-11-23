@@ -16,6 +16,10 @@ When a site changes, open **Settings → Download engine → Update**. The app p
 
 ---
 
+## Built-in browser
+
+Tap any app on the home screen to open it inside Pluck. Scroll Instagram, TikTok, X, Facebook and the rest normally. When a Reel, post or video is on screen, a **Save** button floats over it. Logging in inside the browser is optional: it unlocks stories and follower-only posts, and the session never leaves the phone. Settings → *Log out of all sites* clears it. Typing anything that isn't a link into the home bar opens a Google search in the same browser.
+
 ## Get an APK (no setup on your computer)
 
 1. Create an empty GitHub repo and push this folder to it.

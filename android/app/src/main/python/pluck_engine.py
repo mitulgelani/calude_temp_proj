@@ -103,6 +103,12 @@ def detect(url):
         return "facebook"
     if on("pinterest.com", "pin.it") or "pinterest." in host:
         return "pinterest"
+    if on("x.com", "twitter.com"):
+        return "twitter"
+    if on("vimeo.com"):
+        return "vimeo"
+    if on("dailymotion.com", "dai.ly"):
+        return "dailymotion"
     return None
 
 
@@ -436,7 +442,7 @@ def friendly(err, src):
     if src == "instagram" and any(k in m for k in ("rate-limit", "429", "checkpoint", "please wait")):
         return "Instagram is slowing requests down right now. Wait a minute and try again."
     if "private" in m or "login" in m:
-        return "This one is private, so it can’t be saved. Public posts work without login."
+        return "This one is private or needs a login. Open it in Pluck’s browser while logged in and tap download."
     if "unsupported url" in m:
         return "That link doesn’t point to a video, photo or post."
     if "404" in m or "not found" in m or "unavailable" in m or "removed" in m:
@@ -463,9 +469,9 @@ def resolve(url):
 
 def _resolve(url, src):
     if src == "instagram":
-        if "/stories/" in url.lower():  # don't waste the user's time: Instagram never serves these anonymously
-            raise PluckError("Instagram only shows stories to logged-in accounts, so they can’t be saved without one. "
-                             "Reels, posts and profile photos work without login.")
+        if "/stories/" in url.lower() and not _cookiefile():  # Instagram never serves stories anonymously
+            raise PluckError("Instagram only shows stories to logged-in accounts. Open Instagram in Pluck’s browser, "
+                             "log in there once, then tap download on the story.")
         m = IG_PROFILE.match(url)
         if m and m.group(1).lower() not in IG_RESERVED:
             return ig_profile(m.group(1))

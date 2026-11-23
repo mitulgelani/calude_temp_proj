@@ -12,7 +12,7 @@ import '../../widgets/ui.dart';
 import '../library/library_cubit.dart';
 import '../result/result_sheet.dart';
 import '../settings/settings_screen.dart';
-import '../source/source_screen.dart';
+import '../browser/browser_screen.dart';
 import 'link_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -64,6 +64,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Future<void> _pluck() async {
     _focus.unfocus();
+    final text = _controller.text.trim();
+    // Not a supported link? The Portal doubles as a search bar: open it in Pluck's browser.
+    if (text.isNotEmpty && Source.detect(text) == null) {
+      await BrowserScreen.open(context, webAddress(text));
+      return;
+    }
     final info = await context.read<LinkCubit>().resolve(_controller.text);
     if (!mounted || info == null) return;
     HapticFeedback.lightImpact();
@@ -132,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               child: _Portal(controller: _controller, focus: _focus, onPaste: _paste, onPluck: _pluck),
             ).enter(context, 2),
             const SizedBox(height: Space.section),
-            const SectionHeader('Save from').enter(context, 3),
+            const SectionHeader('Browse & save', trailing: 'Log in optional').enter(context, 3),
             const SizedBox(height: Space.lg),
             const _SourceRail().enter(context, 4),
             const _Recent(),
@@ -299,7 +305,7 @@ class _Portal extends StatelessWidget {
                 SizedBox(
                   height: 30,
                   child: Row(children: [
-                    MonoLabel(src == null ? 'Link or @username' : 'Detected'),
+                    MonoLabel(src == null ? 'Link, @username or search' : 'Detected'),
                     const Spacer(),
                     AnimatedSwitcher(
                       duration: Motion.base,
@@ -329,7 +335,7 @@ class _Portal extends StatelessWidget {
                   decoration: InputDecoration(
                     isCollapsed: true,
                     border: InputBorder.none,
-                    hintText: 'instagram.com/reel/…',
+                    hintText: 'Paste a link or search…',
                     hintStyle: TextStyle(
                       fontFamily: Fonts.display,
                       fontWeight: FontWeight.w600,
@@ -400,7 +406,7 @@ class _SourceRail extends StatelessWidget {
               if (s == Source.whatsapp) {
                 ShellScope.of(context).go(1);
               } else {
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => SourceScreen(source: s)));
+                BrowserScreen.open(context, s.home, source: s);
               }
             },
             child: Container(
@@ -416,7 +422,7 @@ class _SourceRail extends StatelessWidget {
                 const Spacer(),
                 Text(s.label, style: TextStyles.title.copyWith(fontSize: 15)),
                 const SizedBox(height: 3),
-                MonoLabel('${s.guides.length} ${s.guides.length == 1 ? 'type' : 'types'}'),
+                const MonoLabel('Open  →'),
               ]),
             ),
           );

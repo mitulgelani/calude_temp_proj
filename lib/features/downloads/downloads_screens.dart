@@ -19,9 +19,9 @@ class _Header extends StatelessWidget {
     final top = MediaQuery.paddingOf(context).top;
     return Container(
       color: Palette.brand,
-      padding: EdgeInsets.fromLTRB(20, top + 14, 8, 14),
+      padding: EdgeInsets.fromLTRB(20, top + 12, 8, 12),
       child: Row(children: [
-        Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700))),
+        Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700))),
         if (trailing != null) trailing!,
       ]),
     );
@@ -38,7 +38,12 @@ class _Empty extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(40),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon, size: 72, color: Palette.line),
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(color: Palette.brand.withValues(alpha: 0.08), shape: BoxShape.circle),
+              child: Icon(icon, size: 44, color: Palette.brand),
+            ),
             const SizedBox(height: 16),
             Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Palette.muted)),
             const SizedBox(height: 6),
@@ -49,9 +54,9 @@ class _Empty extends StatelessWidget {
 }
 
 Widget _thumb(String? file, String? url, Source? source) => SizedBox(
-      width: 72,
-      height: 72,
-      child: MediaThumb(file: file, url: url, source: source, radius: 10),
+      width: 64,
+      height: 64,
+      child: MediaThumb(file: file, url: url, source: source, radius: 12),
     );
 
 // ── Progress ─────────────────────────────────────────────────────────────────
@@ -71,7 +76,7 @@ class ProgressScreen extends StatelessWidget {
               : ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: m.jobs.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, color: Palette.line),
+                  separatorBuilder: (_, __) => const Divider(height: 1, indent: 94, color: Palette.line),
                   itemBuilder: (_, i) => _JobRow(m.jobs[i]),
                 ),
         ),
@@ -152,7 +157,7 @@ class FinishedScreen extends StatelessWidget {
               : ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: s.visible.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, color: Palette.line),
+                  separatorBuilder: (_, __) => const Divider(height: 1, indent: 94, color: Palette.line),
                   itemBuilder: (_, i) => _FinishedRow(s.visible[i]),
                 ),
         ),

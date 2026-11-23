@@ -108,23 +108,32 @@ class _BottomBar extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Palette.line))),
       padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
-      height: 68 + MediaQuery.paddingOf(context).bottom,
+      height: 64 + MediaQuery.paddingOf(context).bottom,
       child: Row(children: [
         for (var i = 0; i < items.length; i++)
           Expanded(
             child: InkWell(
               onTap: () => onTap(i),
               child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Badge(
-                  isLabelVisible: i == 1 && running > 0,
-                  backgroundColor: Palette.fab,
-                  label: Text('$running'),
-                  child: Icon(items[i].$1, size: 28, color: i == index ? Palette.brand : Palette.faint),
+                AnimatedContainer(
+                  duration: Motion.base,
+                  width: 56,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: i == index ? Palette.brand.withValues(alpha: 0.12) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Badge(
+                    isLabelVisible: i == 1 && running > 0,
+                    backgroundColor: Palette.fab,
+                    label: Text('$running'),
+                    child: Icon(items[i].$1, size: 23, color: i == index ? Palette.brand : Palette.faint),
+                  ),
                 ),
                 const SizedBox(height: 3),
                 Text(items[i].$2,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 12.5,
                       fontWeight: i == index ? FontWeight.w700 : FontWeight.w500,
                       color: i == index ? Palette.brand : Palette.faint,
                     )),

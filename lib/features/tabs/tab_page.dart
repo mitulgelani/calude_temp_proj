@@ -119,7 +119,7 @@ class _TabPageState extends State<TabPage> {
 
   Future<void> _download(String url, {bool retried = false}) async {
     debugPrint('[pluck] download url=$url retried=$retried resolving=$_resolving page=${tabs.current.url}');
-    if (_resolving && !retried) return;
+    if (!retried) _pendingTimer?.cancel();
     final src = Source.detect(url);
     if (src == Source.youtube && !Config.youtubeEnabled) {
       toast(context, 'YouTube saving isn’t available in this version.', error: true);
@@ -365,25 +365,31 @@ class _TopBar extends StatelessWidget {
     final bookmarked = store.isBookmarked(tab.url);
     return Container(
       color: Palette.brand,
-      padding: EdgeInsets.fromLTRB(14, top + 10, 4, 12),
+      padding: EdgeInsets.fromLTRB(16, top + 8, 2, 10),
       child: Row(children: [
         Pressable(
           onTap: onTabs,
           child: Container(
-            width: 34,
-            height: 34,
+            width: 30,
+            height: 30,
             alignment: Alignment.center,
-            decoration: BoxDecoration(border: Border.all(color: Colors.white, width: 2.6), borderRadius: BorderRadius.circular(4)),
-            child: Text('$count', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
+            decoration: BoxDecoration(border: Border.all(color: Colors.white, width: 2.2), borderRadius: BorderRadius.circular(7)),
+            child: Text('$count', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14)),
           ),
         ),
         const SizedBox(width: 14),
         Expanded(
           child: Container(
-            height: 50,
-            padding: const EdgeInsets.only(left: 18, right: 6),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(28)),
+            height: 46,
+            padding: const EdgeInsets.only(left: 14, right: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: const [BoxShadow(color: Color(0x22000000), blurRadius: 8, offset: Offset(0, 2))],
+            ),
             child: Row(children: [
+              Icon(tab.isStart ? Icons.search_rounded : Icons.lock_rounded, size: 20, color: Palette.faint),
+              const SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   controller: search,
@@ -393,12 +399,12 @@ class _TopBar extends StatelessWidget {
                   keyboardType: TextInputType.url,
                   autocorrect: false,
                   maxLines: 1,
-                  style: const TextStyle(fontSize: 17, color: Palette.text),
+                  style: const TextStyle(fontSize: 15.5, color: Palette.text),
                   decoration: const InputDecoration(
                     isCollapsed: true,
                     border: InputBorder.none,
-                    hintText: 'Search or paste link',
-                    hintStyle: TextStyle(fontSize: 17, color: Palette.faint),
+                    hintText: 'Search or paste a link',
+                    hintStyle: TextStyle(fontSize: 15.5, color: Palette.faint),
                   ),
                 ),
               ),
@@ -414,19 +420,20 @@ class _TopBar extends StatelessWidget {
         const SizedBox(width: 4),
         if (tab.isStart)
           IconButton(
-            icon: const Icon(Icons.settings_rounded, color: Colors.white, size: 28),
+            icon: const Icon(Icons.settings_rounded, color: Colors.white, size: 24),
             tooltip: 'Settings',
             onPressed: () => onMenu('settings'),
           )
         else
           IconButton(
-            icon: Icon(bookmarked ? Icons.star_rounded : Icons.star_border_rounded, color: Colors.white, size: 28),
+            icon: Icon(bookmarked ? Icons.star_rounded : Icons.star_border_rounded, color: Colors.white, size: 26),
             tooltip: 'Bookmark',
             onPressed: () => onMenu('bookmark'),
           ),
         PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 28),
+          icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 24),
           color: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           onSelected: onMenu,
           itemBuilder: (_) => [
             const PopupMenuItem(value: 'new', child: Text('New tab')),
@@ -481,19 +488,29 @@ class _StartPageState extends State<_StartPage> {
             Expanded(
               child: InkWell(
                 onTap: () => setState(() => _section = i),
-                child: Container(
-                  height: 54,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: _section == i ? Colors.white : Colors.transparent, width: 4)),
-                  ),
-                  child: Text(label,
-                      style: TextStyle(
-                        color: _section == i ? Colors.white : Colors.white.withValues(alpha: 0.7),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        letterSpacing: 0.3,
-                      )),
+                child: SizedBox(
+                  height: 46,
+                  child: Stack(alignment: Alignment.center, children: [
+                    Text(label,
+                        style: TextStyle(
+                          color: _section == i ? Colors.white : Colors.white.withValues(alpha: 0.72),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13.5,
+                          letterSpacing: 0.8,
+                        )),
+                    Positioned(
+                      bottom: 0,
+                      child: AnimatedContainer(
+                        duration: Motion.base,
+                        width: _section == i ? 56 : 0,
+                        height: 3.5,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
+                        ),
+                      ),
+                    ),
+                  ]),
                 ),
               ),
             ),
@@ -504,14 +521,19 @@ class _StartPageState extends State<_StartPage> {
         child: ListView(padding: EdgeInsets.zero, children: [
           if (_section == 0)
             Container(
-              color: Palette.bg,
-              padding: const EdgeInsets.fromLTRB(12, 20, 12, 24),
+              margin: const EdgeInsets.fromLTRB(12, 14, 12, 4),
+              padding: const EdgeInsets.fromLTRB(6, 18, 6, 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 16, offset: Offset(0, 4))],
+              ),
               child: GridView.count(
                 crossAxisCount: 4,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 18,
-                childAspectRatio: 0.78,
+                mainAxisSpacing: 14,
+                childAspectRatio: 0.8,
                 children: [for (final s in sites) _SiteTile(source: s, onTap: () => widget.onSite(s))],
               ),
             )
@@ -527,14 +549,13 @@ class _StartPageState extends State<_StartPage> {
             child: TextButton.icon(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SourceScreen(source: Source.instagram))),
               icon: const Icon(Icons.help_outline_rounded, size: 20, color: Palette.muted),
-              label: const Text('How to download',
-                  style: TextStyle(color: Palette.muted, fontSize: 16, decoration: TextDecoration.underline)),
+              label: const Text('How to download', style: TextStyle(color: Palette.muted, fontSize: 14)),
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 12, 6, 0),
             child: Row(children: [
-              const Expanded(child: Text('HISTORY', style: TextStyle(color: Palette.muted, fontWeight: FontWeight.w700, fontSize: 16, letterSpacing: 0.4))),
+              const Expanded(child: Text('Recent', style: TextStyle(color: Palette.text, fontWeight: FontWeight.w700, fontSize: 17))),
               IconButton(
                 tooltip: 'Clear history',
                 icon: const Icon(Icons.delete_rounded, color: Palette.muted),
@@ -574,7 +595,7 @@ class _SiteTile extends StatelessWidget {
   final Source source;
   final VoidCallback onTap;
 
-  static (IconData, Gradient) _look(Source s) {
+  static (IconData, LinearGradient) _look(Source s) {
     LinearGradient g(List<int> c, {Alignment begin = Alignment.topCenter, Alignment end = Alignment.bottomCenter}) =>
         LinearGradient(begin: begin, end: end, colors: [for (final v in c) Color(v)]);
     return switch (s) {
@@ -603,18 +624,22 @@ class _SiteTile extends StatelessWidget {
         AspectRatio(
           aspectRatio: 1,
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 6),
+            margin: const EdgeInsets.symmetric(horizontal: 10),
             alignment: Alignment.center,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: gradient),
-            child: Icon(icon, color: Colors.white, size: 38),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              gradient: gradient,
+              boxShadow: [BoxShadow(color: gradient.colors.last.withValues(alpha: 0.35), blurRadius: 10, offset: const Offset(0, 4))],
+            ),
+            child: Icon(icon, color: Colors.white, size: 30),
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          source == Source.twitter ? 'Twitter' : source.label,
+          source == Source.twitter ? 'X' : source.label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Palette.muted, fontSize: 15),
+          style: const TextStyle(color: Palette.text, fontSize: 12.5, fontWeight: FontWeight.w500),
         ),
       ]),
     );
@@ -632,8 +657,8 @@ class _EntryList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (entries.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
-        child: Text(empty, style: const TextStyle(color: Palette.faint, fontSize: 15, height: 1.4)),
+        padding: const EdgeInsets.fromLTRB(18, 10, 18, 8),
+        child: Text(empty, style: const TextStyle(color: Palette.faint, fontSize: 14, height: 1.4)),
       );
     }
     return Column(children: [
@@ -641,13 +666,15 @@ class _EntryList extends StatelessWidget {
         InkWell(
           onTap: () => onOpen(e.url),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(18, 12, 0, 12),
+            padding: const EdgeInsets.fromLTRB(16, 10, 0, 10),
             child: Row(children: [
+              _SiteBubble(Source.detect(e.url)),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(e.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 18, color: Palette.text)),
-                  const SizedBox(height: 4),
-                  Text(e.url, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 15, color: Palette.faint)),
+                  Text(e.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Palette.text)),
+                  const SizedBox(height: 2),
+                  Text(e.url.replaceFirst(RegExp(r'^https?://(www\.)?'), ''), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, color: Palette.faint)),
                 ]),
               ),
               PopupMenuButton<String>(
@@ -676,9 +703,33 @@ class _EntryList extends StatelessWidget {
             ]),
           ),
         ),
-        const Divider(height: 1, thickness: 1, color: Palette.line),
+        const Divider(height: 1, thickness: 1, indent: 66, color: Palette.line),
       ],
     ]);
+  }
+}
+
+class _SiteBubble extends StatelessWidget {
+  const _SiteBubble(this.source);
+  final Source? source;
+  @override
+  Widget build(BuildContext context) {
+    final s = source;
+    if (s == null) {
+      return Container(
+        width: 36,
+        height: 36,
+        decoration: const BoxDecoration(color: Palette.surfaceHi, shape: BoxShape.circle),
+        child: const Icon(Icons.public_rounded, size: 19, color: Palette.faint),
+      );
+    }
+    final (icon, gradient) = _SiteTile._look(s);
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(gradient: gradient, shape: BoxShape.circle),
+      child: Icon(icon, size: 16, color: Colors.white),
+    );
   }
 }
 
@@ -692,8 +743,7 @@ class _DownloadFab extends StatelessWidget {
     return Tooltip(
       message: 'Download',
       child: Pressable(
-      onTap: busy ? null : onTap,
-      enabled: true,
+      onTap: onTap,
       child: Container(
         width: 64,
         height: 64,

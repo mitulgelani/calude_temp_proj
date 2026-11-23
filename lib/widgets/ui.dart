@@ -327,8 +327,8 @@ class SectionHeader extends StatelessWidget {
 }
 
 /// Rounded media thumbnail that never shows a broken image.
-class Thumb extends StatelessWidget {
-  const Thumb({super.key, this.file, this.url, this.radius = Radii.sm, this.source, this.fit = BoxFit.cover});
+class MediaThumb extends StatelessWidget {
+  const MediaThumb({super.key, this.file, this.url, this.radius = Radii.sm, this.source, this.fit = BoxFit.cover});
   final String? file;
   final String? url;
   final double radius;

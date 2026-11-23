@@ -207,7 +207,7 @@ class _Preview extends StatelessWidget {
       height: h,
       width: double.infinity,
       child: Stack(fit: StackFit.expand, children: [
-        Thumb(url: info.thumbnail ?? info.items.first.thumb, radius: Radii.lg, source: info.source),
+        MediaThumb(url: info.thumbnail ?? info.items.first.thumb, radius: Radii.lg, source: info.source),
         DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(Radii.lg),
@@ -309,7 +309,7 @@ class _GalleryGrid extends StatelessWidget {
         return Pressable(
           onTap: () => onToggle(it),
           child: Stack(fit: StackFit.expand, children: [
-            Thumb(url: it.thumb, radius: Radii.sm),
+            MediaThumb(url: it.thumb, radius: Radii.sm),
             AnimatedContainer(
               duration: Motion.fast,
               decoration: BoxDecoration(

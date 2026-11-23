@@ -454,7 +454,7 @@ class _RecentRow extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: Space.page, vertical: 7),
         child: Row(children: [
-          SizedBox(width: 56, height: 56, child: Thumb(file: r.thumb, source: r.source)),
+          SizedBox(width: 56, height: 56, child: MediaThumb(file: r.thumb, source: r.source)),
           const SizedBox(width: Space.md + 2),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

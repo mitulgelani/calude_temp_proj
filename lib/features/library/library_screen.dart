@@ -172,7 +172,7 @@ class _Tile extends StatelessWidget {
               child: Icon(Icons.graphic_eq_rounded, size: 64, color: r.source.color),
             )
           else
-            Thumb(file: r.thumb, source: r.source, radius: 0),
+            MediaThumb(file: r.thumb, source: r.source, radius: 0),
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(

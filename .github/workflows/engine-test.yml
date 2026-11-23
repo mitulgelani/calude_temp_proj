@@ -1,0 +1,15 @@
+# Checks the download engine against real links from GitHub's network. Actions tab → Engine test → Run.
+name: Engine test
+on:
+  workflow_dispatch:
+  push:
+    paths: ["android/app/src/main/python/**", "tool/engine_check.py"]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -U yt-dlp instaloader certifi
+      - run: python tool/engine_check.py

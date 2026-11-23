@@ -378,6 +378,90 @@ def ig_post(shortcode, url):
     }
 
 
+IG_APP_ID = "936619743392459"
+IG_DOC_IDS = ["8845758582119845", "24368985919464652", "9510064595728286"]  # PolarisPostActionLoadPostQueryQuery
+
+
+def _ig_node_items(m):
+    """Turn an Instagram media node (GraphQL xdt_shortcode_media / api media) into items."""
+    nodes = []
+    edges = ((m.get("edge_sidecar_to_children") or {}).get("edges")) or []
+    if edges:
+        nodes = [e.get("node") or {} for e in edges]
+    elif m.get("carousel_media"):
+        nodes = m["carousel_media"]
+    else:
+        nodes = [m]
+    items = []
+    for i, n in enumerate(nodes, 1):
+        vids = n.get("video_versions") or []
+        vurl = n.get("video_url") or (max(vids, key=lambda v: (v.get("width") or 0) * (v.get("height") or 0)).get("url") if vids else None)
+        cands = ((n.get("image_versions2") or {}).get("candidates")) or []
+        img = n.get("display_url") or (cands[0].get("url") if cands else None)
+        many = len(nodes) > 1
+        if vurl:
+            items.append({"id": "g%d" % i, "kind": "video", "label": ("Video %d" % i) if many else "Original", "ext": "mp4",
+                          "bytes": None, "thumb": img, "detail": "HD", "spec": {"mode": "direct", "url": vurl, "ext": "mp4"}})
+        elif img:
+            items.append({"id": "g%d" % i, "kind": "image", "label": ("Photo %d" % i) if many else "Photo", "ext": _img_ext(img),
+                          "bytes": None, "thumb": img, "spec": {"mode": "direct", "url": img, "ext": _img_ext(img)}})
+    return items
+
+
+def ig_graphql(shortcode, url):
+    """Login-free: the same public GraphQL query Instagram's own logged-out web page uses."""
+    import urllib.parse
+    last = None
+    for doc in IG_DOC_IDS:
+        body = urllib.parse.urlencode({
+            "av": "0", "__d": "www", "__user": "0", "__a": "1", "__req": "3", "lsd": "AVqbxe3J_YA",
+            "fb_api_req_friendly_name": "PolarisPostActionLoadPostQueryQuery", "server_timestamps": "true",
+            "doc_id": doc,
+            "variables": json.dumps({"shortcode": shortcode, "fetch_tagged_user_count": None,
+                                     "hoisted_comment_id": None, "hoisted_reply_id": None}),
+        }).encode()
+        req = urllib.request.Request("https://www.instagram.com/graphql/query", data=body, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36",
+            "Content-Type": "application/x-www-form-urlencoded", "X-IG-App-ID": IG_APP_ID, "X-FB-LSD": "AVqbxe3J_YA",
+            "X-ASBD-ID": "129477", "Sec-Fetch-Site": "same-origin", "Origin": "https://www.instagram.com",
+            "Referer": "https://www.instagram.com/p/%s/" % shortcode, "X-FB-Friendly-Name": "PolarisPostActionLoadPostQueryQuery",
+        })
+        try:
+            data = json.loads(urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "ignore"))
+        except Exception as e:
+            last = e
+            continue
+        m = ((data.get("data") or {}).get("xdt_shortcode_media")) or ((data.get("data") or {}).get("shortcode_media"))
+        if not m:
+            last = PluckError("graphql empty (%s)" % str(data)[:160])
+            continue
+        items = _ig_node_items(m)
+        if not items:
+            continue
+        cap = ""
+        try:
+            cap = m["edge_media_to_caption"]["edges"][0]["node"]["text"].split("\n")[0].strip()
+        except Exception:
+            pass
+        owner = (m.get("owner") or {}).get("username")
+        return {"source": "instagram", "kind_label": kind_label(url, "instagram"),
+                "title": (cap[:88] + "…") if len(cap) > 90 else (cap or ("Post by @" + owner if owner else "Instagram post")),
+                "author": ("@" + owner) if owner else None, "thumbnail": m.get("display_url"),
+                "duration": m.get("video_duration"), "vertical": "/reel" in url.lower(), "items": items}
+    raise last or PluckError("graphql failed")
+
+
+def from_page(payload_json, url):
+    """Media captured by Pluck's browser from the page the user is looking at (Instagram's own JSON)."""
+    m = json.loads(payload_json)
+    items = _ig_node_items(m) if isinstance(m, dict) else []
+    if not items:
+        raise PluckError("Nothing captured on this page yet.")
+    return json.dumps({"source": detect(url) or "instagram", "kind_label": kind_label(url, detect(url) or "instagram"),
+                       "title": m.get("_title") or "Instagram " + kind_label(url, "instagram"), "author": m.get("_owner"),
+                       "thumbnail": items[0].get("thumb"), "duration": None, "vertical": "/reel" in url.lower(), "items": items})
+
+
 def ig_embed(shortcode, url):
     """Login-free: Instagram's public embed page carries the media URLs for public posts and reels."""
     page = "https://www.instagram.com/p/%s/embed/captioned/" % shortcode
@@ -462,49 +546,68 @@ def resolve(url):
     try:
         return json.dumps(_resolve(url, src))
     except PluckError as e:
-        return json.dumps({"error": str(e)})
+        return json.dumps({"error": str(e), "detail": " | ".join(_trail)[-900:]})
     except Exception as e:
-        return json.dumps({"error": friendly(e, src)})
+        return json.dumps({"error": friendly(e, src), "detail": ("%s: %s | " % (type(e).__name__, e) + " | ".join(_trail))[-900:]})
+
+
+_trail = []
+
+
+def _attempt(name, fn, *a):
+    try:
+        out = fn(*a)
+        if out and out.get("items"):
+            out["via"] = name
+            return out
+        _trail.append("%s: no items" % name)
+    except Exception as e:  # noqa: BLE001 — every path gets a chance
+        _trail.append("%s: %s: %s" % (name, type(e).__name__, str(e)[:200]))
+    return None
+
+
+def _ytdlp_info(url, src):
+    import yt_dlp
+    with yt_dlp.YoutubeDL(_ydl_opts(skip_download=True)) as y:
+        info = y.extract_info(url, download=False)
+    return build_info(info, url, src)
 
 
 def _resolve(url, src):
+    del _trail[:]
     if src == "instagram":
         if "/stories/" in url.lower() and not _cookiefile():  # Instagram never serves stories anonymously
             raise PluckError("Instagram only shows stories to logged-in accounts. Open Instagram in Pluck’s browser, "
                              "log in there once, then tap download on the story.")
         m = IG_PROFILE.match(url)
         if m and m.group(1).lower() not in IG_RESERVED:
-            return ig_profile(m.group(1))
+            out = _attempt("profile", ig_profile, m.group(1))
+            if out:
+                return out
+            out = _attempt("og", og_fallback, url, src)
+            if out:
+                return out
+            raise PluckError(friendly(" ".join(_trail), src))
         sc = IG_SHORTCODE.search(url)
-        if sc and "/p/" in url.lower():  # posts may be photo-only: instaloader handles photos + carousels
-            try:
-                return ig_post(sc.group(1), url)
-            except Exception:
-                pass
-    first_error = None
-    try:
-        import yt_dlp
-        with yt_dlp.YoutubeDL(_ydl_opts(skip_download=True)) as y:
-            info = y.extract_info(url, download=False)
-        out = build_info(info, url, src)
-        if out["items"]:
-            return out
-    except Exception as e:  # noqa: BLE001 — every failure gets a fallback before giving up
-        first_error = e
+        if sc:  # login-free paths first, from the phone's own connection
+            for name, fn in (("graphql", ig_graphql), ("embed", ig_embed)):
+                out = _attempt(name, fn, sc.group(1), url)
+                if out:
+                    return out
+    out = _attempt("yt-dlp", _ytdlp_info, url, src)
+    if out:
+        return out
     if src == "instagram":
         sc = IG_SHORTCODE.search(url)
         if sc:
-            for fn in (ig_post, ig_embed):
-                try:
-                    return fn(sc.group(1), url)
-                except Exception:
-                    pass
-    if src in ("pinterest", "facebook", "instagram"):
-        try:
-            return og_fallback(url, src)
-        except Exception:
-            pass
-    raise PluckError(friendly(first_error or "nothing found", src))
+            out = _attempt("instaloader", ig_post, sc.group(1), url)
+            if out:
+                return out
+    if src in ("pinterest", "facebook", "instagram", "twitter"):
+        out = _attempt("og", og_fallback, url, src)
+        if out:
+            return out
+    raise PluckError(friendly(" ".join(_trail), src))
 
 
 # ── public: download ─────────────────────────────────────────────────────────

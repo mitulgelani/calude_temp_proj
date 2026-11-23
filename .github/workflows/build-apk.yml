@@ -1,0 +1,62 @@
+# Free APK builds on GitHub's servers. Push this project to a GitHub repo, then:
+#   Actions tab → "Build APK" → Run workflow   (or just push to main)
+# The APK appears under Releases (direct download link) and as a workflow artifact.
+name: Build APK
+
+on:
+  push:
+    branches: [main, master, pluck-app]
+  workflow_dispatch:
+    inputs:
+      play_store:
+        description: "Google Play build (hides YouTube)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Generate Android project + wire Chaquopy
+        run: python tool/setup.py
+
+      - name: Build APK
+        run: |
+          YT=true
+          if [ "${{ inputs.play_store }}" = "true" ]; then YT=false; fi
+          flutter build apk --release --dart-define=PLUCK_YOUTUBE=$YT
+          cp build/app/outputs/flutter-apk/app-release.apk pluck-${{ github.run_number }}.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pluck-apk
+          path: pluck-${{ github.run_number }}.apk
+
+      - name: Publish as a release (direct download link)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "build-${{ github.run_number }}" "pluck-${{ github.run_number }}.apk" \
+            --title "Pluck build ${{ github.run_number }}" \
+            --notes "Install on Android: download the APK, open it, allow 'Install unknown apps'." \
+            --latest

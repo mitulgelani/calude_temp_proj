@@ -118,7 +118,7 @@ class BrowserTab extends ChangeNotifier {
   Future<String?> captured(String key) async {
     if (_web == null) return null;
     try {
-      final r = await _web!.runJavaScriptReturningResult("window.__pluckGet ? window.__pluckGet('$key') : 'null'");
+      final r = await _web!.runJavaScriptReturningResult("window.__pluckCurrent ? window.__pluckCurrent('$key') : 'null'");
       Object? v = r;
       if (v is String) {
         try {

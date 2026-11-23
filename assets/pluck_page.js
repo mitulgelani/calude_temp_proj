@@ -157,6 +157,11 @@
   }
   window.__pluckScan = scan;
   window.__pluckGet = function (key) { return JSON.stringify(store[key] || null); };
+  window.__pluckCurrent = function (hint) {
+    var m = location.pathname.match(/\/(?:reels?|p|tv)\/([A-Za-z0-9_-]{5,})/);
+    var k = (hint && store[hint]) ? hint : (m && store[m[1]] ? m[1] : null);
+    return JSON.stringify(k ? store[k] : null);
+  };
   setInterval(scan, 700);
   document.addEventListener('scroll', function () { clearTimeout(window.__pt); window.__pt = setTimeout(scan, 150); }, true);
   if (document.readyState !== 'loading') scan(); else document.addEventListener('DOMContentLoaded', scan);

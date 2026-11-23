@@ -127,7 +127,9 @@ class _TabPageState extends State<TabPage> {
     }
     final bridge = context.read<NativeBridge>();
     final tab = tabs.current;
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('Getting video…'), duration: Duration(seconds: 2)));
     HapticFeedback.mediumImpact();
     setState(() => _resolving = true);
     try {
@@ -138,13 +140,14 @@ class _TabPageState extends State<TabPage> {
         debugPrint('[pluck] key=$key captured=${payload == null ? 'no' : '${payload.length} chars'} codes=${tab.codes.length}');
         if (payload != null) info = await bridge.fromPage(payload, url);
       }
-      if (info == null && key != null && src == Source.instagram && !retried && !url.contains('/stories/')) {
-        _openAndCapture(url, key); // not loaded yet: open it via the route that plays logged-out
+      if (info == null && key != null && src == Source.instagram && !retried && tab.isStart) {
+        _openAndCapture(url, key); // pasted link: open it via the route that plays logged-out
         return;
       }
       if (info == null) {
         try {
-          info = await bridge.resolve(url);
+          info = await bridge.resolve(url).timeout(const Duration(seconds: 25),
+              onTimeout: () => throw const PluckException('This is taking too long. Check your internet and try again.'));
         } on PluckException {
           final media = tab.mediaSrc; // the player's own video file (TikTok, Facebook…)
           if (media != null && !tab.isStart) {

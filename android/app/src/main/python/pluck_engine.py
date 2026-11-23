@@ -427,7 +427,7 @@ def ig_graphql(shortcode, url):
             "Referer": "https://www.instagram.com/p/%s/" % shortcode, "X-FB-Friendly-Name": "PolarisPostActionLoadPostQueryQuery",
         })
         try:
-            data = json.loads(urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "ignore"))
+            data = json.loads(urllib.request.urlopen(req, timeout=8).read().decode("utf-8", "ignore"))
         except Exception as e:
             last = e
             continue
@@ -471,7 +471,7 @@ def ig_embed(shortcode, url):
     """Login-free: Instagram's public embed page carries the media URLs for public posts and reels."""
     page = "https://www.instagram.com/p/%s/embed/captioned/" % shortcode
     req = urllib.request.Request(page, headers={"User-Agent": UA, "Accept-Language": "en"})
-    raw = urllib.request.urlopen(req, timeout=20).read(3_000_000).decode("utf-8", "ignore")
+    raw = urllib.request.urlopen(req, timeout=8).read(3_000_000).decode("utf-8", "ignore")
     t = raw
     for _ in range(4):
         t = t.replace("\\\\", "\\").replace('\\"', '"').replace("\\/", "/")

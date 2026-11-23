@@ -19,6 +19,15 @@ async def main():
         await ctx.add_init_script("window.Pluck={postMessage:function(m){window.__last=m;}};" + JS)
         for url in PAGES:
             pg = await ctx.new_page()
+            hits = []
+            async def on_resp(r):
+                try:
+                    if any(k in r.url for k in ("graphql", "/api/", "query")):
+                        t = await r.text()
+                        hits.append((r.status, r.url[:90], len(t), ["video_versions" in t, "video_url" in t, "display_url" in t, "image_versions2" in t, "dash" in t]))
+                except Exception:
+                    pass
+            pg.on("response", on_resp)
             try:
                 await pg.goto(url, wait_until="domcontentloaded", timeout=45000)
                 await pg.wait_for_timeout(9000)
@@ -34,6 +43,12 @@ async def main():
                     print(f"   this post captured: {bool(node)}", json.dumps(node)[:300] if node else "")
                 print(f"   scan msg: {(last or '')[:300]}")
                 print(f"   visible open-app nags: {nags}")
+                body = await pg.evaluate("(document.body.innerText||'').slice(0,300).replace(/\\n/g,' / ')")
+                print(f"   body: {body!r}")
+                html = await pg.content()
+                print(f"   html has: video_versions={html.count('video_versions')} video_url={html.count('video_url')} display_url={html.count('display_url')} image_versions2={html.count('image_versions2')} xdt_api={html.count('xdt_api__v1__media__shortcode__web_info')} len={len(html)}")
+                for h in hits[:12]:
+                    print("   net:", h)
                 await pg.screenshot(path=f"shot_{PAGES.index(url)}.png")
             except Exception as e:
                 print(f"\n== {url}\n   ERROR {type(e).__name__}: {str(e)[:200]}")

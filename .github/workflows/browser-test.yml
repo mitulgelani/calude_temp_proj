@@ -1,0 +1,18 @@
+# Loads real pages with Pluck's page script in a phone-sized Chrome. Actions tab → Browser test → Run.
+name: Browser test
+on:
+  workflow_dispatch:
+  push:
+    paths: ["assets/pluck_page.js", "tool/browser_check.py"]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install playwright && python -m playwright install --with-deps chromium
+      - run: python tool/browser_check.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: browser-shots, path: "shot_*.png" }

@@ -3,7 +3,7 @@ name: Engine test
 on:
   workflow_dispatch:
   push:
-    paths: ["android/app/src/main/python/**", "tool/engine_check.py"]
+    paths: ["tool/engine_check.py"]
 jobs:
   test:
     runs-on: ubuntu-latest

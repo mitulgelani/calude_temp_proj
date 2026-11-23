@@ -19,7 +19,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHAQUOPY = os.environ.get("CHAQUOPY_VERSION", "17.2.0")
 PYTHON = os.environ.get("PLUCK_PYTHON", "3.12")
 PIP = ["yt-dlp", "instaloader", "certifi"]
-ABIS = ["arm64-v8a", "armeabi-v7a", "x86_64"]
+ABIS = ["arm64-v8a", "x86_64"]  # Python 3.12+ ships 64-bit only (every phone since ~2017)
 
 
 def run(cmd):

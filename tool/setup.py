@@ -6,7 +6,7 @@ One-time project setup. Run from the project root:   python tool/setup.py
    (`flutter create` never overwrites files that already exist).
 2. Wires in Chaquopy (free, MIT) so yt-dlp + instaloader run inside the app.
 
-Needs: Flutter, JDK 17+, and Python 3.12 on PATH (Chaquopy builds with the same Python version it ships).
+Needs: Flutter, JDK 17+, and Python 3.11 on PATH (Chaquopy builds with the same Python version it ships).
 Override the Chaquopy version with:  CHAQUOPY_VERSION=17.0.0 python tool/setup.py
 """
 import os
@@ -17,9 +17,9 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHAQUOPY = os.environ.get("CHAQUOPY_VERSION", "17.2.0")
-PYTHON = os.environ.get("PLUCK_PYTHON", "3.12")
+PYTHON = os.environ.get("PLUCK_PYTHON", "3.11")  # 3.11 = last Python with 32-bit Android builds
 PIP = ["yt-dlp", "instaloader", "certifi"]
-ABIS = ["arm64-v8a", "x86_64"]  # Python 3.12+ ships 64-bit only (every phone since ~2017)
+ABIS = ["arm64-v8a", "armeabi-v7a", "x86_64"]
 
 
 def run(cmd):
@@ -106,7 +106,7 @@ def main():
     patch_settings()
     patch_app()
     run(["flutter", "pub", "get"])
-    print("\nDone. Next:\n  flutter run                      (phone connected)\n  flutter build apk --release --target-platform android-arm64,android-x64")
+    print("\nDone. Next:\n  flutter run                      (phone connected)\n  flutter build apk --release")
 
 
 if __name__ == "__main__":

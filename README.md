@@ -26,12 +26,12 @@ For a Google Play build, run the workflow with **"Google Play build" ticked**. T
 
 ## Build locally
 
-Needs Flutter (stable), JDK 17 and **Python 3.12** on PATH.
+Needs Flutter (stable), JDK 17 and **Python 3.11** on PATH.
 
 ```bash
 python tool/setup.py          # creates the Android scaffolding + adds Chaquopy (run once)
-flutter run                   # on a connected 64-bit Android phone
-flutter build apk --release --target-platform android-arm64,android-x64   # build/app/outputs/flutter-apk/app-release.apk
+flutter run                   # on a connected Android phone
+flutter build apk --release   # build/app/outputs/flutter-apk/app-release.apk
 ```
 
 If Gradle can't find the Chaquopy plugin version, run `CHAQUOPY_VERSION=17.0.0 python tool/setup.py` again on a fresh clone.

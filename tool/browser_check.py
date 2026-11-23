@@ -44,7 +44,7 @@ async def main():
                 print(f"   scan msg: {(last or '')[:300]}")
                 print(f"   visible open-app nags: {nags}")
                 body = await pg.evaluate("(document.body.innerText||'').slice(0,300).replace(/\\n/g,' / ')")
-                print(f"   body: {body!r}")
+                print(f"   body: {body!r}  continued={await pg.evaluate('window.__plContinued||0')}")
                 html = await pg.content()
                 print(f"   html has: video_versions={html.count('video_versions')} video_url={html.count('video_url')} display_url={html.count('display_url')} image_versions2={html.count('image_versions2')} xdt_api={html.count('xdt_api__v1__media__shortcode__web_info')} len={len(html)}")
                 for h in hits[:12]:

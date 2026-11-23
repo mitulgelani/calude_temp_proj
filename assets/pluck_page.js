@@ -80,7 +80,23 @@
   var NAG = /^(open app|open instagram|use the app|get the app|open in app|open tiktok|open the app|switch to the app|continue in app|download the app|open facebook|open youtube|open pinterest|get app|use app)$/i;
   var GO_WEB = /^(continue on web|continue on the web|continue in browser|stay on web|use the web|use web|not now|continue as guest|watch on web)$/i;
   var NAG_TEXT = /^(watch this (reel|post|video) in the app|see this (post|reel) in the app|get the full experience on the app|open in the app.*)$/i;
+  function clickText(phrase) {
+    try {
+      var r = document.evaluate("//*[normalize-space(text())='" + phrase + "']", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+      for (var i = 0; i < r.snapshotLength; i++) {
+        var el = r.snapshotItem(i);
+        if (el.__plClicked || el.offsetParent === null) continue;
+        el.__plClicked = 1;
+        var target = el.closest('a,button,[role="button"],[tabindex]') || el;
+        ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(function (type) {
+          target.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }));
+        });
+        window.__plContinued = (window.__plContinued || 0) + 1;
+      }
+    } catch (e) {}
+  }
   function clean() {
+    ['Continue on web', 'Continue on the web', 'Not now', 'Continue in browser', 'Stay on web'].forEach(clickText);
     document.querySelectorAll('a,button,div[role="button"],span[role="button"]').forEach(function (b) {
       var t = (b.innerText || '').trim();
       if (t.length >= 40) return;

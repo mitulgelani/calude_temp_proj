@@ -60,6 +60,7 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 "takeSharedText" -> { result.success(sharedText); sharedText = null }
                 "resolve" -> background(result) { resolve(call.argument<String>("url")!!) }
+                "fromPage" -> background(result) { fromPage(call.argument<String>("payload")!!, call.argument<String>("url")!!) }
                 "download" -> background(result) {
                     download(
                         call.argument<String>("id")!!, call.argument<String>("url")!!, call.argument<String>("spec")!!,
@@ -89,8 +90,10 @@ class MainActivity : FlutterActivity() {
             try {
                 val value = block()
                 main.post { result.success(value) }
+            } catch (e: EngineError) {
+                main.post { result.error("PLUCK", e.message, e.detail) }
             } catch (e: Exception) {
-                main.post { result.error("PLUCK", e.message ?: "Something went wrong. Try again.", null) }
+                main.post { result.error("PLUCK", e.message ?: "Something went wrong. Try again.", e.toString()) }
             }
         }
     }
@@ -123,13 +126,20 @@ class MainActivity : FlutterActivity() {
         if (any) f.writeText(sb.toString()) else f.delete()
     }
 
-    private fun resolve(url: String): String {
-        syncBrowserCookies()
-        val raw = py().callAttr("resolve", url).toString()
+    class EngineError(message: String, val detail: String?) : Exception(message)
+
+    private fun checked(raw: String): String {
         val json = JSONObject(raw)
-        if (json.has("error")) throw Exception(json.getString("error"))
+        if (json.has("error")) throw EngineError(json.getString("error"), json.optString("detail", null))
         return raw
     }
+
+    private fun resolve(url: String): String {
+        syncBrowserCookies()
+        return checked(py().callAttr("resolve", url).toString())
+    }
+
+    private fun fromPage(payload: String, url: String): String = checked(py().callAttr("from_page", payload, url).toString())
 
     /** Kotlin object handed to Python; Python calls sink.update(done, total). */
     inner class ProgressSink(private val id: String) {
@@ -141,8 +151,7 @@ class MainActivity : FlutterActivity() {
     private fun download(id: String, url: String, spec: String, outDir: String, baseName: String): String {
         syncBrowserCookies()
         val raw = py().callAttr("download", url, spec, outDir, baseName, id, ProgressSink(id)).toString()
-        val json = JSONObject(raw)
-        if (json.has("error")) throw Exception(json.getString("error"))
+        val json = JSONObject(checked(raw))
         if (json.optBoolean("mux")) {
             val video = json.getString("video")
             val audio = json.getString("audio")

@@ -32,13 +32,24 @@ class NativeBridge {
     return null;
   }
 
-  Never _rethrow(PlatformException e) => throw PluckException(e.message ?? 'Something went wrong. Try again.');
+  Never _rethrow(PlatformException e) => throw PluckException(e.message ?? 'Something went wrong. Try again.', e.details?.toString());
 
   // ── Engine ────────────────────────────────────────────────────────────────
   Future<MediaInfo> resolve(String url) async {
     _ensureAndroid();
     try {
       final raw = await _ch.invokeMethod<String>('resolve', {'url': url});
+      return MediaInfo.fromJson(Map<String, dynamic>.from(jsonDecode(raw!) as Map), url);
+    } on PlatformException catch (e) {
+      _rethrow(e);
+    }
+  }
+
+  /// Media captured from the page open in Pluck's browser.
+  Future<MediaInfo> fromPage(String payloadJson, String url) async {
+    _ensureAndroid();
+    try {
+      final raw = await _ch.invokeMethod<String>('fromPage', {'payload': payloadJson, 'url': url});
       return MediaInfo.fromJson(Map<String, dynamic>.from(jsonDecode(raw!) as Map), url);
     } on PlatformException catch (e) {
       _rethrow(e);

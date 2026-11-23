@@ -91,7 +91,7 @@ enum Source {
 
   /// Where the in-app browser starts for this app.
   String get home => switch (this) {
-        Source.instagram => 'https://www.instagram.com/',
+        Source.instagram => 'https://www.instagram.com/reels/',
         Source.youtube => 'https://m.youtube.com/',
         Source.tiktok => 'https://www.tiktok.com/',
         Source.facebook => 'https://m.facebook.com/',
@@ -108,7 +108,7 @@ enum Source {
     final src = detect(url);
     if (src == null) return false;
     return switch (src) {
-      Source.instagram => RegExp(r'/(p|reel|reels|tv)/[a-z0-9_-]+|/stories/[^/]+/\d+').hasMatch(u),
+      Source.instagram => RegExp(r'/(p|reel|reels|tv)/[a-z0-9_-]{5,}|/stories/[^/]+/\d+').hasMatch(u),
       Source.youtube => u.contains('watch?') || u.contains('/shorts/') || u.contains('youtu.be/'),
       Source.tiktok => u.contains('/video/') || u.contains('/photo/') || u.contains('vm.tiktok') || u.contains('vt.tiktok'),
       Source.facebook => RegExp(r'/(reel|videos|watch|share/[rv])/|fb\.watch|story\.php|/posts/').hasMatch(u),

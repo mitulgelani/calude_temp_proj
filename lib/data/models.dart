@@ -3,8 +3,9 @@ import 'package:equatable/equatable.dart';
 import '../core/sources.dart';
 
 class PluckException implements Exception {
-  const PluckException(this.message);
+  const PluckException(this.message, [this.detail]);
   final String message;
+  final String? detail; // technical reason, shown under "Details" so users can report it
   @override
   String toString() => message;
 }

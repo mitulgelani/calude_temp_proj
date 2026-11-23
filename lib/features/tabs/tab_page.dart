@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../core/config.dart';
@@ -60,6 +64,10 @@ class _TabPageState extends State<TabPage> {
     if (_search.text != u) _search.text = u;
   }
 
+  static final _igCode = RegExp(r'instagram\.com/(?:[A-Za-z0-9._]+/)?(?:p|reels?|tv)/([A-Za-z0-9_-]{5,})');
+  static final _igStory = RegExp(r'instagram\.com/stories/[^/]+/(\d+)');
+  Timer? _pendingTimer;
+
   /// Search bar logic: a downloadable link downloads straight away, anything else is browsed or searched.
   Future<void> _go(String raw) async {
     _focus.unfocus();
@@ -67,32 +75,119 @@ class _TabPageState extends State<TabPage> {
     if (text.isEmpty) return;
     final link = LinkParser.extract(text) ?? text;
     final isUsername = RegExp(r'^@[A-Za-z0-9._]{1,30}$').hasMatch(text);
-    if (isUsername || Source.isItem(LinkParser.normalize(link))) {
-      await _download(LinkParser.normalize(isUsername ? text : link));
+    final url = LinkParser.normalize(isUsername ? text : link);
+    if (isUsername || Source.isItem(url)) {
+      final code = _igCode.firstMatch(url)?.group(1);
+      if (code != null) {
+        _openAndCapture(url, code); // Instagram: open it in the browser and grab it from the page
+      } else {
+        await _download(url);
+      }
       return;
     }
     tabs.current.load(webAddress(text));
   }
 
-  Future<void> _download(String url) async {
-    if (_resolving) return;
+  /// Opens an Instagram post/reel in the browser, then pops the download sheet as soon as the page has it.
+  void _openAndCapture(String url, String code) {
+    final tab = tabs.current;
+    tab.pendingCode = code;
+    tab.load(url.contains('/p/') ? 'https://www.instagram.com/p/$code/' : 'https://www.instagram.com/reels/$code/');
+    setState(() => _resolving = true);
+    final started = DateTime.now();
+    _pendingTimer?.cancel();
+    _pendingTimer = Timer.periodic(const Duration(milliseconds: 500), (t) async {
+      if (!mounted || tab.pendingCode != code) {
+        t.cancel();
+        return;
+      }
+      final ready = tab.codes.contains(code);
+      final waited = DateTime.now().difference(started) > const Duration(seconds: 15);
+      if (ready || waited) {
+        t.cancel();
+        tab.pendingCode = null;
+        setState(() => _resolving = false);
+        await _download(url, retried: true); // page capture first, then the engine
+      }
+    });
+  }
+
+  Future<void> _download(String url, {bool retried = false}) async {
+    if (_resolving && !retried) return;
     final src = Source.detect(url);
     if (src == Source.youtube && !Config.youtubeEnabled) {
       toast(context, 'YouTube saving isn’t available in this version.', error: true);
       return;
     }
+    final bridge = context.read<NativeBridge>();
+    final tab = tabs.current;
     HapticFeedback.mediumImpact();
     setState(() => _resolving = true);
     try {
-      final info = await context.read<NativeBridge>().resolve(url);
+      MediaInfo? info;
+      final key = _igCode.firstMatch(url)?.group(1) ?? _igStory.firstMatch(url)?.group(1);
+      if (key != null && !tab.isStart) {
+        final payload = await tab.captured(key);
+        if (payload != null) info = await bridge.fromPage(payload, url);
+      }
+      if (info == null && key != null && src == Source.instagram && !retried && !url.contains('/stories/')) {
+        _openAndCapture(url, key); // not loaded yet: open it via the route that plays logged-out
+        return;
+      }
+      if (info == null) {
+        try {
+          info = await bridge.resolve(url);
+        } on PluckException {
+          final media = tab.mediaSrc; // last resort: the player's own video file (TikTok, Facebook…)
+          if (media == null || tab.isStart) rethrow;
+          info = await bridge.fromPage(jsonEncode({'video_url': media, '_title': tab.title}), tab.url ?? url);
+        }
+      }
       if (!mounted) return;
-      if (info.items.isEmpty) throw const PluckException('Nothing downloadable found here.');
-      await showResultSheet(context, info);
+      final found = info!;
+      if (found.items.isEmpty) throw const PluckException('Nothing downloadable found here.');
+      setState(() => _resolving = false);
+      await showResultSheet(context, found);
     } on PluckException catch (e) {
-      if (mounted) toast(context, e.message, error: true);
+      if (mounted) _showError(e);
     } finally {
-      if (mounted) setState(() => _resolving = false);
+      if (mounted && tabs.current.pendingCode == null) setState(() => _resolving = false);
     }
+  }
+
+  void _showError(PluckException e) {
+    showDialog<void>(
+      context: context,
+      builder: (d) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: const Text('Couldn’t download'),
+        content: SingleChildScrollView(
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(e.message, style: const TextStyle(fontSize: 15, height: 1.4)),
+            if (e.detail != null && e.detail!.isNotEmpty)
+              Theme(
+                data: Theme.of(d).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  title: const Text('Details', style: TextStyle(fontSize: 14, color: Palette.muted)),
+                  children: [SelectableText(e.detail!, style: const TextStyle(fontSize: 12, color: Palette.muted))],
+                ),
+              ),
+          ]),
+        ),
+        actions: [
+          if (e.detail != null)
+            TextButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: '${e.message}\n${e.detail}'));
+                Navigator.pop(d);
+              },
+              child: const Text('Copy details'),
+            ),
+          TextButton(onPressed: () => Navigator.pop(d), child: const Text('OK')),
+        ],
+      ),
+    );
   }
 
   Future<void> _paste() async {
@@ -114,6 +209,7 @@ class _TabPageState extends State<TabPage> {
 
   @override
   void dispose() {
+    _pendingTimer?.cancel();
     tabs.incoming.removeListener(_onIncoming);
     tabs.removeListener(_syncField);
     _search.dispose();
@@ -431,11 +527,29 @@ class _SiteTile extends StatelessWidget {
   final Source source;
   final VoidCallback onTap;
 
+  static (IconData, Gradient) _look(Source s) {
+    LinearGradient g(List<int> c, {Alignment begin = Alignment.topCenter, Alignment end = Alignment.bottomCenter}) =>
+        LinearGradient(begin: begin, end: end, colors: [for (final v in c) Color(v)]);
+    return switch (s) {
+      Source.facebook => (FontAwesomeIcons.facebookF, g([0xFF18ACFE, 0xFF0163E0])),
+      Source.instagram => (
+          FontAwesomeIcons.instagram,
+          g([0xFF5B51D8, 0xFFC13584, 0xFFE1306C, 0xFFFD1D1D, 0xFFF77737, 0xFFFCAF45],
+              begin: Alignment.topRight, end: Alignment.bottomLeft)
+        ),
+      Source.vimeo => (FontAwesomeIcons.vimeoV, g([0xFF1AB7EA, 0xFF0F9FD1])),
+      Source.dailymotion => (FontAwesomeIcons.dailymotion, g([0xFF1E6DF5, 0xFF0A4BC7])),
+      Source.youtube => (FontAwesomeIcons.youtube, g([0xFFFF2A2A, 0xFFE00000])),
+      Source.tiktok => (FontAwesomeIcons.tiktok, g([0xFF111111, 0xFF000000])),
+      Source.twitter => (FontAwesomeIcons.xTwitter, g([0xFF111111, 0xFF000000])),
+      Source.whatsapp => (FontAwesomeIcons.whatsapp, g([0xFF5FFC7B, 0xFF28D146])),
+      Source.pinterest => (FontAwesomeIcons.pinterestP, g([0xFFF0213A, 0xFFC8001A])),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    final c = source.color;
-    final dark = Color.lerp(c, Colors.black, 0.28)!;
-    final light = source == Source.twitter;
+    final (icon, gradient) = _look(source);
     return Pressable(
       onTap: onTap,
       child: Column(children: [
@@ -444,22 +558,8 @@ class _SiteTile extends StatelessWidget {
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 6),
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              gradient: light
-                  ? null
-                  : LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [c, dark]),
-              color: light ? Colors.black : null,
-            ),
-            child: Text(
-              source.mono,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: source.mono.length == 1 ? 40 : 30,
-                letterSpacing: -0.5,
-              ),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: gradient),
+            child: FaIcon(icon, color: Colors.white, size: 38),
           ),
         ),
         const SizedBox(height: 8),

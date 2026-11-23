@@ -452,11 +452,16 @@ def ig_graphql(shortcode, url):
 
 
 def from_page(payload_json, url):
-    """Media captured by Pluck's browser from the page the user is looking at (Instagram's own JSON)."""
-    m = json.loads(payload_json)
-    items = _ig_node_items(m) if isinstance(m, dict) else []
+    """Media captured by Pluck's browser from the page the user is looking at (the site's own data)."""
+    try:
+        m = json.loads(payload_json)
+        items = _ig_node_items(m) if isinstance(m, dict) else []
+    except Exception as e:
+        return json.dumps({"error": "Couldn’t read this page.", "detail": str(e)[:300]})
     if not items:
-        raise PluckError("Nothing captured on this page yet.")
+        return json.dumps({"error": "Nothing to download on this page yet. Let the video start playing, then tap again."})
+    for it in items:
+        it["spec"]["referer"] = url
     return json.dumps({"source": detect(url) or "instagram", "kind_label": kind_label(url, detect(url) or "instagram"),
                        "title": m.get("_title") or "Instagram " + kind_label(url, "instagram"), "author": m.get("_owner"),
                        "thumbnail": items[0].get("thumb"), "duration": None, "vertical": "/reel" in url.lower(), "items": items})
@@ -618,7 +623,7 @@ def download(url, spec_json, out_dir, base_name, job_id, sink):
     try:
         mode = spec.get("mode")
         if mode == "direct":
-            return json.dumps({"path": _direct(spec["url"], out_dir, base_name, spec.get("ext") or "bin", job_id, sink)})
+            return json.dumps({"path": _direct(spec["url"], out_dir, base_name, spec.get("ext") or "bin", job_id, sink, spec.get("referer"))})
         if mode == "mux":
             v = _ytdlp_download(url, spec["video"], spec.get("playlist_item"), out_dir, base_name + ".v", job_id, sink, (0.0, 0.85),
                                 "bestvideo[vcodec^=avc1][ext=mp4]")
@@ -683,9 +688,33 @@ def _ytdlp_download(url, fmt, playlist_item, out_dir, base, job_id, sink, span, 
     return os.path.join(out_dir, found[0])
 
 
-def _direct(media_url, out_dir, base, ext, job_id, sink):
+def _cookie_header(media_url):
+    """Cookies the user's browser session has for the site that owns this media host (TikTok needs them)."""
+    c = _cookiefile()
+    if not c:
+        return None
+    host = re.sub(r"^https?://", "", media_url).split("/")[0].lower()
+    site = next((k for k in ("tiktok", "instagram", "facebook", "twitter", "pinterest", "vimeo", "dailymotion") if k in host), None)
+    if site == "facebook" or "fbcdn" in host:
+        site = "facebook"
+    if not site:
+        return None
+    jar = []
+    with open(c) as fh:
+        for line in fh:
+            parts = line.rstrip("\n").split("\t")
+            if len(parts) == 7 and site in parts[0]:
+                jar.append("%s=%s" % (parts[5], parts[6]))
+    return "; ".join(jar) or None
+
+
+def _direct(media_url, out_dir, base, ext, job_id, sink, referer=None):
     path = os.path.join(out_dir, "%s.%s" % (base, ext))
-    req = urllib.request.Request(media_url, headers={"User-Agent": UA, "Referer": "https://www.instagram.com/"})
+    headers = {"User-Agent": UA, "Referer": referer or "https://www.instagram.com/"}
+    ck = _cookie_header(media_url)
+    if ck:
+        headers["Cookie"] = ck
+    req = urllib.request.Request(media_url, headers=headers)
     with urllib.request.urlopen(req, timeout=30) as r, open(path + ".part", "wb") as out:
         total = int(r.headers.get("Content-Length") or 0)
         done, last = 0, 0.0

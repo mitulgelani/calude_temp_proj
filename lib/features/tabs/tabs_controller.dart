@@ -25,35 +25,38 @@ class BrowserTab extends ChangeNotifier {
   bool get isStart => url == null;
   WebViewController get web => _web ??= _create();
 
-  // Finds the video nearest the centre of the screen and the post link it belongs to.
-  static const _scanner = r'''
-(function(){
-  if (window.__pluck) { window.__pluck(); return; }
-  function dist(el){ var r=el.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight||r.width<40) return 1e9;
-    return Math.abs((r.top+r.bottom)/2 - innerHeight/2); }
-  var SEL='a[href*="/reel/"],a[href*="/p/"],a[href*="/video/"],a[href*="/status/"],a[href*="/pin/"],a[href*="/shorts/"],a[href*="watch?v="],a[href*="/videos/"]';
-  function scan(){
-    var best=null,bd=1e9;
-    document.querySelectorAll('video').forEach(function(v){var d=dist(v); if(d<bd){bd=d;best=v;}});
-    var post=null;
-    if(best){ var n=best; for(var i=0;i<30&&n&&!post;i++){ if(n.querySelector){ var a=n.querySelector(SEL); if(a) post=a.href; } n=n.parentElement; } }
-    if(!post){ var pd=1e9; document.querySelectorAll(SEL).forEach(function(a){var d=dist(a); if(d<pd){pd=d;post=a.href;}}); if(pd>innerHeight*0.6) post=null; }
-    try { Pluck.postMessage(JSON.stringify({url:location.href, post:post})); } catch(e) {}
+  /// Pluck's page script (assets/pluck_page.js): captures media from the site's own data,
+  /// hides "open app" prompts, and reports what's on screen.
+  static String script = '';
+  static const userAgent =
+      'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36';
+
+  /// Media keys (Instagram shortcodes / ids) the page has captured so far.
+  Set<String> codes = {};
+
+  /// Direct http(s) video URL of the player on screen (TikTok, Facebook…), if any.
+  String? mediaSrc;
+
+  /// Set when a pasted link should download as soon as the page has captured it.
+  String? pendingCode;
+
+  void _inject() {
+    if (script.isNotEmpty) _web?.runJavaScript(script);
   }
-  window.__pluck=scan; setInterval(scan,1000);
-  document.addEventListener('scroll',function(){clearTimeout(window.__pt);window.__pt=setTimeout(scan,150);},true); scan();
-})();
-''';
 
   WebViewController _create() {
     final c = WebViewController();
     c
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setUserAgent(userAgent)
       ..setBackgroundColor(const Color(0xFFFFFFFF))
       ..addJavaScriptChannel('Pluck', onMessageReceived: (m) {
         try {
           final j = jsonDecode(m.message) as Map<String, dynamic>;
+          codes = ((j['codes'] as List?) ?? const []).map((e) => '$e').toSet();
+          mediaSrc = j['media'] as String?;
           _pick(j['url'] as String? ?? url ?? '', j['post'] as String?);
+          if (pendingCode != null && codes.contains(pendingCode)) notifyListeners();
         } catch (_) {}
       })
       ..setNavigationDelegate(NavigationDelegate(
@@ -61,10 +64,13 @@ class BrowserTab extends ChangeNotifier {
           progress = p;
           notifyListeners();
         },
-        onPageStarted: (u) => _setUrl(u),
+        onPageStarted: (u) {
+          _setUrl(u);
+          _inject();
+        },
         onPageFinished: (u) async {
           _setUrl(u);
-          c.runJavaScript(_scanner);
+          _inject();
           final t = await c.getTitle();
           if (t != null && t.isNotEmpty) title = t;
           _store.addHistory(title, u);
@@ -72,10 +78,18 @@ class BrowserTab extends ChangeNotifier {
         },
         onUrlChange: (ch) {
           if (ch.url != null) _setUrl(ch.url!);
-          c.runJavaScript(_scanner);
+          _inject();
         },
         // Stay inside Pluck: block "open in app" / app-store intents.
-        onNavigationRequest: (req) => req.url.startsWith('http') ? NavigationDecision.navigate : NavigationDecision.prevent,
+        onNavigationRequest: (req) {
+          if (!req.url.startsWith('http')) return NavigationDecision.prevent; // intent://, market:// → stay here
+          final m = RegExp(r'^https?://(?:www\.|m\.)?instagram\.com/(?:[A-Za-z0-9._]+/)?reel/([A-Za-z0-9_-]{5,})').firstMatch(req.url);
+          if (m != null && req.isMainFrame) {
+            c.loadRequest(Uri.parse('https://www.instagram.com/reels/${m.group(1)}/'));
+            return NavigationDecision.prevent;
+          }
+          return NavigationDecision.navigate;
+        },
       ));
     return c;
   }
@@ -100,15 +114,38 @@ class BrowserTab extends ChangeNotifier {
     }
   }
 
+  /// Asks the page for the media it captured under [key] (JSON) — null if not captured.
+  Future<String?> captured(String key) async {
+    if (_web == null) return null;
+    try {
+      final r = await _web!.runJavaScriptReturningResult("window.__pluckGet ? window.__pluckGet('$key') : 'null'");
+      Object? v = r;
+      if (v is String) {
+        try {
+          final d = jsonDecode(v);
+          v = d is String ? d : jsonEncode(d); // Android returns the JS string JSON-encoded
+        } catch (_) {}
+      }
+      final text = v?.toString();
+      if (text == null || text == 'null' || text.isEmpty) return null;
+      return text;
+    } catch (_) {
+      return null;
+    }
+  }
+
   void load(String u) {
     url = u;
     title = Uri.tryParse(u)?.host ?? u;
     target = null;
+    codes = {};
+    mediaSrc = null;
     web.loadRequest(Uri.parse(u));
     notifyListeners();
   }
 
   void goStart() {
+    pendingCode = null;
     url = null;
     title = 'New tab';
     target = null;

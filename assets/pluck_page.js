@@ -43,7 +43,14 @@
       var s = slim(x);
       if (s) { keep(x.code || x.shortcode, s, x); keep(x.pk, s, x); if (typeof x.id === 'string') keep(x.id.split('_')[0], s, x); }
     }
-    for (var k in x) { if (Object.prototype.hasOwnProperty.call(x, k)) { var v = x[k]; if (v && typeof v === 'object') walk(v, depth + 1); } }
+    for (var k in x) {
+      if (!Object.prototype.hasOwnProperty.call(x, k)) continue;
+      var v = x[k];
+      if (v && typeof v === 'object') walk(v, depth + 1);
+      else if (typeof v === 'string' && v.length > 200 && v.charAt(0) === '{' && (v.indexOf('video_versions') >= 0 || v.indexOf('image_versions2') >= 0)) {
+        try { walk(JSON.parse(v), depth + 1); } catch (e) {}
+      }
+    }
   }
   function eat(text) {
     if (!text || text.length < 20) return;

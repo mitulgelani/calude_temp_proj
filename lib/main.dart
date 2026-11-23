@@ -20,6 +20,7 @@ Future<void> main() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
+  BrowserTab.script = await rootBundle.loadString('assets/pluck_page.js');
   final prefs = await SharedPreferences.getInstance();
   final bridge = NativeBridge();
   final history = HistoryRepo(prefs);

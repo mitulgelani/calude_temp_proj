@@ -91,7 +91,8 @@ class _TabPageState extends State<TabPage> {
   void _openAndCapture(String url, String code) {
     final tab = tabs.current;
     tab.pendingCode = code;
-    tab.load(url.contains('/p/') ? 'https://www.instagram.com/p/$code/' : 'https://www.instagram.com/reels/$code/');
+    final ig = code != '*';
+    tab.load(!ig ? url : (url.contains('/p/') ? 'https://www.instagram.com/p/$code/' : 'https://www.instagram.com/reels/$code/'));
     setState(() => _resolving = true);
     final started = DateTime.now();
     _pendingTimer?.cancel();
@@ -100,13 +101,17 @@ class _TabPageState extends State<TabPage> {
         t.cancel();
         return;
       }
-      final ready = tab.codes.contains(code);
-      final waited = DateTime.now().difference(started) > const Duration(seconds: 15);
+      final ready = ig ? tab.codes.contains(code) : tab.mediaSrc != null;
+      final waited = DateTime.now().difference(started) > const Duration(seconds: ig ? 15 : 20);
       if (ready || waited) {
         t.cancel();
         tab.pendingCode = null;
         setState(() => _resolving = false);
-        await _download(url, retried: true); // page capture first, then the engine
+        if (ig) {
+          await _download(url, retried: true); // page capture first, then the engine
+        } else {
+          await _fromPlayer(url);
+        }
       }
     });
   }
@@ -137,9 +142,15 @@ class _TabPageState extends State<TabPage> {
         try {
           info = await bridge.resolve(url);
         } on PluckException {
-          final media = tab.mediaSrc; // last resort: the player's own video file (TikTok, Facebook…)
-          if (media == null || tab.isStart) rethrow;
-          info = await bridge.fromPage(jsonEncode({'video_url': media, '_title': tab.title}), tab.url ?? url);
+          final media = tab.mediaSrc; // the player's own video file (TikTok, Facebook…)
+          if (media != null && !tab.isStart) {
+            info = await bridge.fromPage(jsonEncode({'video_url': media, '_title': tab.title}), tab.url ?? url);
+          } else if (!retried && src != Source.instagram) {
+            _openAndCapture(url, '*'); // open the page and take the video straight from its player
+            return;
+          } else {
+            rethrow;
+          }
         }
       }
       if (!mounted) return;
@@ -151,6 +162,21 @@ class _TabPageState extends State<TabPage> {
       if (mounted) _showError(e);
     } finally {
       if (mounted && tabs.current.pendingCode == null) setState(() => _resolving = false);
+    }
+  }
+
+  Future<void> _fromPlayer(String url) async {
+    final tab = tabs.current;
+    final media = tab.mediaSrc;
+    if (media == null) {
+      _showError(const PluckException('This video didn’t start playing, so there was nothing to save. Tap play, then the red download button.'));
+      return;
+    }
+    try {
+      final info = await context.read<NativeBridge>().fromPage(jsonEncode({'video_url': media, '_title': tab.title}), tab.url ?? url);
+      if (mounted) await showResultSheet(context, info);
+    } on PluckException catch (e) {
+      if (mounted) _showError(e);
     }
   }
 
@@ -655,7 +681,9 @@ class _DownloadFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Pressable(
+    return Tooltip(
+      message: 'Download',
+      child: Pressable(
       onTap: busy ? null : onTap,
       enabled: true,
       child: Container(
@@ -669,8 +697,9 @@ class _DownloadFab extends StatelessWidget {
         alignment: Alignment.center,
         child: busy
             ? const SizedBox(width: 26, height: 26, child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white))
-            : const Icon(Icons.download_rounded, color: Colors.white, size: 34),
+            : const Icon(Icons.download_rounded, color: Colors.white, size: 34, semanticLabel: 'Download video'),
       ),
+    ),
     );
   }
 }

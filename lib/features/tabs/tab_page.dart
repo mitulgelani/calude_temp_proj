@@ -102,7 +102,7 @@ class _TabPageState extends State<TabPage> {
         return;
       }
       final ready = ig ? tab.codes.contains(code) : tab.mediaSrc != null;
-      final waited = DateTime.now().difference(started) > const Duration(seconds: ig ? 15 : 20);
+      final waited = DateTime.now().difference(started) > Duration(seconds: ig ? 15 : 20);
       if (ready || waited) {
         t.cancel();
         tab.pendingCode = null;

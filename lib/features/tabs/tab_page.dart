@@ -191,6 +191,21 @@ class _TabPageState extends State<TabPage> {
     }
   }
 
+  Future<void> _tapFab(BrowserTab tab) async {
+    final t = tab.target;
+    if (t != null) return _download(t);
+    // No specific post detected yet: try what the page has for the current address.
+    final payload = await tab.captured('');
+    if (payload != null && mounted) {
+      try {
+        final info = await context.read<NativeBridge>().fromPage(payload, tab.url ?? '');
+        if (mounted) await showResultSheet(context, info);
+        return;
+      } on PluckException catch (_) {}
+    }
+    if (mounted) toast(context, 'Open a reel, post or video first, let it play, then tap download.', error: true);
+  }
+
   void _showError(PluckException e) {
     showDialog<void>(
       context: context,
@@ -288,10 +303,15 @@ class _TabPageState extends State<TabPage> {
                   right: 16,
                   bottom: 110, // clear of snackbars and the site's own bottom bars
                   child: AnimatedScale(
-                    scale: tab.target == null ? 0 : 1,
+                    // Always there on supported sites (like the reference app); brighter once a post is on screen.
+                    scale: Source.detect(tab.url ?? '') == null || Source.detect(tab.url ?? '') == Source.whatsapp ? 0 : 1,
                     duration: Motion.base,
                     curve: Motion.curve,
-                    child: _DownloadFab(busy: _resolving, onTap: () => tab.target == null ? null : _download(tab.target!)),
+                    child: AnimatedOpacity(
+                      opacity: tab.target == null ? 0.75 : 1,
+                      duration: Motion.base,
+                      child: _DownloadFab(busy: _resolving, onTap: () => _tapFab(tab)),
+                    ),
                   ),
                 ),
               ]),

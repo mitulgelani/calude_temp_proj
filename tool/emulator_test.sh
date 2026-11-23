@@ -37,7 +37,9 @@ python3 tool/ui.py show "instagram reels in browser"
 adb exec-out screencap -p > s4_reels.png
 adb shell input swipe 160 500 160 200 300; sleep 8   # scroll to the next reel like a user would
 python3 tool/ui.py show "next reel"
+adb logcat -c
 python3 tool/ui.py tap "Download video"; sleep 40
+echo "=== red button log"; adb logcat -d -s flutter:I python.stderr:W | tail -25
 python3 tool/ui.py show "sheet from red button"
 python3 tool/ui.py tap "Download" && sleep 35
 python3 tool/ui.py tap "Finished"; sleep 3

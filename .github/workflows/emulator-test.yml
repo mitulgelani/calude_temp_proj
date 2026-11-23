@@ -3,7 +3,7 @@ name: Emulator test
 on:
   workflow_dispatch:
     inputs:
-      tag: { description: "Release tag with the APK", default: "build-20" }
+      tag: { description: "Release tag with the APK", default: "build-21" }
   push:
     paths: ["tool/emulator_test.sh", "tool/ui.py"]
 jobs:
@@ -18,7 +18,7 @@ jobs:
           sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
       - name: Get APK
         env: { GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
-        run: gh release download "${{ inputs.tag || 'build-20' }}" -p "*.apk" -O pluck.apk
+        run: gh release download "${{ inputs.tag || 'build-21' }}" -p "*.apk" -O pluck.apk
       - uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34

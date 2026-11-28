@@ -89,6 +89,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
+    final compact = MediaQuery.sizeOf(context).height < 760;
     final apps = _apps.where((s) => s != Source.youtube || Config.youtubeEnabled).toList();
     return GestureDetector(
       onTap: () => _focus.unfocus(),
@@ -112,16 +113,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
             ]),
           ).enter(context, 0),
-          const SizedBox(height: 26),
+          SizedBox(height: compact ? 14 : 26),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 22),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Save any video,\nin one tap.', style: TextStyles.hero.copyWith(fontSize: 40, height: 1.02, letterSpacing: -1.6)),
-              const SizedBox(height: 10),
+              Text('Save any video,\nin one tap.', style: TextStyles.hero.copyWith(fontSize: compact ? 32 : 40, height: 1.02, letterSpacing: compact ? -1.2 : -1.6)),
+              SizedBox(height: compact ? 6 : 10),
               Text('Reels, Shorts, posts, stories and statuses — straight to your gallery.', style: TextStyles.body),
             ]),
           ).enter(context, 1),
-          const SizedBox(height: 22),
+          SizedBox(height: compact ? 16 : 22),
 
           // ── Clipboard catch ──
           AnimatedSize(
@@ -140,7 +141,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               .enter(context, 2),
           const SizedBox(height: 14),
           const _TrustRow().enter(context, 3),
-          const SizedBox(height: 30),
+          SizedBox(height: compact ? 22 : 30),
 
           // ── Apps ──
           Padding(

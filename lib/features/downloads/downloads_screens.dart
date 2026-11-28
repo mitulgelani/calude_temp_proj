@@ -156,7 +156,7 @@ class FinishedScreen extends StatelessWidget {
       final cubit = context.read<LibraryCubit>();
       return Column(children: [
         _Header('Saved',
-            subtitle: '${s.records.length} files · ${formatBytes(s.totalBytes)}',
+            subtitle: '${s.records.length} ${s.records.length == 1 ? 'file' : 'files'} · ${formatBytes(s.totalBytes)}',
             trailing: PopupMenuButton<KindFilter>(
               icon: const Icon(Icons.tune_rounded, color: Palette.ink),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

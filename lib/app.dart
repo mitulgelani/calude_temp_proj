@@ -8,8 +8,10 @@ import 'core/tokens.dart';
 import 'data/native_bridge.dart';
 import 'features/downloads/download_manager.dart';
 import 'features/downloads/downloads_screens.dart';
+import 'features/home/home_page.dart';
 import 'features/tabs/tab_page.dart';
 import 'features/tabs/tabs_controller.dart';
+import 'widgets/ui.dart';
 
 /// Which bottom tab is showing. Any screen (including sheets and pushed pages) can switch it.
 final shellTab = ValueNotifier<int>(0);
@@ -38,18 +40,19 @@ class _ShellState extends State<Shell> {
 
   void _onTab() => setState(() {});
 
-  void _receive(String text) {
-    shellTab.value = 0;
-    context.read<TabsController>().incoming.value = text;
-  }
+  void _receive(String text) => context.read<TabsController>().incoming.value = text;
 
   Future<void> _onBack() async {
+    if (_index == 1) {
+      final handled = await context.read<TabsController>().current.back();
+      if (!handled) shellTab.value = 0;
+      return;
+    }
     if (_index != 0) {
       shellTab.value = 0;
       return;
     }
-    final handled = await context.read<TabsController>().current.back();
-    if (!handled) SystemNavigator.pop();
+    SystemNavigator.pop();
   }
 
   @override
@@ -70,14 +73,14 @@ class _ShellState extends State<Shell> {
         child: AnnotatedRegion<SystemUiOverlayStyle>(
           value: const SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.light,
+            statusBarIconBrightness: Brightness.dark,
             systemNavigationBarColor: Colors.white,
             systemNavigationBarIconBrightness: Brightness.dark,
           ),
           child: Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: Palette.bg,
             resizeToAvoidBottomInset: true,
-            body: IndexedStack(index: _index, children: const [TabPage(), ProgressScreen(), FinishedScreen()]),
+            body: IndexedStack(index: _index, children: const [HomePage(), TabPage(), ProgressScreen(), FinishedScreen()]),
             bottomNavigationBar: ListenableBuilder(
               listenable: manager,
               builder: (context, _) => _BottomBar(
@@ -101,41 +104,44 @@ class _BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const items = [
-      (Icons.filter_none_rounded, 'Tab'),
-      (Icons.download_rounded, 'Progress'),
-      (Icons.folder_rounded, 'Finished'),
+      (Icons.home_outlined, Icons.home_rounded, 'Home'),
+      (Icons.explore_outlined, Icons.explore_rounded, 'Browser'),
+      (Icons.downloading_outlined, Icons.downloading_rounded, 'Downloads'),
+      (Icons.video_library_outlined, Icons.video_library_rounded, 'Saved'),
     ];
+    final bottom = MediaQuery.paddingOf(context).bottom;
     return Container(
-      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Palette.line))),
-      padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
-      height: 64 + MediaQuery.paddingOf(context).bottom,
+      decoration: const BoxDecoration(color: Palette.surface, border: Border(top: BorderSide(color: Palette.line))),
+      padding: EdgeInsets.fromLTRB(8, 8, 8, bottom + 8),
       child: Row(children: [
         for (var i = 0; i < items.length; i++)
           Expanded(
-            child: InkWell(
+            child: Pressable(
               onTap: () => onTap(i),
-              child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
                 AnimatedContainer(
                   duration: Motion.base,
-                  width: 56,
-                  height: 30,
+                  curve: Motion.curve,
+                  width: 60,
+                  height: 32,
                   decoration: BoxDecoration(
-                    color: i == index ? Palette.brand.withValues(alpha: 0.12) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(15),
+                    color: i == index ? Palette.accentSoft : Colors.transparent,
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Badge(
-                    isLabelVisible: i == 1 && running > 0,
-                    backgroundColor: Palette.fab,
+                    isLabelVisible: i == 2 && running > 0,
+                    backgroundColor: Palette.accent,
                     label: Text('$running'),
-                    child: Icon(items[i].$1, size: 23, color: i == index ? Palette.brand : Palette.faint),
+                    child: Icon(i == index ? items[i].$2 : items[i].$1, size: 23, color: i == index ? Palette.accent : Palette.muted),
                   ),
                 ),
-                const SizedBox(height: 3),
-                Text(items[i].$2,
+                const SizedBox(height: 4),
+                Text(items[i].$3,
                     style: TextStyle(
-                      fontSize: 12.5,
+                      fontFamily: Fonts.body,
+                      fontSize: 12,
                       fontWeight: i == index ? FontWeight.w700 : FontWeight.w500,
-                      color: i == index ? Palette.brand : Palette.faint,
+                      color: i == index ? Palette.ink : Palette.muted,
                     )),
               ]),
             ),

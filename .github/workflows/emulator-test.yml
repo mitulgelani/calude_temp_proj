@@ -6,6 +6,9 @@ on:
       tag: { description: "Release tag with the APK", default: "build-23" }
   push:
     paths: ["tool/emulator_test.sh", "tool/ui.py"]
+permissions:
+  contents: write
+
 jobs:
   e2e:
     runs-on: ubuntu-latest
@@ -27,3 +30,5 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: bash tool/emulator_test.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

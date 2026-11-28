@@ -121,48 +121,50 @@ enum Source {
   }
 
   List<KindGuide> get guides {
+    const tap = 'Tap the orange download button';
     switch (this) {
       case Source.instagram:
         return const [
-          KindGuide('Reels', ['Open the Reel', 'Tap the paper-plane icon', 'Tap “Copy link” and come back']),
-          KindGuide('Posts', ['Open the post or carousel', 'Tap ··· then “Copy link”', 'Every photo and video in it is saved']),
-          KindGuide('Stories', ['Open Instagram in Pluck’s browser', 'Log in there if you want stories (optional)', 'Watch a story and tap the download button'],
-              note: 'Instagram only shows stories to logged-in accounts. Logging in inside Pluck’s browser is optional and stays on this phone.'),
-          KindGuide('Profile photo', ['Type the username', 'Get the full-size photo, not the tiny circle'], usernameMode: true),
+          KindGuide('Reels', ['Tap “Open Instagram” below', 'Scroll to the Reel you want', tap]),
+          KindGuide('Posts', ['Open Instagram and find the post', 'Photos and carousels work too', '$tap — pick one or all']),
+          KindGuide('Stories', ['Open Instagram and log in (optional, stays on this phone)', 'Open the story you want', tap],
+              note: 'Instagram only shows stories to logged-in accounts. Reels, posts and profile photos need no login.'),
+          KindGuide('Profile photo', ['Type the username below', 'Get the full-size photo, not the tiny circle'], usernameMode: true),
         ];
       case Source.youtube:
         return const [
-          KindGuide('Videos', ['Open the video', 'Tap Share then “Copy link”', 'Pick a quality up to 1080p']),
-          KindGuide('Shorts', ['Open the Short', 'Tap Share then “Copy link”', 'Saved as a vertical MP4']),
-          KindGuide('Audio', ['Copy any video link', 'Choose “Audio” in the formats', 'Saved as M4A']),
+          KindGuide('Videos', ['Tap “Open YouTube” below', 'Play the video you want', '$tap and pick a quality']),
+          KindGuide('Shorts', ['Open YouTube and play a Short', tap]),
+          KindGuide('Audio', ['Play any video', tap, 'Choose “Audio” to save just the sound']),
         ];
       case Source.tiktok:
         return const [
-          KindGuide('Videos', ['Open the video', 'Tap Share then “Copy link”', 'Saved without the watermark when available']),
-          KindGuide('Sounds', ['Copy the video link', 'Choose “Audio” in the formats']),
+          KindGuide('Videos', ['Tap “Open TikTok” below', 'Play the video you want', '$tap — saved without watermark']),
+          KindGuide('Sounds', ['Play the video', tap, 'Choose “Audio”']),
         ];
       case Source.facebook:
         return const [
-          KindGuide('Videos', ['Open the video', 'Tap Share then “Copy link”', 'Choose HD or SD']),
-          KindGuide('Reels', ['Open the Reel', 'Tap Share then “Copy link”']),
+          KindGuide('Videos', ['Tap “Open Facebook” below', 'Play the video', tap]),
+          KindGuide('Reels', ['Open Facebook Reels', 'Scroll to the Reel', tap]),
         ];
       case Source.pinterest:
         return const [
-          KindGuide('Video pins', ['Open the pin', 'Tap Share then “Copy link”']),
-          KindGuide('Image pins', ['Open the pin', 'Tap Share then “Copy link”', 'Saved at original resolution']),
+          KindGuide('Video pins', ['Tap “Open Pinterest” below', 'Open the pin', tap]),
+          KindGuide('Image pins', ['Open the pin', '$tap — full resolution']),
         ];
       case Source.twitter:
-        return const [KindGuide('Videos', ['Open the post', 'Tap Share then “Copy link”', 'Or browse X in Pluck and tap download'])];
+        return const [KindGuide('Videos', ['Tap “Open X” below', 'Open the post with the video', tap])];
       case Source.vimeo:
-        return const [KindGuide('Videos', ['Open the video', 'Copy the link', 'Choose a quality'])];
+        return const [KindGuide('Videos', ['Tap “Open Vimeo” below', 'Play the video', '$tap and pick a quality'])];
       case Source.dailymotion:
-        return const [KindGuide('Videos', ['Open the video', 'Tap Share then “Copy link”', 'Choose a quality'])];
+        return const [KindGuide('Videos', ['Tap “Open Dailymotion” below', 'Play the video', '$tap and pick a quality'])];
       case Source.whatsapp:
         return const [
-          KindGuide('Statuses', ['Watch the status in WhatsApp first', 'Open the Statuses tab here', 'Tap any status to save it']),
+          KindGuide('Statuses', ['Watch the status in WhatsApp first', 'Open the status saver', 'Tap any status to save it']),
         ];
     }
   }
+
 }
 
 abstract final class LinkParser {

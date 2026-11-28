@@ -6,12 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../app.dart';
 import '../../core/config.dart';
 import '../../core/sources.dart';
 import '../../core/tokens.dart';
 import '../../data/models.dart';
 import '../../data/native_bridge.dart';
 import '../../data/web_store.dart';
+import '../../widgets/brand.dart';
 import '../../widgets/ui.dart';
 import '../result/result_sheet.dart';
 import '../settings/settings_screen.dart';
@@ -20,7 +22,7 @@ import '../status/status_screen.dart';
 import 'tab_switcher.dart';
 import 'tabs_controller.dart';
 
-/// The "Tab" tab: orange search bar on top, then either the start page or a live website.
+/// The Browser tab: search bar on top, then either the start page or a live website.
 class TabPage extends StatefulWidget {
   const TabPage({super.key});
   @override
@@ -85,12 +87,14 @@ class _TabPageState extends State<TabPage> {
       return;
     }
     tabs.current.load(webAddress(text));
+    shellTab.value = 1;
   }
 
   /// Opens an Instagram post/reel in the browser, then pops the download sheet as soon as the page has it.
   void _openAndCapture(String url, String code) {
     debugPrint('[pluck] open-and-capture $url code=$code');
     final tab = tabs.current;
+    shellTab.value = 1;
     tab.pendingCode = code;
     final ig = code != '*';
     tab.load(!ig ? url : (url.contains('/p/') ? 'https://www.instagram.com/p/$code/' : 'https://www.instagram.com/reels/$code/'));
@@ -327,6 +331,8 @@ class _TabPageState extends State<TabPage> {
       case 'new':
         tabs.newTab();
       case 'home':
+        shellTab.value = 0;
+      case 'start':
         tab.goStart();
       case 'bookmark':
         if (tab.url != null) {
@@ -360,7 +366,7 @@ String webAddress(String input) {
   return 'https://www.google.com/search?q=${Uri.encodeQueryComponent(t)}';
 }
 
-// ── Orange top bar ───────────────────────────────────────────────────────────
+// ── Top bar ──────────────────────────────────────────────────────────────────
 class _TopBar extends StatelessWidget {
   const _TopBar({
     required this.tab,
@@ -386,32 +392,42 @@ class _TopBar extends StatelessWidget {
     final top = MediaQuery.paddingOf(context).top;
     final store = context.read<WebStore>();
     final bookmarked = store.isBookmarked(tab.url);
+    final src = Source.detect(tab.url ?? '');
     return Container(
-      color: Palette.brand,
-      padding: EdgeInsets.fromLTRB(16, top + 8, 2, 10),
+      decoration: const BoxDecoration(color: Palette.surface, border: Border(bottom: BorderSide(color: Palette.line))),
+      padding: EdgeInsets.fromLTRB(12, top + 8, 4, 10),
       child: Row(children: [
         Pressable(
           onTap: onTabs,
           child: Container(
-            width: 30,
-            height: 30,
+            width: 40,
+            height: 40,
             alignment: Alignment.center,
-            decoration: BoxDecoration(border: Border.all(color: Colors.white, width: 2.2), borderRadius: BorderRadius.circular(7)),
-            child: Text('$count', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14)),
+            child: Container(
+              width: 24,
+              height: 24,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(border: Border.all(color: Palette.ink, width: 2), borderRadius: BorderRadius.circular(7)),
+              child: Text('$count', style: const TextStyle(fontFamily: Fonts.body, color: Palette.ink, fontWeight: FontWeight.w700, fontSize: 12)),
+            ),
           ),
         ),
-        const SizedBox(width: 14),
+        const SizedBox(width: 6),
         Expanded(
-          child: Container(
-            height: 46,
-            padding: const EdgeInsets.only(left: 14, right: 4),
+          child: AnimatedContainer(
+            duration: Motion.base,
+            height: 44,
+            padding: const EdgeInsets.only(left: 12, right: 2),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: const [BoxShadow(color: Color(0x22000000), blurRadius: 8, offset: Offset(0, 2))],
+              color: focus.hasFocus ? Palette.surface : Palette.surfaceHi,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: focus.hasFocus ? Palette.accent : Colors.transparent, width: 1.4),
             ),
             child: Row(children: [
-              Icon(tab.isStart ? Icons.search_rounded : Icons.lock_rounded, size: 20, color: Palette.faint),
+              if (src != null && !focus.hasFocus)
+                SiteBubble(src, size: 22)
+              else
+                Icon(tab.isStart || focus.hasFocus ? Icons.search_rounded : Icons.lock_rounded, size: 18, color: Palette.muted),
               const SizedBox(width: 8),
               Expanded(
                 child: TextField(
@@ -422,59 +438,65 @@ class _TopBar extends StatelessWidget {
                   keyboardType: TextInputType.url,
                   autocorrect: false,
                   maxLines: 1,
-                  style: const TextStyle(fontSize: 15.5, color: Palette.text),
-                  decoration: const InputDecoration(
+                  style: TextStyles.title.copyWith(fontSize: 14.5, fontWeight: FontWeight.w500),
+                  decoration: InputDecoration(
                     isCollapsed: true,
                     border: InputBorder.none,
                     hintText: 'Search or paste a link',
-                    hintStyle: TextStyle(fontSize: 15.5, color: Palette.faint),
+                    hintStyle: TextStyles.title.copyWith(fontSize: 14.5, fontWeight: FontWeight.w500, color: Palette.faint),
                   ),
                 ),
               ),
               IconButton(
                 visualDensity: VisualDensity.compact,
-                icon: Icon(focus.hasFocus || tab.isStart ? Icons.content_paste_rounded : Icons.refresh_rounded, color: Palette.muted),
+                icon: Icon(focus.hasFocus || tab.isStart ? Icons.content_paste_rounded : Icons.refresh_rounded, size: 20, color: Palette.muted),
                 tooltip: focus.hasFocus || tab.isStart ? 'Paste' : 'Reload',
                 onPressed: focus.hasFocus || tab.isStart ? onPaste : () => tab.web.reload(),
               ),
             ]),
           ),
         ),
-        const SizedBox(width: 4),
-        if (tab.isStart)
+        if (!tab.isStart)
           IconButton(
-            icon: const Icon(Icons.settings_rounded, color: Colors.white, size: 24),
-            tooltip: 'Settings',
-            onPressed: () => onMenu('settings'),
-          )
-        else
-          IconButton(
-            icon: Icon(bookmarked ? Icons.star_rounded : Icons.star_border_rounded, color: Colors.white, size: 26),
+            icon: Icon(bookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded, color: bookmarked ? Palette.accent : Palette.ink, size: 23),
             tooltip: 'Bookmark',
             onPressed: () => onMenu('bookmark'),
           ),
         PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 24),
-          color: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          icon: const Icon(Icons.more_vert_rounded, color: Palette.ink, size: 23),
+          color: Palette.surface,
+          surfaceTintColor: Colors.transparent,
+          elevation: 8,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           onSelected: onMenu,
           itemBuilder: (_) => [
-            const PopupMenuItem(value: 'new', child: Text('New tab')),
-            if (!tab.isStart) const PopupMenuItem(value: 'home', child: Text('Home')),
-            if (!tab.isStart) PopupMenuItem(value: 'bookmark', child: Text(bookmarked ? 'Remove bookmark' : 'Add bookmark')),
-            if (!tab.isStart) const PopupMenuItem(value: 'copy', child: Text('Copy link')),
-            const PopupMenuItem(value: 'paste', child: Text('Download copied link')),
-            const PopupMenuItem(value: 'status', child: Text('Status saver')),
-            const PopupMenuItem(value: 'howto', child: Text('How to download')),
-            const PopupMenuItem(value: 'settings', child: Text('Settings')),
+            _item('home', Icons.home_rounded, 'Home'),
+            _item('new', Icons.add_rounded, 'New tab'),
+            if (!tab.isStart) _item('start', Icons.apps_rounded, 'Start page'),
+            if (!tab.isStart) _item('bookmark', bookmarked ? Icons.bookmark_remove_rounded : Icons.bookmark_add_rounded, bookmarked ? 'Remove bookmark' : 'Add bookmark'),
+            if (!tab.isStart) _item('copy', Icons.link_rounded, 'Copy link'),
+            _item('paste', Icons.content_paste_go_rounded, 'Download copied link'),
+            _item('status', Icons.blur_circular_rounded, 'Status saver'),
+            _item('howto', Icons.help_outline_rounded, 'How to download'),
+            _item('settings', Icons.tune_rounded, 'Settings'),
           ],
         ),
       ]),
     );
   }
+
+  static PopupMenuItem<String> _item(String v, IconData i, String t) => PopupMenuItem(
+        value: v,
+        height: 44,
+        child: Row(children: [
+          Icon(i, size: 19, color: Palette.muted),
+          const SizedBox(width: 12),
+          Text(t, style: TextStyles.title.copyWith(fontSize: 14.5, fontWeight: FontWeight.w500)),
+        ]),
+      );
 }
 
-// ── Start page ───────────────────────────────────────────────────────────────
+// ── Start page (new tab) ─────────────────────────────────────────────────────
 class _StartPage extends StatefulWidget {
   const _StartPage({required this.onSite, required this.onOpen, required this.resolving});
   final ValueChanged<Source> onSite;
@@ -485,187 +507,90 @@ class _StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<_StartPage> {
-  int _section = 0; // 0 favourite sites, 1 bookmarks
+  int _section = 0; // 0 history, 1 bookmarks
 
   static const _order = [
-    Source.facebook,
     Source.instagram,
+    Source.tiktok,
+    Source.youtube,
+    Source.facebook,
+    Source.pinterest,
+    Source.twitter,
     Source.vimeo,
     Source.dailymotion,
-    Source.youtube,
-    Source.tiktok,
-    Source.twitter,
-    Source.whatsapp,
-    Source.pinterest,
   ];
 
   @override
   Widget build(BuildContext context) {
     final store = context.read<WebStore>();
     final sites = _order.where((s) => s != Source.youtube || Config.youtubeEnabled).toList();
-    return Column(children: [
-      Container(
-        color: Palette.brand,
-        child: Row(children: [
-          for (final (i, label) in const ['FAVORITE SITES', 'BOOKMARKS'].indexed)
-            Expanded(
-              child: InkWell(
-                onTap: () => setState(() => _section = i),
-                child: SizedBox(
-                  height: 46,
-                  child: Stack(alignment: Alignment.center, children: [
-                    Text(label,
-                        style: TextStyle(
-                          color: _section == i ? Colors.white : Colors.white.withValues(alpha: 0.72),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13.5,
-                          letterSpacing: 0.8,
-                        )),
-                    Positioned(
-                      bottom: 0,
-                      child: AnimatedContainer(
-                        duration: Motion.base,
-                        width: _section == i ? 56 : 0,
-                        height: 3.5,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
-                        ),
-                      ),
-                    ),
-                  ]),
-                ),
-              ),
-            ),
-        ]),
+    return ListView(padding: const EdgeInsets.only(bottom: 24), children: [
+      if (widget.resolving) const LinearProgressIndicator(minHeight: 2, color: Palette.accent, backgroundColor: Colors.transparent),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 22, 20, 0),
+        child: Text('Browse & download', style: TextStyles.h1.copyWith(fontSize: 26)),
       ),
-      if (widget.resolving) const LinearProgressIndicator(minHeight: 3, color: Palette.brand, backgroundColor: Colors.transparent),
-      Expanded(
-        child: ListView(padding: EdgeInsets.zero, children: [
-          if (_section == 0)
-            Container(
-              margin: const EdgeInsets.fromLTRB(12, 14, 12, 4),
-              padding: const EdgeInsets.fromLTRB(6, 18, 6, 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 16, offset: Offset(0, 4))],
-              ),
-              child: GridView.count(
-                crossAxisCount: 4,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 14,
-                childAspectRatio: 0.8,
-                children: [for (final s in sites) _SiteTile(source: s, onTap: () => widget.onSite(s))],
-              ),
-            )
-          else
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
+        child: Text('Open a site, play a video, tap the orange button.', style: TextStyles.small),
+      ),
+      const SizedBox(height: 18),
+      SizedBox(
+        height: 92,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          itemCount: sites.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 6),
+          itemBuilder: (_, i) => Pressable(
+            onTap: () => widget.onSite(sites[i]),
+            child: SizedBox(
+              width: 70,
+              child: Column(children: [
+                AppIcon(sites[i], size: 52),
+                const SizedBox(height: 7),
+                Text(appName(sites[i]), maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyles.small.copyWith(fontSize: 12, color: Palette.text, fontWeight: FontWeight.w600)),
+              ]),
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 18),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Container(
+          decoration: BoxDecoration(color: Palette.surface, borderRadius: BorderRadius.circular(24), boxShadow: Shadows.soft),
+          child: Column(children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 4, 0),
+              child: Row(children: [
+                for (final (i, label) in const ['History', 'Bookmarks'].indexed)
+                  Pressable(
+                    onTap: () => setState(() => _section = i),
+                    child: AnimatedContainer(
+                      duration: Motion.base,
+                      margin: const EdgeInsets.only(right: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(color: _section == i ? Palette.ink : Colors.transparent, borderRadius: BorderRadius.circular(100)),
+                      child: Text(label, style: TextStyles.button.copyWith(fontSize: 13.5, color: _section == i ? Colors.white : Palette.muted)),
+                    ),
+                  ),
+                const Spacer(),
+                if (_section == 0 && store.history.isNotEmpty)
+                  TextButton(onPressed: store.clearHistory, child: Text('Clear', style: TextStyles.button.copyWith(fontSize: 13, color: Palette.muted))),
+              ]),
+            ),
             _EntryList(
-              entries: store.bookmarks,
-              empty: 'No bookmarks yet.\nOpen a site and tap ☆ to save it here.',
+              entries: _section == 0 ? store.history.take(30).toList() : store.bookmarks,
+              empty: _section == 0 ? 'Sites you open will show up here.' : 'No bookmarks yet. Open a site and tap the bookmark icon.',
               onOpen: widget.onOpen,
-              onDelete: store.removeBookmark,
+              onDelete: _section == 0 ? store.removeHistory : store.removeBookmark,
             ),
-          const SizedBox(height: 20),
-          Center(
-            child: TextButton.icon(
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SourceScreen(source: Source.instagram))),
-              icon: const Icon(Icons.help_outline_rounded, size: 20, color: Palette.muted),
-              label: const Text('How to download', style: TextStyle(color: Palette.muted, fontSize: 14)),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 12, 6, 0),
-            child: Row(children: [
-              const Expanded(child: Text('Recent', style: TextStyle(color: Palette.text, fontWeight: FontWeight.w700, fontSize: 17))),
-              IconButton(
-                tooltip: 'Clear history',
-                icon: const Icon(Icons.delete_rounded, color: Palette.muted),
-                onPressed: store.history.isEmpty ? null : store.clearHistory,
-              ),
-            ]),
-          ),
-          _EntryList(
-            entries: store.history.take(30).toList(),
-            empty: 'Sites you open will show up here.',
-            onOpen: widget.onOpen,
-            onDelete: store.removeHistory,
-          ),
-          const SizedBox(height: 24),
-        ]),
+            const SizedBox(height: 6),
+          ]),
+        ),
       ),
     ]);
-  }
-}
-
-/// Font Awesome Free brand icons (CC BY 4.0), bundled as assets/fonts/fa-brands-400.ttf.
-abstract final class Brand {
-  static const _f = 'FABrands';
-  static const facebook = IconData(0xf39e, fontFamily: _f);
-  static const instagram = IconData(0xf16d, fontFamily: _f);
-  static const vimeo = IconData(0xf27d, fontFamily: _f);
-  static const dailymotion = IconData(0xe052, fontFamily: _f);
-  static const youtube = IconData(0xf167, fontFamily: _f);
-  static const tiktok = IconData(0xe07b, fontFamily: _f);
-  static const x = IconData(0xe61b, fontFamily: _f);
-  static const whatsapp = IconData(0xf232, fontFamily: _f);
-  static const pinterest = IconData(0xf231, fontFamily: _f);
-}
-
-class _SiteTile extends StatelessWidget {
-  const _SiteTile({required this.source, required this.onTap});
-  final Source source;
-  final VoidCallback onTap;
-
-  static (IconData, LinearGradient) _look(Source s) {
-    LinearGradient g(List<int> c, {Alignment begin = Alignment.topCenter, Alignment end = Alignment.bottomCenter}) =>
-        LinearGradient(begin: begin, end: end, colors: [for (final v in c) Color(v)]);
-    return switch (s) {
-      Source.facebook => (Brand.facebook, g([0xFF18ACFE, 0xFF0163E0])),
-      Source.instagram => (
-          Brand.instagram,
-          g([0xFF5B51D8, 0xFFC13584, 0xFFE1306C, 0xFFFD1D1D, 0xFFF77737, 0xFFFCAF45],
-              begin: Alignment.topRight, end: Alignment.bottomLeft)
-        ),
-      Source.vimeo => (Brand.vimeo, g([0xFF1AB7EA, 0xFF0F9FD1])),
-      Source.dailymotion => (Brand.dailymotion, g([0xFF1E6DF5, 0xFF0A4BC7])),
-      Source.youtube => (Brand.youtube, g([0xFFFF2A2A, 0xFFE00000])),
-      Source.tiktok => (Brand.tiktok, g([0xFF111111, 0xFF000000])),
-      Source.twitter => (Brand.x, g([0xFF111111, 0xFF000000])),
-      Source.whatsapp => (Brand.whatsapp, g([0xFF5FFC7B, 0xFF28D146])),
-      Source.pinterest => (Brand.pinterest, g([0xFFF0213A, 0xFFC8001A])),
-    };
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final (icon, gradient) = _look(source);
-    return Pressable(
-      onTap: onTap,
-      child: Column(children: [
-        AspectRatio(
-          aspectRatio: 1,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              gradient: gradient,
-              boxShadow: [BoxShadow(color: gradient.colors.last.withValues(alpha: 0.35), blurRadius: 10, offset: const Offset(0, 4))],
-            ),
-            child: Icon(icon, color: Colors.white, size: 30),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          source == Source.twitter ? 'X' : source.label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Palette.text, fontSize: 12.5, fontWeight: FontWeight.w500),
-        ),
-      ]),
-    );
   }
 }
 
@@ -691,7 +616,7 @@ class _EntryList extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 0, 10),
             child: Row(children: [
-              _SiteBubble(Source.detect(e.url)),
+              SiteBubble(Source.detect(e.url)),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -726,33 +651,9 @@ class _EntryList extends StatelessWidget {
             ]),
           ),
         ),
-        const Divider(height: 1, thickness: 1, indent: 66, color: Palette.line),
+        const Divider(height: 1, thickness: 1, indent: 66, endIndent: 16, color: Palette.line),
       ],
     ]);
-  }
-}
-
-class _SiteBubble extends StatelessWidget {
-  const _SiteBubble(this.source);
-  final Source? source;
-  @override
-  Widget build(BuildContext context) {
-    final s = source;
-    if (s == null) {
-      return Container(
-        width: 36,
-        height: 36,
-        decoration: const BoxDecoration(color: Palette.surfaceHi, shape: BoxShape.circle),
-        child: const Icon(Icons.public_rounded, size: 19, color: Palette.faint),
-      );
-    }
-    final (icon, gradient) = _SiteTile._look(s);
-    return Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(gradient: gradient, shape: BoxShape.circle),
-      child: Icon(icon, size: 16, color: Colors.white),
-    );
   }
 }
 

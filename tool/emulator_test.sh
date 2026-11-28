@@ -1,49 +1,18 @@
 #!/bin/bash
-# End-to-end: install the APK, share an Instagram reel into Pluck, download it, check the gallery.
-set -x
+# Quick visual + flow check: screenshots of each screen, one real Instagram download.
 PKG=com.pluck.pluck
+U() { python3 tool/ui.py "$@"; }
+shot() { adb exec-out screencap -p > "s$1.png"; }
 adb install -r pluck.apk
-adb shell pm grant $PKG android.permission.READ_EXTERNAL_STORAGE 2>/dev/null
-adb shell am start -n $PKG/.MainActivity; sleep 25
-python3 tool/ui.py show "start page"
-adb exec-out screencap -p > s1_start.png
-
-REEL="${REEL:-https://www.instagram.com/reel/Df172vGP3bh/}"
-adb shell am start -a android.intent.action.SEND -t text/plain --es android.intent.extra.TEXT "'$REEL'" -n $PKG/.MainActivity
-sleep 45
-python3 tool/ui.py show "after sharing reel"
-adb exec-out screencap -p > s2_sheet.png
-python3 tool/ui.py tap "Download" && sleep 5
-python3 tool/ui.py show "after tapping download"
-sleep 40
-python3 tool/ui.py tap "Finished"; sleep 4
-python3 tool/ui.py show "finished tab"
-adb exec-out screencap -p > s3_finished.png
-echo "=== gallery files"; adb shell ls -la /sdcard/Movies/Pluck /sdcard/Pictures/Pluck /sdcard/DCIM/Pluck 2>&1
-
-echo "=== paste-a-link flow: TikTok in the search bar"
-python3 tool/ui.py tap "Tab"; sleep 2
-adb shell am start -a android.intent.action.SEND -t text/plain --es android.intent.extra.TEXT "'https://www.tiktok.com/@scout2015/video/6718335390845095173'" -n $PKG/.MainActivity
-sleep 60
-python3 tool/ui.py show "tiktok"
-if python3 tool/ui.py tap "Download"; then sleep 30; python3 tool/ui.py tap "Finished"; sleep 3; python3 tool/ui.py show "finished after tiktok"; else python3 tool/ui.py tap "OK"; fi
-python3 tool/ui.py tap "Tab"; sleep 2
-
-echo "=== browse: Instagram tile -> reels feed -> red button"
-python3 tool/ui.py tap "Show menu"; sleep 2; python3 tool/ui.py tap "New tab"; sleep 3
-python3 tool/ui.py show "new tab"
-python3 tool/ui.py tap "Instagram"; sleep 30
-python3 tool/ui.py show "instagram reels in browser"
-adb exec-out screencap -p > s4_reels.png
-adb shell input swipe 160 500 160 200 300; sleep 8   # scroll to the next reel like a user would
-python3 tool/ui.py show "next reel"
-adb logcat -c
-python3 tool/ui.py tap "Download video"; sleep 2; python3 tool/ui.py show "right after red tap"; sleep 30
-echo "=== red button log"; adb logcat -d -s flutter:I python.stderr:W | tail -25
-python3 tool/ui.py show "sheet from red button"
-python3 tool/ui.py tap "Download" && sleep 35
-python3 tool/ui.py tap "Finished"; sleep 3
-python3 tool/ui.py show "finished after red button"
-echo "=== gallery files (end)"; adb shell ls -la /sdcard/Pictures/Pluck 2>&1
-echo "=== logcat"
-adb logcat -d | grep -E "\[pluck\]|python.stderr|AndroidRuntime|E flutter" | tail -80
+adb shell am start -n $PKG/.MainActivity; sleep 25; shot 1_home
+U tap "Instagram"; sleep 3; shot 2_guide
+U tap "Open Instagram"; sleep 25; shot 3_browser
+adb shell am start -a android.intent.action.SEND -t text/plain --es android.intent.extra.TEXT "'https://www.instagram.com/reel/Df172vGP3bh/'" -n $PKG/.MainActivity
+sleep 40; shot 4_sheet; U show "sheet"
+U tap "Download"; sleep 35
+U tap "Saved"; sleep 3; shot 5_saved; U show "saved"
+U tap "Home"; sleep 3
+adb shell input swipe 160 520 160 120 400; sleep 2; shot 6_home_scrolled
+U tap "Status saver"; sleep 3; shot 7_status_guide
+gh release create screens --title "UI screenshots" --notes "Emulator screenshots" >/dev/null 2>&1 || true
+gh release upload screens s*.png --clobber && echo "uploaded screenshots"

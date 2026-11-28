@@ -4,25 +4,35 @@ import 'package:flutter/material.dart';
 /// Single source of truth for every visual decision in Pluck.
 /// Nothing in the UI uses a raw colour, size or duration — only these.
 abstract final class Palette {
-  static const brand = Color(0xFFFF6A00); // orange top bar
-  static const brandDark = Color(0xFFE85F00);
-  static const fab = Color(0xFFE8333A); // floating download button
-  static const bg = Color(0xFFF1F3F2); // grey page behind the grid
+  static const ink = Color(0xFF111113); // headlines, dark surfaces
+  static const accent = Color(0xFFFF5A1F); // ember: the one action colour
+  static const accentSoft = Color(0xFFFFEEE7);
+  static const brand = accent;
+  static const brandDark = Color(0xFFE84A12);
+  static const fab = accent;
+  static const bg = Color(0xFFF5F4F0); // warm paper
   static const surface = Color(0xFFFFFFFF);
-  static const surfaceHi = Color(0xFFF5F5F5);
-  static const line = Color(0xFFE2E2E2);
-  static const text = Color(0xFF1E1E1E);
-  static const muted = Color(0xFF6E6E6E);
-  static const faint = Color(0xFF9E9E9E);
-  static const volt = brand; // primary action colour
-  static const voltInk = Color(0xFFFFFFFF); // text/icons on primary
-  static const danger = Color(0xFFE53935);
+  static const surfaceHi = Color(0xFFEFEEE9);
+  static const line = Color(0xFFE7E5DF);
+  static const text = Color(0xFF111113);
+  static const muted = Color(0xFF6E6D73);
+  static const faint = Color(0xFFA6A5AB);
+  static const volt = accent;
+  static const voltInk = Color(0xFFFFFFFF);
+  static const danger = Color(0xFFE5484D);
+  static const success = Color(0xFF16A34A);
+}
+
+/// One shadow family for the whole app.
+abstract final class Shadows {
+  static const soft = [BoxShadow(color: Color(0x0D111113), blurRadius: 24, offset: Offset(0, 8))];
+  static const lift = [BoxShadow(color: Color(0x1A111113), blurRadius: 30, offset: Offset(0, 12))];
 }
 
 abstract final class Fonts {
-  static const display = 'Roboto';
-  static const body = 'Roboto';
-  static const mono = 'Roboto';
+  static const display = 'Bricolage';
+  static const body = 'DMSans';
+  static const mono = 'DMSans';
 }
 
 abstract final class Space {
@@ -97,10 +107,10 @@ abstract final class TextStyles {
     color: Palette.muted,
   );
   static const label = TextStyle(
-    fontFamily: Fonts.mono,
+    fontFamily: Fonts.body,
     fontWeight: FontWeight.w700,
-    fontSize: 13,
-    letterSpacing: 0.6,
+    fontSize: 11.5,
+    letterSpacing: 1.0,
     color: Palette.muted,
   );
   static const number = TextStyle(
@@ -132,6 +142,7 @@ ThemeData buildTheme() {
     brightness: Brightness.light,
     colorScheme: scheme,
     scaffoldBackgroundColor: Palette.bg,
+    dividerColor: Palette.line,
     fontFamily: Fonts.body,
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,

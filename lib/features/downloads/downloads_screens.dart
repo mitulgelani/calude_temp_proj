@@ -11,17 +11,22 @@ import '../library/library_cubit.dart';
 import 'download_manager.dart';
 
 class _Header extends StatelessWidget {
-  const _Header(this.title, {this.trailing});
+  const _Header(this.title, {this.trailing, this.subtitle});
   final String title;
+  final String? subtitle;
   final Widget? trailing;
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
-    return Container(
-      color: Palette.brand,
-      padding: EdgeInsets.fromLTRB(20, top + 12, 8, 12),
-      child: Row(children: [
-        Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700))),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(22, top + 18, 10, 12),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(title, style: TextStyles.h1.copyWith(fontSize: 30)),
+            if (subtitle != null) ...[const SizedBox(height: 4), Text(subtitle!, style: TextStyles.small)],
+          ]),
+        ),
         if (trailing != null) trailing!,
       ]),
     );
@@ -45,7 +50,7 @@ class _Empty extends StatelessWidget {
               child: Icon(icon, size: 44, color: Palette.brand),
             ),
             const SizedBox(height: 16),
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Palette.muted)),
+            Text(title, style: TextStyles.h2.copyWith(fontSize: 19)),
             const SizedBox(height: 6),
             Text(body, textAlign: TextAlign.center, style: const TextStyle(fontSize: 15, color: Palette.faint, height: 1.4)),
           ]),
@@ -59,6 +64,18 @@ Widget _thumb(String? file, String? url, Source? source) => SizedBox(
       child: MediaThumb(file: file, url: url, source: source, radius: 12),
     );
 
+class _Card extends StatelessWidget {
+  const _Card({required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => Material(
+        color: Palette.surface,
+        borderRadius: BorderRadius.circular(20),
+        clipBehavior: Clip.antiAlias,
+        child: child,
+      );
+}
+
 // ── Progress ─────────────────────────────────────────────────────────────────
 class ProgressScreen extends StatelessWidget {
   const ProgressScreen({super.key});
@@ -69,10 +86,10 @@ class ProgressScreen extends StatelessWidget {
     return ListenableBuilder(
       listenable: m,
       builder: (context, _) => Column(children: [
-        const _Header('Progress'),
+        _Header('Downloads', subtitle: m.jobs.isEmpty ? 'Nothing downloading right now' : '${m.runningCount} in progress'),
         Expanded(
           child: m.jobs.isEmpty
-              ? const _Empty(Icons.download_rounded, 'No downloads in progress', 'Open a site from the Tab page and tap the red download button, or paste a link in the search bar.')
+              ? const _Empty(Icons.download_rounded, 'No downloads yet', 'Paste a link on Home, or open an app in the Browser and tap the orange download button.')
               : ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: m.jobs.length,
@@ -95,13 +112,13 @@ class _JobRow extends StatelessWidget {
     final failed = job.status == JobStatus.failed;
     final p = job.progress;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
+      padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
       child: Row(children: [
         _thumb(null, job.thumb, job.source),
         const SizedBox(width: 14),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(job.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+            Text(job.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyles.title.copyWith(fontSize: 14.5, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             if (!failed)
               ClipRRect(
@@ -138,9 +155,11 @@ class FinishedScreen extends StatelessWidget {
     return BlocBuilder<LibraryCubit, LibraryState>(builder: (context, s) {
       final cubit = context.read<LibraryCubit>();
       return Column(children: [
-        _Header('Finished',
+        _Header('Saved',
+            subtitle: '${s.records.length} files · ${formatBytes(s.totalBytes)}',
             trailing: PopupMenuButton<KindFilter>(
-              icon: const Icon(Icons.filter_list_rounded, color: Colors.white),
+              icon: const Icon(Icons.tune_rounded, color: Palette.ink),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               color: Colors.white,
               initialValue: s.kind,
               onSelected: cubit.setKind,
@@ -153,12 +172,12 @@ class FinishedScreen extends StatelessWidget {
             )),
         Expanded(
           child: s.visible.isEmpty
-              ? const _Empty(Icons.folder_rounded, 'Nothing here yet', 'Finished downloads are saved to your gallery and listed here.')
+              ? const _Empty(Icons.video_library_rounded, 'Nothing saved yet', 'Everything you download lands here and in your gallery.')
               : ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                   itemCount: s.visible.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, indent: 94, color: Palette.line),
-                  itemBuilder: (_, i) => _FinishedRow(s.visible[i]),
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (_, i) => _Card(child: _FinishedRow(s.visible[i])),
                 ),
         ),
       ]);
@@ -177,7 +196,7 @@ class _FinishedRow extends StatelessWidget {
     return InkWell(
       onTap: () => OpenFilex.open(r.path),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
+        padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
         child: Row(children: [
           Stack(children: [
             _thumb(r.thumb, null, r.source),
@@ -189,7 +208,7 @@ class _FinishedRow extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(r.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              Text(r.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyles.title.copyWith(fontSize: 14.5, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               Text('${r.source.label} · ${r.ext.toUpperCase()} · ${formatBytes(r.bytes)}', style: const TextStyle(fontSize: 13, color: Palette.muted)),
               Text(date, style: const TextStyle(fontSize: 12, color: Palette.faint)),

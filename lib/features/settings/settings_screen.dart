@@ -36,7 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() => _updating = true);
     try {
       final v = await bridge.updateEngine();
-      if (mounted) toast(context, 'Engine $v downloaded. Restart Pluck to use it.');
+      if (mounted) toast(context, 'Update installed. Restart Pluck to finish.');
     } catch (e) {
       if (mounted) toast(context, e.toString(), error: true);
     } finally {
@@ -86,12 +86,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ]),
         SizedBox(height: Space.xl),
-        MonoLabel('Download engine'),
+        MonoLabel('Downloader updates'),
         SizedBox(height: Space.md),
         _Group(children: [
           _Row(
-            title: 'yt-dlp $_engine',
-            subtitle: 'Open-source, runs on your phone. When a site changes, update here. It’s free.',
+            title: 'Version ${_engine.replaceAll('.', '')}',
+            subtitle: 'If a site stops downloading, tap Update to get the latest fixes.',
             trailing: _updating
                 ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.2, color: Palette.volt))
                 : Pressable(onTap: _update, child: MonoLabel('Update', color: Palette.volt)),

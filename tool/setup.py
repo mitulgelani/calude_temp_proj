@@ -82,7 +82,7 @@ def patch_app():
     abis = ", ".join('"%s"' % a for a in ABIS)
     ndk = ("        ndk {\n            abiFilters += listOf(%s)\n        }\n" % abis) if kts else \
           ("        ndk {\n            abiFilters %s\n        }\n" % abis)
-    s = re.sub(r"(defaultConfig\s*\{\n)", lambda mm: mm.group(1) + ndk, s, count=1)
+    # ABIs come from Flutter's --split-per-abi (one small APK per chip type), so no ndk.abiFilters here.
 
     # Android lint crashes inside some plugins' generated code (webview_flutter) — skip release-only lint
     lint = "    lint {\n        checkReleaseBuilds = false\n        abortOnError = false\n    }\n" if kts else \

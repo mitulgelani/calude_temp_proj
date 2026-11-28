@@ -148,7 +148,23 @@ class _TabPageState extends State<TabPage> {
       MediaInfo? info;
       final key = _igCode.firstMatch(url)?.group(1) ?? _igStory.firstMatch(url)?.group(1);
       if (key != null && !tab.isStart) {
-        final payload = await tab.captured(key);
+        var payload = await tab.captured(key);
+        final reel = url.contains('/reel') || (tab.url ?? '').contains('/reels/') || (tab.url ?? '').contains('/reel/');
+        if (reel && payload != null && !payload.contains('"video_url":"http')) {
+          await tab.web.runJavaScript('window.__pluckPlay && window.__pluckPlay()');
+          for (var i = 0; i < 16; i++) {
+            await Future<void>.delayed(const Duration(milliseconds: 500));
+            final p = await tab.captured(key);
+            if (p != null && p.contains('"video_url":"http')) {
+              payload = p;
+              break;
+            }
+          }
+          if (payload == null || !payload.contains('"video_url":"http')) {
+            if (mounted) _reelTip();
+            return;
+          }
+        }
         debugPrint('[pluck] key=$key captured=${payload == null ? 'no' : '${payload.length} chars'} codes=${tab.codes.length}');
         if (payload != null) info = await bridge.fromPage(payload, url);
       }
@@ -216,6 +232,29 @@ class _TabPageState extends State<TabPage> {
       } on PluckException catch (_) {}
     }
     if (mounted) toast(context, 'Open a reel, post or video first, let it play, then tap download.', error: true);
+  }
+
+  void _reelTip() {
+    showDialog<void>(
+      context: context,
+      builder: (d) => AlertDialog(
+        icon: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(color: Palette.accentSoft, shape: BoxShape.circle),
+          child: Icon(Icons.play_arrow_rounded, color: Palette.accent, size: 32),
+        ),
+        title: Text('Play the reel first', style: TextStyles.h2.copyWith(fontSize: 20)),
+        content: Text(
+          'Instagram loads the video only after the reel starts playing. Tap the reel to play it, then tap the download button again.',
+          textAlign: TextAlign.center,
+          style: TextStyles.body,
+        ),
+        actions: [
+          SizedBox(width: double.infinity, child: VoltButton(label: 'Got it', height: 50, onTap: () => Navigator.pop(d))),
+        ],
+      ),
+    );
   }
 
   void _showError(PluckException e) {

@@ -125,7 +125,7 @@ enum Source {
     switch (this) {
       case Source.instagram:
         return [
-          KindGuide('Reels', ['Tap “Open Instagram” below', 'Scroll to the Reel you want', tap]),
+          KindGuide('Reels', ['Tap “Open Instagram” below', 'Scroll to the Reel — it starts playing by itself', tap]),
           KindGuide('Posts', ['Open Instagram and find the post', 'Photos and carousels work too', '$tap — pick one or all']),
           KindGuide('Stories', ['Open Instagram and log in (optional, stays on this phone)', 'Open the story you want', tap],
               note: 'Instagram only shows stories to logged-in accounts. Reels, posts and profile photos need no login.'),

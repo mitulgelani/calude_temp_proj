@@ -166,9 +166,28 @@
     }
     var media = null;
     if (bestV) { var s = bestV.currentSrc || bestV.src; if (s && s.indexOf('http') === 0) media = s; }
+    var ig = /instagram\.com$/.test(location.hostname);
+    // Instagram only loads the real video once it plays: start the one on screen (muted), like a user tap.
+    if (ig && bestV && bestV.paused && !bestV.__plPlayed) {
+      bestV.__plPlayed = 1;
+      try { bestV.muted = true; var pr = bestV.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
+    }
+    // Pair the playing video with the post in the address bar, so a reel never downloads as its thumbnail.
+    var pc = location.pathname.match(/\/(?:p|reels?|tv)\/([A-Za-z0-9_-]{5,})/);
+    if (ig && pc && media) {
+      var cur = store[pc[1]];
+      if (!cur || !cur.video_url) store[pc[1]] = { video_url: media, display_url: cur ? cur.display_url : null, _title: cur ? cur._title : '', _owner: cur ? cur._owner : null };
+    }
     try { Pluck.postMessage(JSON.stringify({ url: location.href, post: post, media: media, codes: Object.keys(store) })); } catch (e) {}
   }
   window.__pluckScan = scan;
+  window.__pluckPlay = function () {
+    document.querySelectorAll('video').forEach(function (v) {
+      var r = v.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < innerHeight) { try { v.muted = true; var p = v.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+    });
+    scan();
+  };
   window.__pluckGet = function (key) { return JSON.stringify(store[key] || null); };
   window.__pluckCurrent = function (hint) {
     var m = location.pathname.match(/\/(?:reels?|p|tv)\/([A-Za-z0-9_-]{5,})/);

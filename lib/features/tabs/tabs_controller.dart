@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 import '../../core/sources.dart';
 import '../../data/web_store.dart';
@@ -46,6 +47,8 @@ class BrowserTab extends ChangeNotifier {
 
   WebViewController _create() {
     final c = WebViewController();
+    final platform = c.platform;
+    if (platform is AndroidWebViewController) platform.setMediaPlaybackRequiresUserGesture(false);
     c
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setUserAgent(userAgent)

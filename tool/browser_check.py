@@ -5,11 +5,10 @@ from playwright.async_api import async_playwright
 JS = open(os.path.join(os.path.dirname(__file__), "..", "assets", "pluck_page.js")).read()
 UA = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
 PAGES = [
-    "https://www.instagram.com/reels/Df172vGP3bh/",
-    "https://www.instagram.com/reel/Df172vGP3bh/?__a=1",
-    "https://www.instagram.com/reel/Df172vGP3bh/",
-    "https://www.tiktok.com/@scout2015/video/6718335390845095173",
-    "https://m.facebook.com/watch/",
+    "https://www.instagram.com/reels/DeJfc72SR0V/",
+    "https://www.instagram.com/p/DeJfc72SR0V/",
+    "https://www.instagram.com/p/DeJfc72SR0V/embed/captioned/",
+    "https://www.instagram.com/reel/DeJfc72SR0V/embed/",
 ]
 
 async def main():
@@ -39,6 +38,8 @@ async def main():
                 print(f"   captured keys: {list(store)[:12]} (total {len(store)})")
                 cont = await pg.evaluate("""(()=>{const r=document.evaluate("//*[normalize-space(text())='Continue on web']",document,null,XPathResult.FIRST_ORDERED_NODE_TYPE,null).singleNodeValue; if(!r) return null; let e=r; for(let i=0;i<4&&e.parentElement;i++) e=e.parentElement; return e.outerHTML.slice(0,700);})()""")
                 if cont: print("   continue html:", cont)
+                media = await pg.evaluate("""(()=>{const v=[...document.querySelectorAll('video')].map(x=>x.currentSrc||x.src).filter(Boolean); const i=[...document.querySelectorAll('img')].filter(x=>x.naturalWidth>300).map(x=>x.currentSrc||x.src); return JSON.stringify({v:v.slice(0,3), i:i.slice(0,4)});})()""")
+                print("   dom media:", media[:500])
                 m = re.search(r"/(?:reels?|p)/([A-Za-z0-9_-]+)", url)
                 if m:
                     node = store.get(m.group(1))

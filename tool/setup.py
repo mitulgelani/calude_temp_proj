@@ -80,9 +80,10 @@ def patch_app():
 
     # ABIs that Python ships for
     abis = ", ".join('"%s"' % a for a in ABIS)
-    ndk = ("        ndk {\n            abiFilters += listOf(%s)\n        }\n" % abis) if kts else \
-          ("        ndk {\n            abiFilters %s\n        }\n" % abis)
-    # ABIs come from Flutter's --split-per-abi (one small APK per chip type), so no ndk.abiFilters here.
+    # One chip type per build keeps each APK small; PLUCK_ABIS picks it at build time (default: all three).
+    ndk = ('        ndk {\n            abiFilters += (System.getenv("PLUCK_ABIS") ?: "%s").split(",")\n        }\n' % ",".join(ABIS)) if kts else \
+          ('        ndk {\n            abiFilters((System.getenv("PLUCK_ABIS") ?: "%s").split(",") as String[])\n        }\n' % ",".join(ABIS))
+    s = re.sub(r"(defaultConfig\s*\{\n)", lambda mm: mm.group(1) + ndk, s, count=1)
 
     # Android lint crashes inside some plugins' generated code (webview_flutter) — skip release-only lint
     lint = "    lint {\n        checkReleaseBuilds = false\n        abortOnError = false\n    }\n" if kts else \

@@ -1,12 +1,11 @@
 #!/bin/bash
-# Quick visual check: light home, toggle to dark, then each tab in dark.
+# No-login check: fresh install (never logged in), share an Instagram reel, download it, confirm the file.
 PKG=com.pluck.pluck
 U() { python3 tool/ui.py "$@"; }
-shot() { adb exec-out screencap -p > "s$1.png"; }
 adb install -r pluck.apk
-adb shell am start -n $PKG/.MainActivity; sleep 25; shot t1_light
-U tap "Dark theme"; sleep 3; shot t2_dark_home
-adb shell input swipe 300 560 300 200 900; sleep 2; shot t3_dark_grid
-U tap "Light theme"; sleep 3; shot t4_light_grid
-gh release create screens --title "UI screenshots" --notes "Emulator screenshots" >/dev/null 2>&1 || true
-gh release upload screens s*.png --clobber && echo "uploaded screenshots"
+adb shell am start -n $PKG/.MainActivity; sleep 20
+adb shell am start -a android.intent.action.SEND -t text/plain --es android.intent.extra.TEXT "'https://www.instagram.com/reel/Df172vGP3bh/'" -n $PKG/.MainActivity
+sleep 40; U show "sheet"
+U tap "Download"; sleep 35
+U tap "Saved"; sleep 3; U show "saved"
+echo "=== gallery"; adb shell ls -la /sdcard/Pictures/Pluck /sdcard/Movies/Pluck 2>&1

@@ -45,11 +45,12 @@ jobs:
         run: |
           YT=true
           if [ "${{ inputs.play_store }}" = "true" ]; then YT=false; fi
-          flutter build apk --release --split-per-abi --dart-define=PLUCK_YOUTUBE=$YT
-          O=build/app/outputs/flutter-apk; N=${{ github.run_number }}
-          cp $O/app-arm64-v8a-release.apk pluck-$N-arm64.apk        # almost every phone
-          cp $O/app-armeabi-v7a-release.apk pluck-$N-32bit.apk      # very old phones
-          cp $O/app-x86_64-release.apk pluck-$N-x86_64.apk          # emulators
+          N=${{ github.run_number }}
+          for pair in "arm64-v8a:android-arm64:arm64" "armeabi-v7a:android-arm:32bit" "x86_64:android-x64:x86_64"; do
+            IFS=: read ABI PLAT NAME <<< "$pair"
+            PLUCK_ABIS=$ABI flutter build apk --release --target-platform $PLAT --dart-define=PLUCK_YOUTUBE=$YT
+            cp build/app/outputs/flutter-apk/app-release.apk pluck-$N-$NAME.apk
+          done
           ls -la pluck-*.apk
 
       - uses: actions/upload-artifact@v4

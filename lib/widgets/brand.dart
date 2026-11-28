@@ -76,7 +76,7 @@ class SiteBubble extends StatelessWidget {
       return Container(
         width: size,
         height: size,
-        decoration: const BoxDecoration(color: Palette.surfaceHi, shape: BoxShape.circle),
+        decoration: BoxDecoration(color: Palette.surfaceHi, shape: BoxShape.circle),
         child: Icon(Icons.public_rounded, size: size * 0.52, color: Palette.muted),
       );
     }

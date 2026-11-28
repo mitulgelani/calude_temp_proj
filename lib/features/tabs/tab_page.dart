@@ -101,7 +101,7 @@ class _TabPageState extends State<TabPage> {
     setState(() => _resolving = true);
     final started = DateTime.now();
     _pendingTimer?.cancel();
-    _pendingTimer = Timer.periodic(const Duration(milliseconds: 500), (t) async {
+    _pendingTimer = Timer.periodic(Duration(milliseconds: 500), (t) async {
       if (!mounted || tab.pendingCode != code) {
         t.cancel();
         return;
@@ -133,7 +133,7 @@ class _TabPageState extends State<TabPage> {
     final tab = tabs.current;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Getting video…'), duration: Duration(seconds: 2)));
+      ..showSnackBar(SnackBar(content: Text('Getting video…'), duration: Duration(seconds: 2)));
     HapticFeedback.mediumImpact();
     setState(() => _resolving = true);
     try {
@@ -150,8 +150,8 @@ class _TabPageState extends State<TabPage> {
       }
       if (info == null) {
         try {
-          info = await bridge.resolve(url).timeout(const Duration(seconds: 25),
-              onTimeout: () => throw const PluckException('This is taking too long. Check your internet and try again.'));
+          info = await bridge.resolve(url).timeout(Duration(seconds: 25),
+              onTimeout: () => throw PluckException('This is taking too long. Check your internet and try again.'));
         } on PluckException {
           final media = tab.mediaSrc; // the player's own video file (TikTok, Facebook…)
           if (media != null && !tab.isStart) {
@@ -166,7 +166,7 @@ class _TabPageState extends State<TabPage> {
       }
       if (!mounted) return;
       final found = info!;
-      if (found.items.isEmpty) throw const PluckException('Nothing downloadable found here.');
+      if (found.items.isEmpty) throw PluckException('Nothing downloadable found here.');
       setState(() => _resolving = false);
       await showResultSheet(context, found);
     } on PluckException catch (e) {
@@ -184,7 +184,7 @@ class _TabPageState extends State<TabPage> {
     final tab = tabs.current;
     final media = tab.mediaSrc;
     if (media == null) {
-      _showError(const PluckException('This video didn’t start playing, so there was nothing to save. Tap play, then the red download button.'));
+      _showError(PluckException('This video didn’t start playing, so there was nothing to save. Tap play, then the red download button.'));
       return;
     }
     try {
@@ -214,18 +214,18 @@ class _TabPageState extends State<TabPage> {
     showDialog<void>(
       context: context,
       builder: (d) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: const Text('Couldn’t download'),
+        backgroundColor: Palette.surface,
+        title: Text('Couldn’t download'),
         content: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(e.message, style: const TextStyle(fontSize: 15, height: 1.4)),
+            Text(e.message, style: TextStyle(fontSize: 15, height: 1.4)),
             if (e.detail != null && e.detail!.isNotEmpty)
               Theme(
                 data: Theme.of(d).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
                   tilePadding: EdgeInsets.zero,
-                  title: const Text('Details', style: TextStyle(fontSize: 14, color: Palette.muted)),
-                  children: [SelectableText(e.detail!, style: const TextStyle(fontSize: 12, color: Palette.muted))],
+                  title: Text('Details', style: TextStyle(fontSize: 14, color: Palette.muted)),
+                  children: [SelectableText(e.detail!, style: TextStyle(fontSize: 12, color: Palette.muted))],
                 ),
               ),
           ]),
@@ -237,9 +237,9 @@ class _TabPageState extends State<TabPage> {
                 Clipboard.setData(ClipboardData(text: '${e.message}\n${e.detail}'));
                 Navigator.pop(d);
               },
-              child: const Text('Copy details'),
+              child: Text('Copy details'),
             ),
-          TextButton(onPressed: () => Navigator.pop(d), child: const Text('OK')),
+          TextButton(onPressed: () => Navigator.pop(d), child: Text('OK')),
         ],
       ),
     );
@@ -256,7 +256,7 @@ class _TabPageState extends State<TabPage> {
 
   void _openSite(Source s) {
     if (s == Source.whatsapp) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const Scaffold(body: StatusScreen())));
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => Scaffold(body: StatusScreen())));
       return;
     }
     tabs.current.load(s.home);
@@ -287,7 +287,7 @@ class _TabPageState extends State<TabPage> {
             focus: _focus,
             onSubmit: _go,
             onPaste: _paste,
-            onTabs: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TabSwitcher())),
+            onTabs: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TabSwitcher())),
             onMenu: (v) => _menu(v, tab),
           ),
           if (tab.isStart)
@@ -352,7 +352,7 @@ class _TabPageState extends State<TabPage> {
         final src = Source.detect(tab.url ?? '') ?? Source.instagram;
         Navigator.of(context).push(MaterialPageRoute(builder: (_) => SourceScreen(source: src)));
       case 'settings':
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen()));
     }
   }
 }
@@ -394,7 +394,7 @@ class _TopBar extends StatelessWidget {
     final bookmarked = store.isBookmarked(tab.url);
     final src = Source.detect(tab.url ?? '');
     return Container(
-      decoration: const BoxDecoration(color: Palette.surface, border: Border(bottom: BorderSide(color: Palette.line))),
+      decoration: BoxDecoration(color: Palette.surface, border: Border(bottom: BorderSide(color: Palette.line))),
       padding: EdgeInsets.fromLTRB(12, top + 8, 4, 10),
       child: Row(children: [
         Pressable(
@@ -408,16 +408,16 @@ class _TopBar extends StatelessWidget {
               height: 24,
               alignment: Alignment.center,
               decoration: BoxDecoration(border: Border.all(color: Palette.ink, width: 2), borderRadius: BorderRadius.circular(7)),
-              child: Text('$count', style: const TextStyle(fontFamily: Fonts.body, color: Palette.ink, fontWeight: FontWeight.w700, fontSize: 12)),
+              child: Text('$count', style: TextStyle(fontFamily: Fonts.body, color: Palette.ink, fontWeight: FontWeight.w700, fontSize: 12)),
             ),
           ),
         ),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         Expanded(
           child: AnimatedContainer(
             duration: Motion.base,
             height: 44,
-            padding: const EdgeInsets.only(left: 12, right: 2),
+            padding: EdgeInsets.only(left: 12, right: 2),
             decoration: BoxDecoration(
               color: focus.hasFocus ? Palette.surface : Palette.surfaceHi,
               borderRadius: BorderRadius.circular(14),
@@ -428,7 +428,7 @@ class _TopBar extends StatelessWidget {
                 SiteBubble(src, size: 22)
               else
                 Icon(tab.isStart || focus.hasFocus ? Icons.search_rounded : Icons.lock_rounded, size: 18, color: Palette.muted),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   controller: search,
@@ -456,6 +456,7 @@ class _TopBar extends StatelessWidget {
             ]),
           ),
         ),
+        if (tab.isStart) ThemeSwitch(plain: true),
         if (!tab.isStart)
           IconButton(
             icon: Icon(bookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded, color: bookmarked ? Palette.accent : Palette.ink, size: 23),
@@ -463,7 +464,7 @@ class _TopBar extends StatelessWidget {
             onPressed: () => onMenu('bookmark'),
           ),
         PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert_rounded, color: Palette.ink, size: 23),
+          icon: Icon(Icons.more_vert_rounded, color: Palette.ink, size: 23),
           color: Palette.surface,
           surfaceTintColor: Colors.transparent,
           elevation: 8,
@@ -490,7 +491,7 @@ class _TopBar extends StatelessWidget {
         height: 44,
         child: Row(children: [
           Icon(i, size: 19, color: Palette.muted),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Text(t, style: TextStyles.title.copyWith(fontSize: 14.5, fontWeight: FontWeight.w500)),
         ]),
       );
@@ -524,58 +525,58 @@ class _StartPageState extends State<_StartPage> {
   Widget build(BuildContext context) {
     final store = context.read<WebStore>();
     final sites = _order.where((s) => s != Source.youtube || Config.youtubeEnabled).toList();
-    return ListView(padding: const EdgeInsets.only(bottom: 24), children: [
-      if (widget.resolving) const LinearProgressIndicator(minHeight: 2, color: Palette.accent, backgroundColor: Colors.transparent),
+    return ListView(padding: EdgeInsets.only(bottom: 24), children: [
+      if (widget.resolving) LinearProgressIndicator(minHeight: 2, color: Palette.accent, backgroundColor: Colors.transparent),
       Padding(
-        padding: const EdgeInsets.fromLTRB(20, 22, 20, 0),
+        padding: EdgeInsets.fromLTRB(20, 22, 20, 0),
         child: Text('Browse & download', style: TextStyles.h1.copyWith(fontSize: 26)),
       ),
       Padding(
-        padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
+        padding: EdgeInsets.fromLTRB(20, 6, 20, 0),
         child: Text('Open a site, play a video, tap the orange button.', style: TextStyles.small),
       ),
-      const SizedBox(height: 18),
+      SizedBox(height: 18),
       SizedBox(
         height: 92,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 18),
+          padding: EdgeInsets.symmetric(horizontal: 18),
           itemCount: sites.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 6),
+          separatorBuilder: (_, __) => SizedBox(width: 6),
           itemBuilder: (_, i) => Pressable(
             onTap: () => widget.onSite(sites[i]),
             child: SizedBox(
               width: 70,
               child: Column(children: [
                 AppIcon(sites[i], size: 52),
-                const SizedBox(height: 7),
+                SizedBox(height: 7),
                 Text(appName(sites[i]), maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyles.small.copyWith(fontSize: 12, color: Palette.text, fontWeight: FontWeight.w600)),
               ]),
             ),
           ),
         ),
       ),
-      const SizedBox(height: 18),
+      SizedBox(height: 18),
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Container(
           decoration: BoxDecoration(color: Palette.surface, borderRadius: BorderRadius.circular(24), boxShadow: Shadows.soft),
           child: Column(children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 4, 0),
+              padding: EdgeInsets.fromLTRB(8, 8, 4, 0),
               child: Row(children: [
-                for (final (i, label) in const ['History', 'Bookmarks'].indexed)
+                for (final (i, label) in ['History', 'Bookmarks'].indexed)
                   Pressable(
                     onTap: () => setState(() => _section = i),
                     child: AnimatedContainer(
                       duration: Motion.base,
-                      margin: const EdgeInsets.only(right: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      margin: EdgeInsets.only(right: 6),
+                      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(color: _section == i ? Palette.ink : Colors.transparent, borderRadius: BorderRadius.circular(100)),
-                      child: Text(label, style: TextStyles.button.copyWith(fontSize: 13.5, color: _section == i ? Colors.white : Palette.muted)),
+                      child: Text(label, style: TextStyles.button.copyWith(fontSize: 13.5, color: _section == i ? Palette.onInk : Palette.muted)),
                     ),
                   ),
-                const Spacer(),
+                Spacer(),
                 if (_section == 0 && store.history.isNotEmpty)
                   TextButton(onPressed: store.clearHistory, child: Text('Clear', style: TextStyles.button.copyWith(fontSize: 13, color: Palette.muted))),
               ]),
@@ -586,7 +587,7 @@ class _StartPageState extends State<_StartPage> {
               onOpen: widget.onOpen,
               onDelete: _section == 0 ? store.removeHistory : store.removeBookmark,
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
           ]),
         ),
       ),
@@ -605,8 +606,8 @@ class _EntryList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (entries.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(18, 10, 18, 8),
-        child: Text(empty, style: const TextStyle(color: Palette.faint, fontSize: 14, height: 1.4)),
+        padding: EdgeInsets.fromLTRB(18, 10, 18, 8),
+        child: Text(empty, style: TextStyle(color: Palette.faint, fontSize: 14, height: 1.4)),
       );
     }
     return Column(children: [
@@ -614,20 +615,20 @@ class _EntryList extends StatelessWidget {
         InkWell(
           onTap: () => onOpen(e.url),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 0, 10),
+            padding: EdgeInsets.fromLTRB(16, 10, 0, 10),
             child: Row(children: [
               SiteBubble(Source.detect(e.url)),
-              const SizedBox(width: 14),
+              SizedBox(width: 14),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(e.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Palette.text)),
-                  const SizedBox(height: 2),
-                  Text(e.url.replaceFirst(RegExp(r'^https?://(www\.)?'), ''), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, color: Palette.faint)),
+                  Text(e.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Palette.text)),
+                  SizedBox(height: 2),
+                  Text(e.url.replaceFirst(RegExp(r'^https?://(www\.)?'), ''), maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, color: Palette.faint)),
                 ]),
               ),
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert_rounded, color: Palette.muted),
-                color: Colors.white,
+                icon: Icon(Icons.more_vert_rounded, color: Palette.muted),
+                color: Palette.surface,
                 onSelected: (v) {
                   switch (v) {
                     case 'open':
@@ -641,7 +642,7 @@ class _EntryList extends StatelessWidget {
                       onDelete(e);
                   }
                 },
-                itemBuilder: (_) => const [
+                itemBuilder: (_) => [
                   PopupMenuItem(value: 'open', child: Text('Open')),
                   PopupMenuItem(value: 'tab', child: Text('Open in new tab')),
                   PopupMenuItem(value: 'copy', child: Text('Copy link')),
@@ -651,7 +652,7 @@ class _EntryList extends StatelessWidget {
             ]),
           ),
         ),
-        const Divider(height: 1, thickness: 1, indent: 66, endIndent: 16, color: Palette.line),
+        Divider(height: 1, thickness: 1, indent: 66, endIndent: 16, color: Palette.line),
       ],
     ]);
   }
@@ -671,15 +672,15 @@ class _DownloadFab extends StatelessWidget {
       child: Container(
         width: 64,
         height: 64,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Palette.fab,
           shape: BoxShape.circle,
           boxShadow: [BoxShadow(color: Color(0x55000000), blurRadius: 14, offset: Offset(0, 6))],
         ),
         alignment: Alignment.center,
         child: busy
-            ? const SizedBox(width: 26, height: 26, child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white))
-            : const Icon(Icons.download_rounded, color: Colors.white, size: 34, semanticLabel: 'Download video'),
+            ? SizedBox(width: 26, height: 26, child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white))
+            : Icon(Icons.download_rounded, color: Colors.white, size: 34, semanticLabel: 'Download video'),
       ),
     ),
     );

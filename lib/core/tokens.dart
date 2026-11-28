@@ -4,30 +4,38 @@ import 'package:flutter/material.dart';
 /// Single source of truth for every visual decision in Pluck.
 /// Nothing in the UI uses a raw colour, size or duration — only these.
 abstract final class Palette {
-  static const ink = Color(0xFF111113); // headlines, dark surfaces
-  static const accent = Color(0xFFFF5A1F); // ember: the one action colour
-  static const accentSoft = Color(0xFFFFEEE7);
-  static const brand = accent;
-  static const brandDark = Color(0xFFE84A12);
-  static const fab = accent;
-  static const bg = Color(0xFFF5F4F0); // warm paper
-  static const surface = Color(0xFFFFFFFF);
-  static const surfaceHi = Color(0xFFEFEEE9);
-  static const line = Color(0xFFE7E5DF);
-  static const text = Color(0xFF111113);
-  static const muted = Color(0xFF6E6D73);
-  static const faint = Color(0xFFA6A5AB);
-  static const volt = accent;
+  /// Flipped by the theme toggle (see ThemeSwitch); the whole tree is rebuilt afterwards.
+  static bool dark = false;
+  static Color _p(int light, int night) => Color(dark ? night : light);
+
+  static Color get ink => _p(0xFF111113, 0xFFF2F1EE); // headlines; "inverted" surfaces
+  static Color get onInk => _p(0xFFFFFFFF, 0xFF111113); // text on ink
+  static Color get feature => _p(0xFF111113, 0xFF24232A); // dark spotlight card (white text in both themes)
+  static Color get accent => _p(0xFFFF5A1F, 0xFFFF6A33); // ember: the one action colour
+  static Color get accentSoft => _p(0xFFFFEEE7, 0xFF3A2017);
+  static Color get brand => accent;
+  static Color get brandDark => _p(0xFFE84A12, 0xFFFF5A1F);
+  static Color get fab => accent;
+  static Color get bg => _p(0xFFF5F4F0, 0xFF0D0D10);
+  static Color get surface => _p(0xFFFFFFFF, 0xFF17171B);
+  static Color get surfaceHi => _p(0xFFEFEEE9, 0xFF222227);
+  static Color get line => _p(0xFFE7E5DF, 0xFF2C2C33);
+  static Color get text => _p(0xFF111113, 0xFFF2F1EE);
+  static Color get muted => _p(0xFF6E6D73, 0xFFA3A2AB);
+  static Color get faint => _p(0xFFA6A5AB, 0xFF6C6B75);
+  static Color get volt => accent;
   static const voltInk = Color(0xFFFFFFFF);
-  static const danger = Color(0xFFE5484D);
-  static const success = Color(0xFF16A34A);
+  static Color get danger => _p(0xFFE5484D, 0xFFFF6B6B);
+  static Color get success => _p(0xFF16A34A, 0xFF22C55E);
 }
 
 /// One shadow family for the whole app.
 abstract final class Shadows {
-  static const soft = [BoxShadow(color: Color(0x0D111113), blurRadius: 24, offset: Offset(0, 8))];
-  static const lift = [BoxShadow(color: Color(0x1A111113), blurRadius: 30, offset: Offset(0, 12))];
+  static List<BoxShadow> get soft => [BoxShadow(color: Color(Palette.dark ? 0x40000000 : 0x0D111113), blurRadius: 24, offset: Offset(0, 8))];
+  static List<BoxShadow> get lift => [BoxShadow(color: Color(Palette.dark ? 0x66000000 : 0x1A111113), blurRadius: 30, offset: Offset(0, 12))];
 }
+
+/// One shadow family for the whole app.
 
 abstract final class Fonts {
   static const display = 'Bricolage';
@@ -61,7 +69,7 @@ abstract final class Motion {
 }
 
 abstract final class TextStyles {
-  static const hero = TextStyle(
+  static TextStyle get hero => TextStyle(
     fontFamily: Fonts.display,
     fontWeight: FontWeight.w800,
     fontSize: 46,
@@ -69,7 +77,7 @@ abstract final class TextStyles {
     letterSpacing: -1.8,
     color: Palette.text,
   );
-  static const h1 = TextStyle(
+  static TextStyle get h1 => TextStyle(
     fontFamily: Fonts.display,
     fontWeight: FontWeight.w700,
     fontSize: 30,
@@ -77,7 +85,7 @@ abstract final class TextStyles {
     letterSpacing: -1.0,
     color: Palette.text,
   );
-  static const h2 = TextStyle(
+  static TextStyle get h2 => TextStyle(
     fontFamily: Fonts.display,
     fontWeight: FontWeight.w700,
     fontSize: 21,
@@ -85,42 +93,42 @@ abstract final class TextStyles {
     letterSpacing: -0.5,
     color: Palette.text,
   );
-  static const title = TextStyle(
+  static TextStyle get title => TextStyle(
     fontFamily: Fonts.body,
     fontWeight: FontWeight.w600,
     fontSize: 16,
     height: 1.3,
     color: Palette.text,
   );
-  static const body = TextStyle(
+  static TextStyle get body => TextStyle(
     fontFamily: Fonts.body,
     fontWeight: FontWeight.w400,
     fontSize: 15,
     height: 1.45,
     color: Palette.muted,
   );
-  static const small = TextStyle(
+  static TextStyle get small => TextStyle(
     fontFamily: Fonts.body,
     fontWeight: FontWeight.w500,
     fontSize: 13,
     height: 1.35,
     color: Palette.muted,
   );
-  static const label = TextStyle(
+  static TextStyle get label => TextStyle(
     fontFamily: Fonts.body,
     fontWeight: FontWeight.w700,
     fontSize: 11.5,
     letterSpacing: 1.0,
     color: Palette.muted,
   );
-  static const number = TextStyle(
+  static TextStyle get number => TextStyle(
     fontFamily: Fonts.mono,
     fontWeight: FontWeight.w700,
     fontSize: 15,
     fontFeatures: [FontFeature.tabularFigures()],
     color: Palette.text,
   );
-  static const button = TextStyle(
+  static TextStyle get button => TextStyle(
     fontFamily: Fonts.body,
     fontWeight: FontWeight.w700,
     fontSize: 16,
@@ -129,37 +137,89 @@ abstract final class TextStyles {
 }
 
 ThemeData buildTheme() {
-  const scheme = ColorScheme.light(
-    surface: Palette.surface,
-    primary: Palette.brand,
-    onPrimary: Colors.white,
-    secondary: Palette.brand,
-    error: Palette.danger,
-    onSurface: Palette.text,
-  );
+  final scheme = Palette.dark
+      ? ColorScheme.dark(surface: Palette.surface, primary: Palette.brand, onPrimary: Colors.white, secondary: Palette.brand, error: Palette.danger, onSurface: Palette.text)
+      : ColorScheme.light(surface: Palette.surface, primary: Palette.brand, onPrimary: Colors.white, secondary: Palette.brand, error: Palette.danger, onSurface: Palette.text);
   return ThemeData(
     useMaterial3: true,
-    brightness: Brightness.light,
+    brightness: Palette.dark ? Brightness.dark : Brightness.light,
+    dialogTheme: DialogThemeData(backgroundColor: Palette.surface, surfaceTintColor: Colors.transparent),
+    popupMenuTheme: PopupMenuThemeData(color: Palette.surface, surfaceTintColor: Colors.transparent),
+    bottomSheetTheme: const BottomSheetThemeData(surfaceTintColor: Colors.transparent),
     colorScheme: scheme,
     scaffoldBackgroundColor: Palette.bg,
     dividerColor: Palette.line,
     fontFamily: Fonts.body,
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
-    textSelectionTheme: const TextSelectionThemeData(
+    textSelectionTheme: TextSelectionThemeData(
       cursorColor: Palette.volt,
       selectionColor: Color(0x55FF6A00),
       selectionHandleColor: Palette.volt,
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: const Color(0xFF2B2B2B),
+      backgroundColor: Color(Palette.dark ? 0xFF2C2C33 : 0xFF2B2B2B),
       contentTextStyle: TextStyles.title.copyWith(fontSize: 14, color: Colors.white),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.md)),
     ),
-    pageTransitionsTheme: const PageTransitionsTheme(builders: {
+    pageTransitionsTheme: PageTransitionsTheme(builders: {
       TargetPlatform.android: CupertinoPageTransitionsBuilder(),
       TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
     }),
   );
+}
+
+/// Light / dark switch. Lives in the top bars; remembers the choice.
+class ThemeController {
+  ThemeController._();
+  static final mode = ValueNotifier<bool>(false);
+  static void Function(bool dark)? _save;
+
+  static void init({required bool dark, required void Function(bool) save}) {
+    Palette.dark = dark;
+    mode.value = dark;
+    _save = save;
+  }
+
+  static void toggle() {
+    Palette.dark = !Palette.dark;
+    _save?.call(Palette.dark);
+    mode.value = Palette.dark; // root rebuilds every widget (see ThemeRebuilder)
+  }
+}
+
+/// Rebuilds the entire tree when the theme flips, so every Palette read picks up the new colours.
+class ThemeRebuilder extends StatefulWidget {
+  const ThemeRebuilder({super.key, required this.builder});
+  final WidgetBuilder builder;
+  @override
+  State<ThemeRebuilder> createState() => _ThemeRebuilderState();
+}
+
+class _ThemeRebuilderState extends State<ThemeRebuilder> {
+  void _rebuildAll(Element e) {
+    e.markNeedsBuild();
+    e.visitChildren(_rebuildAll);
+  }
+
+  void _onChange() {
+    setState(() {});
+    (context as Element).visitChildren(_rebuildAll);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    ThemeController.mode.addListener(_onChange);
+  }
+
+  @override
+  void dispose() {
+    ThemeController.mode.removeListener(_onChange);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context);
 }

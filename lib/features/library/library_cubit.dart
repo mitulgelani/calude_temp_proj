@@ -37,7 +37,7 @@ class LibraryState extends Equatable {
 }
 
 class LibraryCubit extends Cubit<LibraryState> {
-  LibraryCubit(this._repo) : super(const LibraryState());
+  LibraryCubit(this._repo) : super(LibraryState());
   final HistoryRepo _repo;
 
   void load() => emit(state.copyWith(records: _repo.all()));

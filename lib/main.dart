@@ -22,6 +22,8 @@ Future<void> main() async {
 
   BrowserTab.script = await rootBundle.loadString('assets/pluck_page.js');
   final prefs = await SharedPreferences.getInstance();
+  final systemDark = WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
+  ThemeController.init(dark: prefs.getBool('dark_mode') ?? systemDark, save: (v) => prefs.setBool('dark_mode', v));
   final bridge = NativeBridge();
   final history = HistoryRepo(prefs);
   final downloader = Downloader(bridge: bridge, history: history, prefs: prefs);
@@ -46,11 +48,14 @@ Future<void> main() async {
         BlocProvider.value(value: library),
         BlocProvider(create: (_) => StatusCubit(bridge, prefs)),
       ],
-      child: MaterialApp(
-        title: 'Pluck',
-        debugShowCheckedModeBanner: false,
-        theme: buildTheme(),
-        home: const Shell(),
+      child: ThemeRebuilder(
+        builder: (_) => MaterialApp(
+          title: 'Pluck',
+          debugShowCheckedModeBanner: false,
+          theme: buildTheme(),
+          themeAnimationDuration: Duration.zero,
+          home: Shell(),
+        ),
       ),
     ),
   ));

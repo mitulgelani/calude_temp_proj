@@ -26,7 +26,7 @@ class WebStore extends ChangeNotifier {
 
   List<WebEntry> _read(String key) {
     try {
-      return (_prefs.getStringList(key) ?? const [])
+      return (_prefs.getStringList(key) ?? [])
           .map((s) => WebEntry.fromJson(Map<String, dynamic>.from(jsonDecode(s) as Map)))
           .toList();
     } catch (_) {

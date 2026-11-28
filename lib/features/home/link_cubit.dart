@@ -26,7 +26,7 @@ class LinkState extends Equatable {
 }
 
 class LinkCubit extends Cubit<LinkState> {
-  LinkCubit(this._bridge) : super(const LinkState());
+  LinkCubit(this._bridge) : super(LinkState());
   final NativeBridge _bridge;
 
   void setInput(String raw, {bool auto = false}) {

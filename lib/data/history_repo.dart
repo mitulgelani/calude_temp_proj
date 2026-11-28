@@ -11,7 +11,7 @@ class HistoryRepo {
   static const _key = 'history_v1';
 
   List<DownloadRecord> all() {
-    final raw = _prefs.getStringList(_key) ?? const [];
+    final raw = _prefs.getStringList(_key) ?? [];
     return raw
         .map((s) {
           try {

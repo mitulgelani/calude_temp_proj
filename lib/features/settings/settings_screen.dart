@@ -51,11 +51,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       body: ListView(padding: EdgeInsets.fromLTRB(Space.page, pad.top + Space.md, Space.page, pad.bottom + Space.xxl), children: [
         Row(children: [IconCircle(icon: Icons.arrow_back_rounded, onTap: () => Navigator.pop(context), tooltip: 'Back')]),
-        const SizedBox(height: Space.xl),
-        const Text('Settings', style: TextStyles.hero),
-        const SizedBox(height: Space.section - Space.md),
-        const MonoLabel('Saving'),
-        const SizedBox(height: Space.md),
+        SizedBox(height: Space.xl),
+        Text('Settings', style: TextStyles.hero),
+        SizedBox(height: Space.section - Space.md),
+        MonoLabel('Saving'),
+        SizedBox(height: Space.md),
         _Group(children: [
           _Row(
             title: 'Save to gallery',
@@ -69,9 +69,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ]),
-        const SizedBox(height: Space.xl),
-        const MonoLabel('Browser'),
-        const SizedBox(height: Space.md),
+        SizedBox(height: Space.xl),
+        MonoLabel('Browser'),
+        SizedBox(height: Space.md),
         _Group(children: [
           _Row(
             title: 'Log out of all sites',
@@ -81,25 +81,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 await bridge.clearBrowserData();
                 if (context.mounted) toast(context, 'Logged out everywhere');
               },
-              child: const MonoLabel('Clear', color: Palette.danger),
+              child: MonoLabel('Clear', color: Palette.danger),
             ),
           ),
         ]),
-        const SizedBox(height: Space.xl),
-        const MonoLabel('Download engine'),
-        const SizedBox(height: Space.md),
+        SizedBox(height: Space.xl),
+        MonoLabel('Download engine'),
+        SizedBox(height: Space.md),
         _Group(children: [
           _Row(
             title: 'yt-dlp $_engine',
             subtitle: 'Open-source, runs on your phone. When a site changes, update here. It’s free.',
             trailing: _updating
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.2, color: Palette.volt))
-                : Pressable(onTap: _update, child: const MonoLabel('Update', color: Palette.volt)),
+                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.2, color: Palette.volt))
+                : Pressable(onTap: _update, child: MonoLabel('Update', color: Palette.volt)),
           ),
         ]),
-        const SizedBox(height: Space.xl),
-        const MonoLabel('Storage'),
-        const SizedBox(height: Space.md),
+        SizedBox(height: Space.xl),
+        MonoLabel('Storage'),
+        SizedBox(height: Space.md),
         _Group(children: [
           _Row(
             title: 'Clear library',
@@ -109,13 +109,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 await context.read<LibraryCubit>().clear();
                 if (context.mounted) toast(context, 'Library cleared');
               },
-              child: const MonoLabel('Clear', color: Palette.danger),
+              child: MonoLabel('Clear', color: Palette.danger),
             ),
           ),
         ]),
-        const SizedBox(height: Space.section),
+        SizedBox(height: Space.section),
         Text('Pluck ${Config.version}', style: TextStyles.h2.copyWith(color: Palette.faint)),
-        const SizedBox(height: Space.sm),
+        SizedBox(height: Space.sm),
         Text(
           'Runs entirely on your phone. No login, no account, no servers, no tracking. Pluck isn’t affiliated with Instagram, YouTube, TikTok, Facebook, Pinterest or WhatsApp. Save only content you own or have permission to use.',
           style: TextStyles.small.copyWith(color: Palette.faint),
@@ -147,16 +147,16 @@ class _Row extends StatelessWidget {
   final Widget? leading;
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(Space.lg + 2),
+        padding: EdgeInsets.all(Space.lg + 2),
         child: Row(children: [
-          if (leading != null) ...[leading!, const SizedBox(width: Space.md + 2)],
+          if (leading != null) ...[leading!, SizedBox(width: Space.md + 2)],
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title, style: TextStyles.title),
-              if (subtitle != null) ...[const SizedBox(height: 3), Text(subtitle!, style: TextStyles.small)],
+              if (subtitle != null) ...[SizedBox(height: 3), Text(subtitle!, style: TextStyles.small)],
             ]),
           ),
-          if (trailing != null) ...[const SizedBox(width: Space.md), trailing!],
+          if (trailing != null) ...[SizedBox(width: Space.md), trailing!],
         ]),
       );
 }
@@ -173,7 +173,7 @@ class _VoltSwitch extends StatelessWidget {
           curve: Motion.curve,
           width: 52,
           height: 32,
-          padding: const EdgeInsets.all(3),
+          padding: EdgeInsets.all(3),
           decoration: BoxDecoration(color: value ? Palette.volt : Palette.surfaceHi, borderRadius: BorderRadius.circular(100), border: Border.all(color: value ? Palette.volt : Palette.line)),
           child: AnimatedAlign(
             duration: Motion.base,

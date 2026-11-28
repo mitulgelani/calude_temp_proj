@@ -48,7 +48,7 @@ class _StatusScreenState extends State<StatusScreen> with WidgetsBindingObserver
         color: Palette.volt,
         backgroundColor: Palette.surface,
         onRefresh: cubit.load,
-        child: CustomScrollView(physics: const AlwaysScrollableScrollPhysics(), slivers: [
+        child: CustomScrollView(physics: AlwaysScrollableScrollPhysics(), slivers: [
           SliverPadding(
             padding: EdgeInsets.fromLTRB(Space.page, top + Space.md, Space.page, 0),
             sliver: SliverToBoxAdapter(
@@ -57,15 +57,15 @@ class _StatusScreenState extends State<StatusScreen> with WidgetsBindingObserver
                   if (Navigator.of(context).canPop())
                     IconCircle(icon: Icons.arrow_back_rounded, onTap: () => Navigator.of(context).pop(), tooltip: 'Back')
                   else
-                    const MonogramTile(Source.whatsapp, size: 44),
-                  const Spacer(),
+                    MonogramTile(Source.whatsapp, size: 44),
+                  Spacer(),
                   if (s.phase == StatusPhase.ready) IconCircle(icon: Icons.refresh_rounded, onTap: cubit.load, tooltip: 'Refresh'),
                 ]),
-                const SizedBox(height: Space.xl),
-                const Text('Statuses', style: TextStyles.hero).enter(context, 0),
-                const SizedBox(height: Space.sm),
+                SizedBox(height: Space.xl),
+                Text('Statuses', style: TextStyles.hero).enter(context, 0),
+                SizedBox(height: Space.sm),
                 Text('They disappear after 24 hours. Keep the good ones.', style: TextStyles.body).enter(context, 1),
-                const SizedBox(height: Space.xl),
+                SizedBox(height: Space.xl),
                 _Segmented(
                   value: s.variant,
                   onChanged: cubit.setVariant,
@@ -74,7 +74,7 @@ class _StatusScreenState extends State<StatusScreen> with WidgetsBindingObserver
             ),
           ),
           ..._body(context, s),
-          const SliverToBoxAdapter(child: SizedBox(height: 150)),
+          SliverToBoxAdapter(child: SizedBox(height: 150)),
         ]),
       );
     });
@@ -91,7 +91,7 @@ class _StatusScreenState extends State<StatusScreen> with WidgetsBindingObserver
         return [SliverToBoxAdapter(child: _Message(title: 'Can’t open statuses', body: s.error ?? 'Something went wrong.'))];
       case StatusPhase.ready:
         if (s.items.isEmpty) {
-          return const [
+          return [
             SliverToBoxAdapter(
               child: _Message(
                 title: 'Nothing new yet.',
@@ -104,12 +104,12 @@ class _StatusScreenState extends State<StatusScreen> with WidgetsBindingObserver
         return [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(Space.page, Space.lg, Space.page, Space.md),
+              padding: EdgeInsets.fromLTRB(Space.page, Space.lg, Space.page, Space.md),
               child: Row(children: [
                 _Chip('All ${s.items.length}', s.videosOnly == null, () => context.read<StatusCubit>().setFilter(null)),
-                const SizedBox(width: Space.sm),
+                SizedBox(width: Space.sm),
                 _Chip('Videos $videos', s.videosOnly == true, () => context.read<StatusCubit>().setFilter(true)),
-                const SizedBox(width: Space.sm),
+                SizedBox(width: Space.sm),
                 _Chip('Photos ${s.items.length - videos}', s.videosOnly == false, () => context.read<StatusCubit>().setFilter(false)),
               ]),
             ),
@@ -120,10 +120,10 @@ class _StatusScreenState extends State<StatusScreen> with WidgetsBindingObserver
   }
 
   Widget _grid(BuildContext context, int count, IndexedWidgetBuilder builder) => SliverPadding(
-        padding: const EdgeInsets.fromLTRB(Space.page, Space.md, Space.page, 0),
+        padding: EdgeInsets.fromLTRB(Space.page, Space.md, Space.page, 0),
         sliver: SliverGrid(
           delegate: SliverChildBuilderDelegate(builder, childCount: count),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
@@ -142,7 +142,7 @@ class _Segmented extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 48,
-      padding: const EdgeInsets.all(4),
+      padding: EdgeInsets.all(4),
       decoration: BoxDecoration(color: Palette.surface, borderRadius: BorderRadius.circular(100), border: Border.all(color: Palette.line)),
       child: LayoutBuilder(builder: (context, c) {
         final w = (c.maxWidth) / 2;
@@ -187,7 +187,7 @@ class _Chip extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: Motion.base,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           decoration: BoxDecoration(
             color: on ? Palette.volt.withValues(alpha: 0.12) : Colors.transparent,
             borderRadius: BorderRadius.circular(100),
@@ -207,9 +207,9 @@ class _AccessCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final app = variant == StatusVariant.whatsapp ? 'WhatsApp' : 'WhatsApp Business';
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Space.page, Space.xl, Space.page, 0),
+      padding: EdgeInsets.fromLTRB(Space.page, Space.xl, Space.page, 0),
       child: Container(
-        padding: const EdgeInsets.all(Space.xl),
+        padding: EdgeInsets.all(Space.xl),
         decoration: BoxDecoration(
           color: Palette.surface,
           borderRadius: BorderRadius.circular(Radii.xl),
@@ -217,18 +217,18 @@ class _AccessCard extends StatelessWidget {
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('One tap, then every status shows up here.', style: TextStyles.h2.copyWith(fontSize: 24)),
-          const SizedBox(height: Space.md),
+          SizedBox(height: Space.md),
           Text('Android keeps $app’s status folder private. Allow Pluck to read it once. Nothing leaves your phone.', style: TextStyles.body),
-          const SizedBox(height: Space.xl),
-          for (final (i, step) in const ['Tap the button below', 'The .Statuses folder opens', 'Tap “Use this folder”, then Allow'].indexed)
+          SizedBox(height: Space.xl),
+          for (final (i, step) in ['Tap the button below', 'The .Statuses folder opens', 'Tap “Use this folder”, then Allow'].indexed)
             Padding(
-              padding: const EdgeInsets.only(bottom: Space.md),
+              padding: EdgeInsets.only(bottom: Space.md),
               child: Row(children: [
                 SizedBox(width: 32, child: Text('0${i + 1}', style: TextStyles.number.copyWith(color: Source.whatsapp.color, fontSize: 13))),
                 Expanded(child: Text(step, style: TextStyles.title.copyWith(fontSize: 15, fontWeight: FontWeight.w500))),
               ]),
             ),
-          const SizedBox(height: Space.md),
+          SizedBox(height: Space.md),
           VoltButton(label: 'Allow folder access', icon: Icons.folder_open_rounded, onTap: onGrant),
         ]),
       ),
@@ -242,10 +242,10 @@ class _Message extends StatelessWidget {
   final String body;
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(Space.page, Space.section, Space.page, 0),
+        padding: EdgeInsets.fromLTRB(Space.page, Space.section, Space.page, 0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title, style: TextStyles.h1),
-          const SizedBox(height: Space.sm),
+          SizedBox(height: Space.sm),
           Text(body, style: TextStyles.body),
         ]),
       );
@@ -287,17 +287,17 @@ class _StatusTile extends StatelessWidget {
             FutureBuilder(
               future: bridge.videoThumb(item),
               builder: (_, snap) => snap.data == null
-                  ? const SizedBox.shrink()
+                  ? SizedBox.shrink()
                   : Image.memory(snap.data!, fit: BoxFit.cover, gaplessPlayback: true),
             )
           else
             FutureBuilder(
               future: bridge.copyToCache(item),
               builder: (_, snap) => snap.data == null
-                  ? const SizedBox.shrink()
+                  ? SizedBox.shrink()
                   : Image.file(File(snap.data!), fit: BoxFit.cover, cacheWidth: 360, gaplessPlayback: true),
             ),
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -308,7 +308,7 @@ class _StatusTile extends StatelessWidget {
             ),
           ),
           if (item.isVideo)
-            const Positioned(left: 8, top: 8, child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20)),
+            Positioned(left: 8, top: 8, child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20)),
           Positioned(
             left: 8,
             bottom: 9,
@@ -322,8 +322,8 @@ class _StatusTile extends StatelessWidget {
               child: Container(
                 width: 30,
                 height: 30,
-                decoration: const BoxDecoration(color: Palette.volt, shape: BoxShape.circle),
-                child: const Icon(Icons.south_rounded, size: 17, color: Palette.voltInk),
+                decoration: BoxDecoration(color: Palette.volt, shape: BoxShape.circle),
+                child: Icon(Icons.south_rounded, size: 17, color: Palette.voltInk),
               ),
             ),
           ),

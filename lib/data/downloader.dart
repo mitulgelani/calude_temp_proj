@@ -17,7 +17,7 @@ class Downloader {
   final NativeBridge bridge;
   final HistoryRepo history;
   final SharedPreferences prefs;
-  final _dio = Dio(BaseOptions(connectTimeout: const Duration(seconds: 15)));
+  final _dio = Dio(BaseOptions(connectTimeout: Duration(seconds: 15)));
 
   bool get saveToGalleryEnabled => prefs.getBool('save_to_gallery') ?? true;
   Future<void> setSaveToGallery(bool v) => prefs.setBool('save_to_gallery', v);
@@ -121,7 +121,7 @@ class Downloader {
     if (kind == 'audio') return; // audio stays in the Library; share it from there
     if (!await Gal.hasAccess(toAlbum: true)) {
       final ok = await Gal.requestAccess(toAlbum: true);
-      if (!ok) throw const PluckException('Allow photo access so Pluck can save to your gallery.');
+      if (!ok) throw PluckException('Allow photo access so Pluck can save to your gallery.');
     }
     if (kind == 'image') {
       await Gal.putImage(path, album: Config.albumName);

@@ -59,7 +59,7 @@ class _ResultSheetState extends State<ResultSheet> {
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(
-        duration: const Duration(seconds: 3),
+        duration: Duration(seconds: 3),
         content: Text(items.length > 1 ? 'Downloading ${items.length} items' : 'Download started'),
         action: SnackBarAction(label: 'VIEW', textColor: Palette.brand, onPressed: () => shellTab.value = 2),
       ));
@@ -71,28 +71,28 @@ class _ResultSheetState extends State<ResultSheet> {
     final accent = info.source.color;
     return Container(
       constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.92),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Palette.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.xl)),
       ),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         Container(width: 40, height: 4, decoration: BoxDecoration(color: Palette.line, borderRadius: BorderRadius.circular(4))),
         Flexible(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(Space.page, Space.lg, Space.page, Space.lg),
+            padding: EdgeInsets.fromLTRB(Space.page, Space.lg, Space.page, Space.lg),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               _Preview(info: info),
-              const SizedBox(height: Space.lg + 2),
+              SizedBox(height: Space.lg + 2),
               Text(info.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyles.h2),
               if (info.author != null) ...[
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Text(info.author!, style: TextStyles.small.copyWith(color: accent)),
               ],
-              const SizedBox(height: Space.xl),
+              SizedBox(height: Space.xl),
               Row(children: [
                 MonoLabel(info.isGallery ? '${info.items.length} items · tap to pick' : 'Choose format'),
-                const Spacer(),
+                Spacer(),
                 if (info.isGallery)
                   Pressable(
                     onTap: () => setState(() {
@@ -105,13 +105,13 @@ class _ResultSheetState extends State<ResultSheet> {
                     child: MonoLabel(_selected.length == info.items.length ? 'None' : 'All', color: Palette.text),
                   ),
               ]),
-              const SizedBox(height: Space.md),
+              SizedBox(height: Space.md),
               if (info.isGallery)
                 _GalleryGrid(items: info.items, selected: _selected, onToggle: _toggle, accent: accent)
               else
                 for (final item in info.items)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: Space.sm),
+                    padding: EdgeInsets.only(bottom: Space.sm),
                     child: _FormatRow(item: item, selected: _selected.contains(item), onTap: () => _toggle(item)),
                   ),
             ]),
@@ -119,7 +119,7 @@ class _ResultSheetState extends State<ResultSheet> {
         ),
         Container(
           padding: EdgeInsets.fromLTRB(Space.page, Space.md, Space.page, bottom + Space.lg),
-          decoration: const BoxDecoration(border: Border(top: BorderSide(color: Palette.line))),
+          decoration: BoxDecoration(border: Border(top: BorderSide(color: Palette.line))),
           child: Column(children: [
             VoltButton(
               label: _selected.length > 1
@@ -150,7 +150,7 @@ class _Preview extends StatelessWidget {
         DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(Radii.lg),
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               stops: [0.45, 1],
@@ -164,7 +164,7 @@ class _Preview extends StatelessWidget {
             right: 12,
             bottom: 12,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(color: Palette.bg.withValues(alpha: 0.75), borderRadius: BorderRadius.circular(100)),
               child: Text(formatDuration(info.duration), style: TextStyles.number.copyWith(fontSize: 12)),
             ),
@@ -190,7 +190,7 @@ class _FormatRow extends StatelessWidget {
       child: AnimatedContainer(
         duration: Motion.base,
         curve: Motion.curve,
-        padding: const EdgeInsets.all(Space.md),
+        padding: EdgeInsets.all(Space.md),
         decoration: BoxDecoration(
           color: selected ? Palette.volt.withValues(alpha: 0.07) : Palette.bg,
           borderRadius: BorderRadius.circular(Radii.md),
@@ -203,11 +203,11 @@ class _FormatRow extends StatelessWidget {
             decoration: BoxDecoration(color: Palette.surfaceHi, borderRadius: BorderRadius.circular(Radii.sm)),
             child: Icon(icon, color: selected ? Palette.volt : Palette.muted, size: 22),
           ),
-          const SizedBox(width: Space.md),
+          SizedBox(width: Space.md),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(item.label, style: TextStyles.title.copyWith(fontFamily: Fonts.display, fontWeight: FontWeight.w700, fontSize: 18)),
-              const SizedBox(height: 2),
+              SizedBox(height: 2),
               MonoLabel(meta),
             ]),
           ),
@@ -220,7 +220,7 @@ class _FormatRow extends StatelessWidget {
               color: selected ? Palette.volt : Colors.transparent,
               border: Border.all(color: selected ? Palette.volt : Palette.faint, width: 1.6),
             ),
-            child: selected ? const Icon(Icons.check_rounded, size: 16, color: Palette.voltInk) : null,
+            child: selected ? Icon(Icons.check_rounded, size: 16, color: Palette.voltInk) : null,
           ),
         ]),
       ),
@@ -239,8 +239,8 @@ class _GalleryGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 8, crossAxisSpacing: 8, childAspectRatio: 0.8),
+      physics: NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 8, crossAxisSpacing: 8, childAspectRatio: 0.8),
       itemCount: items.length,
       itemBuilder: (_, i) {
         final it = items[i];
@@ -257,7 +257,7 @@ class _GalleryGrid extends StatelessWidget {
                 color: on ? Colors.transparent : Palette.bg.withValues(alpha: 0.5),
               ),
             ),
-            if (it.isVideo) const Positioned(left: 6, bottom: 6, child: Icon(Icons.play_circle_fill_rounded, color: Palette.text, size: 20)),
+            if (it.isVideo) Positioned(left: 6, bottom: 6, child: Icon(Icons.play_circle_fill_rounded, color: Palette.text, size: 20)),
             Positioned(
               right: 6,
               top: 6,
@@ -265,7 +265,7 @@ class _GalleryGrid extends StatelessWidget {
                 width: 22,
                 height: 22,
                 decoration: BoxDecoration(shape: BoxShape.circle, color: on ? Palette.volt : Palette.bg.withValues(alpha: 0.6), border: Border.all(color: Palette.text, width: on ? 0 : 1.4)),
-                child: on ? const Icon(Icons.check_rounded, size: 15, color: Palette.voltInk) : null,
+                child: on ? Icon(Icons.check_rounded, size: 15, color: Palette.voltInk) : null,
               ),
             ),
           ]),

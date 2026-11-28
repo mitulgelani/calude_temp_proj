@@ -16,7 +16,7 @@ Future<void> showGuideSheet(BuildContext context, Source source) => showModalBot
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
-      barrierColor: const Color(0x66111113),
+      barrierColor: Color(0x66111113),
       builder: (_) => _GuideSheet(source: source),
     );
 
@@ -39,7 +39,7 @@ class _GuideSheetState extends State<_GuideSheet> {
     final nav = Navigator.of(context);
     nav.pop();
     if (isStatus) {
-      nav.push(MaterialPageRoute(builder: (_) => const Scaffold(body: StatusScreen())));
+      nav.push(MaterialPageRoute(builder: (_) => Scaffold(body: StatusScreen())));
       return;
     }
     final tabs = context.read<TabsController>();
@@ -79,33 +79,33 @@ class _GuideSheetState extends State<_GuideSheet> {
   Widget build(BuildContext context) {
     final bottom = MediaQuery.paddingOf(context).bottom + MediaQuery.viewInsetsOf(context).bottom;
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Palette.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       padding: EdgeInsets.fromLTRB(22, 10, 22, bottom + 18),
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
         Center(child: Container(width: 38, height: 4, decoration: BoxDecoration(color: Palette.line, borderRadius: BorderRadius.circular(4)))),
-        const SizedBox(height: 22),
+        SizedBox(height: 22),
         Row(children: [
           AppIcon(s, size: 54),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(isStatus ? 'Status saver' : 'Download from ${appName(s)}', style: TextStyles.h2.copyWith(fontSize: 22)),
-              const SizedBox(height: 3),
+              SizedBox(height: 3),
               Text(s.pitch, maxLines: 2, style: TextStyles.small),
             ]),
           ),
         ]),
         if (s.guides.length > 1) ...[
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           SizedBox(
             height: 38,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: s.guides.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, __) => SizedBox(width: 8),
               itemBuilder: (_, i) {
                 final on = i == _kind;
                 return Pressable(
@@ -113,27 +113,27 @@ class _GuideSheetState extends State<_GuideSheet> {
                   child: AnimatedContainer(
                     duration: Motion.base,
                     curve: Motion.curve,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 16),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: on ? Palette.ink : Palette.surfaceHi,
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: Text(s.guides[i].name,
-                        style: TextStyles.button.copyWith(fontSize: 13.5, color: on ? Colors.white : Palette.text)),
+                        style: TextStyles.button.copyWith(fontSize: 13.5, color: on ? Palette.onInk : Palette.text)),
                   ),
                 );
               },
             ),
           ),
         ],
-        const SizedBox(height: 18),
+        SizedBox(height: 18),
         AnimatedSwitcher(
           duration: Motion.base,
           child: Container(
             key: ValueKey(_kind),
             width: double.infinity,
-            padding: const EdgeInsets.all(18),
+            padding: EdgeInsets.all(18),
             decoration: BoxDecoration(color: Palette.bg, borderRadius: BorderRadius.circular(22)),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               for (var i = 0; i < g.steps.length; i++)
@@ -144,33 +144,33 @@ class _GuideSheetState extends State<_GuideSheet> {
                       width: 28,
                       height: 28,
                       alignment: Alignment.center,
-                      decoration: const BoxDecoration(color: Palette.ink, shape: BoxShape.circle),
-                      child: Text('${i + 1}', style: const TextStyle(fontFamily: Fonts.body, fontWeight: FontWeight.w700, fontSize: 13, color: Colors.white)),
+                      decoration: BoxDecoration(color: Palette.ink, shape: BoxShape.circle),
+                      child: Text('${i + 1}', style: TextStyle(fontFamily: Fonts.body, fontWeight: FontWeight.w700, fontSize: 13, color: Palette.onInk)),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(child: Text(g.steps[i], style: TextStyles.title.copyWith(fontSize: 15, fontWeight: FontWeight.w500))),
                   ]),
                 ),
               if (g.note != null) ...[
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
                 Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Icon(Icons.info_outline_rounded, size: 17, color: Palette.muted),
-                  const SizedBox(width: 8),
+                  Icon(Icons.info_outline_rounded, size: 17, color: Palette.muted),
+                  SizedBox(width: 8),
                   Expanded(child: Text(g.note!, style: TextStyles.small.copyWith(fontSize: 12.5))),
                 ]),
               ],
             ]),
           ),
         ),
-        const SizedBox(height: 18),
+        SizedBox(height: 18),
         if (g.usernameMode) ...[
           Container(
             height: 56,
-            padding: const EdgeInsets.only(left: 16, right: 6),
+            padding: EdgeInsets.only(left: 16, right: 6),
             decoration: BoxDecoration(color: Palette.surfaceHi, borderRadius: BorderRadius.circular(18)),
             child: Row(children: [
               Text('@', style: TextStyles.h2.copyWith(color: Palette.muted, fontSize: 19)),
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Expanded(
                 child: TextField(
                   controller: _user,
@@ -191,7 +191,7 @@ class _GuideSheetState extends State<_GuideSheet> {
             onTap: _open,
           ),
           if (!isStatus) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             GhostButton(label: 'I already copied a link', icon: Icons.content_paste_rounded, height: 52, onTap: _pasteLink),
           ],
         ],

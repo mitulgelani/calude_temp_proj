@@ -74,7 +74,7 @@ class _StatusViewerState extends State<StatusViewer> {
           top: pad.top + Space.sm,
           child: Row(children: [
             IconCircle(icon: Icons.close_rounded, onTap: () => Navigator.of(context).pop(), tooltip: 'Close'),
-            const Spacer(),
+            Spacer(),
             MonoLabel('${_index + 1} / ${widget.items.length} · ${statusAgo(current.modified)} ago', color: Colors.white),
           ]),
         ),
@@ -84,13 +84,13 @@ class _StatusViewerState extends State<StatusViewer> {
           bottom: pad.bottom + Space.lg,
           child: Row(children: [
             IconCircle(icon: Icons.ios_share_rounded, onTap: _share, size: 60, tooltip: 'Share'),
-            const SizedBox(width: Space.md),
+            SizedBox(width: Space.md),
             Expanded(
               child: AnimatedSwitcher(
                 duration: Motion.base,
                 child: saved
-                    ? const GhostButton(key: ValueKey('saved'), label: 'Saved to gallery', icon: Icons.check_rounded, color: Palette.volt)
-                    : VoltButton(key: const ValueKey('save'), label: 'Save to gallery', icon: Icons.south_rounded, loading: _saving, onTap: _save),
+                    ? GhostButton(key: ValueKey('saved'), label: 'Saved to gallery', icon: Icons.check_rounded, color: Palette.volt)
+                    : VoltButton(key: ValueKey('save'), label: 'Save to gallery', icon: Icons.south_rounded, loading: _saving, onTap: _save),
               ),
             ),
           ]),
@@ -149,7 +149,7 @@ class _StatusPageState extends State<_StatusPage> {
   @override
   Widget build(BuildContext context) {
     if (_path == null) {
-      return const Center(child: SizedBox(width: 26, height: 26, child: CircularProgressIndicator(strokeWidth: 2.4, color: Palette.volt)));
+      return Center(child: SizedBox(width: 26, height: 26, child: CircularProgressIndicator(strokeWidth: 2.4, color: Palette.volt)));
     }
     if (widget.item.isVideo && _video != null) {
       return GestureDetector(
@@ -163,7 +163,7 @@ class _StatusPageState extends State<_StatusPage> {
             child: Stack(fit: StackFit.expand, children: [
               VideoPlayer(_video!),
               if (!_video!.value.isPlaying)
-                const Center(child: Icon(Icons.play_arrow_rounded, size: 72, color: Color(0xCCF4EFE7))),
+                Center(child: Icon(Icons.play_arrow_rounded, size: 72, color: Color(0xCCF4EFE7))),
             ]),
           ),
         ),

@@ -110,7 +110,7 @@ class NativeBridge {
   }
 
   Future<List<StatusItem>> listStatuses(String tree) async {
-    final raw = await _ch.invokeListMethod<Map>('listStatuses', {'tree': tree}) ?? const [];
+    final raw = await _ch.invokeListMethod<Map>('listStatuses', {'tree': tree}) ?? [];
     return raw.map((m) => StatusItem.fromMap(Map<String, dynamic>.from(m))).toList();
   }
 
@@ -125,6 +125,6 @@ class NativeBridge {
       _thumbCache.putIfAbsent(item.uri, () => _ch.invokeMethod<Uint8List>('videoThumb', {'uri': item.uri}));
 
   void _ensureAndroid() {
-    if (!supported) throw const PluckException('Pluck’s download engine runs on Android.');
+    if (!supported) throw PluckException('Pluck’s download engine runs on Android.');
   }
 }

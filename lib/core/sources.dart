@@ -124,7 +124,7 @@ enum Source {
     const tap = 'Tap the orange download button';
     switch (this) {
       case Source.instagram:
-        return const [
+        return [
           KindGuide('Reels', ['Tap “Open Instagram” below', 'Scroll to the Reel you want', tap]),
           KindGuide('Posts', ['Open Instagram and find the post', 'Photos and carousels work too', '$tap — pick one or all']),
           KindGuide('Stories', ['Open Instagram and log in (optional, stays on this phone)', 'Open the story you want', tap],
@@ -132,34 +132,34 @@ enum Source {
           KindGuide('Profile photo', ['Type the username below', 'Get the full-size photo, not the tiny circle'], usernameMode: true),
         ];
       case Source.youtube:
-        return const [
+        return [
           KindGuide('Videos', ['Tap “Open YouTube” below', 'Play the video you want', '$tap and pick a quality']),
           KindGuide('Shorts', ['Open YouTube and play a Short', tap]),
           KindGuide('Audio', ['Play any video', tap, 'Choose “Audio” to save just the sound']),
         ];
       case Source.tiktok:
-        return const [
+        return [
           KindGuide('Videos', ['Tap “Open TikTok” below', 'Play the video you want', '$tap — saved without watermark']),
           KindGuide('Sounds', ['Play the video', tap, 'Choose “Audio”']),
         ];
       case Source.facebook:
-        return const [
+        return [
           KindGuide('Videos', ['Tap “Open Facebook” below', 'Play the video', tap]),
           KindGuide('Reels', ['Open Facebook Reels', 'Scroll to the Reel', tap]),
         ];
       case Source.pinterest:
-        return const [
+        return [
           KindGuide('Video pins', ['Tap “Open Pinterest” below', 'Open the pin', tap]),
           KindGuide('Image pins', ['Open the pin', '$tap — full resolution']),
         ];
       case Source.twitter:
-        return const [KindGuide('Videos', ['Tap “Open X” below', 'Open the post with the video', tap])];
+        return [KindGuide('Videos', ['Tap “Open X” below', 'Open the post with the video', tap])];
       case Source.vimeo:
-        return const [KindGuide('Videos', ['Tap “Open Vimeo” below', 'Play the video', '$tap and pick a quality'])];
+        return [KindGuide('Videos', ['Tap “Open Vimeo” below', 'Play the video', '$tap and pick a quality'])];
       case Source.dailymotion:
-        return const [KindGuide('Videos', ['Tap “Open Dailymotion” below', 'Play the video', '$tap and pick a quality'])];
+        return [KindGuide('Videos', ['Tap “Open Dailymotion” below', 'Play the video', '$tap and pick a quality'])];
       case Source.whatsapp:
-        return const [
+        return [
           KindGuide('Statuses', ['Watch the status in WhatsApp first', 'Open the status saver', 'Tap any status to save it']),
         ];
     }

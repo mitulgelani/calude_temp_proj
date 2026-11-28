@@ -63,10 +63,10 @@ class _SourceScreenState extends State<SourceScreen> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: ListView(padding: EdgeInsets.fromLTRB(0, top + Space.md, 0, 60), children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Space.page),
+            padding: EdgeInsets.symmetric(horizontal: Space.page),
             child: Row(children: [
               IconCircle(icon: Icons.arrow_back_rounded, onTap: () => Navigator.of(context).pop(), tooltip: 'Back'),
-              const Spacer(),
+              Spacer(),
               MonoLabel('Save from ${src.label}'),
             ]),
           ),
@@ -95,22 +95,22 @@ class _SourceScreenState extends State<SourceScreen> {
                 bottom: Space.md,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   MonogramTile(src, size: 48, filled: true),
-                  const SizedBox(height: Space.lg),
+                  SizedBox(height: Space.lg),
                   Text(src.label, style: TextStyles.hero.copyWith(fontSize: 40)),
-                  const SizedBox(height: Space.sm),
+                  SizedBox(height: Space.sm),
                   Text(src.pitch, style: TextStyles.body),
                 ]),
               ),
             ]),
           ).enter(context, 0),
-          const SizedBox(height: Space.xl),
+          SizedBox(height: Space.xl),
           SizedBox(
             height: 42,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: Space.page),
+              padding: EdgeInsets.symmetric(horizontal: Space.page),
               itemCount: src.guides.length,
-              separatorBuilder: (_, __) => const SizedBox(width: Space.sm),
+              separatorBuilder: (_, __) => SizedBox(width: Space.sm),
               itemBuilder: (_, i) {
                 final on = i == _kind;
                 return Pressable(
@@ -121,7 +121,7 @@ class _SourceScreenState extends State<SourceScreen> {
                   child: AnimatedContainer(
                     duration: Motion.base,
                     curve: Motion.curve,
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    padding: EdgeInsets.symmetric(horizontal: 18),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: on ? Palette.text : Palette.surface,
@@ -135,19 +135,19 @@ class _SourceScreenState extends State<SourceScreen> {
               },
             ),
           ).enter(context, 1),
-          const SizedBox(height: Space.lg),
+          SizedBox(height: Space.lg),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Space.page),
+            padding: EdgeInsets.symmetric(horizontal: Space.page),
             child: AnimatedSwitcher(
               duration: Motion.base,
               child: _GuideCard(key: ValueKey(_kind), guide: guide, source: src),
             ),
           ).enter(context, 2),
-          const SizedBox(height: Space.lg),
+          SizedBox(height: Space.lg),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Space.page),
+            padding: EdgeInsets.symmetric(horizontal: Space.page),
             child: Container(
-              padding: const EdgeInsets.fromLTRB(Space.lg + 2, Space.sm, Space.sm, Space.sm),
+              padding: EdgeInsets.fromLTRB(Space.lg + 2, Space.sm, Space.sm, Space.sm),
               decoration: BoxDecoration(
                 color: Palette.surface,
                 borderRadius: BorderRadius.circular(Radii.lg),
@@ -155,7 +155,7 @@ class _SourceScreenState extends State<SourceScreen> {
               ),
               child: Row(children: [
                 if (guide.usernameMode) Text('@', style: TextStyles.h2.copyWith(color: src.color)),
-                if (guide.usernameMode) const SizedBox(width: 4),
+                if (guide.usernameMode) SizedBox(width: 4),
                 Expanded(
                   child: TextField(
                     controller: _controller,
@@ -175,19 +175,19 @@ class _SourceScreenState extends State<SourceScreen> {
                 if (!guide.usernameMode)
                   Pressable(
                     onTap: _paste,
-                    child: const Padding(
+                    child: Padding(
                       padding: EdgeInsets.all(10),
                       child: Icon(Icons.content_paste_rounded, color: Palette.muted, size: 20),
                     ),
                   ),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 SizedBox(width: 108, child: VoltButton(label: 'Pluck', loading: _busy, height: 50, onTap: _pluck)),
               ]),
             ),
           ).enter(context, 3),
           if (_error != null)
             Padding(
-              padding: const EdgeInsets.fromLTRB(Space.page + 4, Space.md, Space.page, 0),
+              padding: EdgeInsets.fromLTRB(Space.page + 4, Space.md, Space.page, 0),
               child: Text(_error!, style: TextStyles.small.copyWith(color: Palette.danger)),
             ),
         ]),
@@ -205,15 +205,15 @@ class _GuideCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Space.xl - 4),
+      padding: EdgeInsets.all(Space.xl - 4),
       decoration: BoxDecoration(
         color: Palette.surface,
         borderRadius: BorderRadius.circular(Radii.lg),
         border: Border.all(color: Palette.line),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const MonoLabel('How to'),
-        const SizedBox(height: Space.lg),
+        MonoLabel('How to'),
+        SizedBox(height: Space.lg),
         for (var i = 0; i < guide.steps.length; i++)
           Padding(
             padding: EdgeInsets.only(bottom: i == guide.steps.length - 1 ? 0 : Space.lg),
@@ -226,13 +226,13 @@ class _GuideCard extends StatelessWidget {
             ]),
           ),
         if (guide.note != null) ...[
-          const SizedBox(height: Space.lg),
+          SizedBox(height: Space.lg),
           Container(
-            padding: const EdgeInsets.all(Space.md),
+            padding: EdgeInsets.all(Space.md),
             decoration: BoxDecoration(color: Palette.surfaceHi, borderRadius: BorderRadius.circular(Radii.sm)),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Icon(Icons.info_outline_rounded, size: 18, color: Palette.muted),
-              const SizedBox(width: Space.sm),
+              Icon(Icons.info_outline_rounded, size: 18, color: Palette.muted),
+              SizedBox(width: Space.sm),
               Expanded(child: Text(guide.note!, style: TextStyles.small)),
             ]),
           ),

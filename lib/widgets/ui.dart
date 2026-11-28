@@ -106,14 +106,14 @@ class SourcePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
+      padding: EdgeInsets.fromLTRB(4, 4, 12, 4),
       decoration: BoxDecoration(
         color: onMedia ? Palette.bg.withValues(alpha: 0.82) : source.color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(100),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         MonogramTile(source, size: 22, filled: true),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Text(
           kind == null ? source.label : '${source.label} · $kind',
           style: TextStyles.small.copyWith(color: onMedia ? Palette.text : source.color, fontWeight: FontWeight.w700),
@@ -154,15 +154,15 @@ class VoltButton extends StatelessWidget {
         child: AnimatedSwitcher(
           duration: Motion.fast,
           child: loading
-              ? const SizedBox(
+              ? SizedBox(
                   key: ValueKey('l'),
                   width: 22,
                   height: 22,
                   child: CircularProgressIndicator(strokeWidth: 2.6, color: Palette.voltInk),
                 )
-              : Row(key: const ValueKey('t'), mainAxisSize: MainAxisSize.min, children: [
+              : Row(key: ValueKey('t'), mainAxisSize: MainAxisSize.min, children: [
                   Text(label, style: TextStyles.button.copyWith(color: Palette.voltInk)),
-                  if (icon != null) ...[const SizedBox(width: 8), Icon(icon, size: 20, color: Palette.voltInk)],
+                  if (icon != null) ...[SizedBox(width: 8), Icon(icon, size: 20, color: Palette.voltInk)],
                 ]),
         ),
       ),
@@ -185,7 +185,7 @@ class GhostButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: height,
-        padding: const EdgeInsets.symmetric(horizontal: Space.lg),
+        padding: EdgeInsets.symmetric(horizontal: Space.lg),
         decoration: BoxDecoration(
           color: Palette.surfaceHi,
           borderRadius: BorderRadius.circular(Radii.md),
@@ -193,7 +193,7 @@ class GhostButton extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (icon != null) ...[Icon(icon, size: 19, color: c), const SizedBox(width: 8)],
+          if (icon != null) ...[Icon(icon, size: 19, color: c), SizedBox(width: 8)],
           Text(label, style: TextStyles.button.copyWith(color: c, fontSize: 15)),
         ]),
       ),
@@ -238,7 +238,7 @@ class LiquidButton extends StatelessWidget {
     required this.onTap,
     this.done = false,
     this.error = false,
-    this.accent = Palette.volt,
+    this.accent,
   });
 
   /// null = idle, -1 = indeterminate, 0..1 = progress
@@ -247,7 +247,7 @@ class LiquidButton extends StatelessWidget {
   final VoidCallback? onTap;
   final bool done;
   final bool error;
-  final Color accent;
+  final Color? accent;
 
   @override
   Widget build(BuildContext context) {
@@ -265,13 +265,13 @@ class LiquidButton extends StatelessWidget {
                     : '${(pv * 100).floor()}%';
 
     Widget content(Color fg) => Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          if (done) ...[Icon(Icons.check_rounded, color: fg, size: 22), const SizedBox(width: 8)],
+          if (done) ...[Icon(Icons.check_rounded, color: fg, size: 22), SizedBox(width: 8)],
           Text(
             label,
             style: (working && pv >= 0 ? TextStyles.number.copyWith(fontSize: 20) : TextStyles.button.copyWith(fontSize: 17))
                 .copyWith(color: fg),
           ),
-          if (!working && !done && !error) ...[const SizedBox(width: 8), Icon(Icons.south_rounded, color: fg, size: 20)],
+          if (!working && !done && !error) ...[SizedBox(width: 8), Icon(Icons.south_rounded, color: fg, size: 20)],
         ]);
 
     return Pressable(
@@ -290,12 +290,12 @@ class LiquidButton extends StatelessWidget {
               curve: Motion.curve,
               builder: (context, v, _) => Stack(fit: StackFit.expand, children: [
                 Container(color: error ? Palette.danger.withValues(alpha: 0.16) : Palette.surfaceHi, child: content(error ? Palette.danger : Palette.text)),
-                if (working && pv < 0) LinearProgressIndicator(color: accent.withValues(alpha: 0.35), backgroundColor: Colors.transparent),
+                if (working && pv < 0) LinearProgressIndicator(color: (accent ?? Palette.volt).withValues(alpha: 0.35), backgroundColor: Colors.transparent),
                 ClipRect(
                   child: Align(
                     alignment: Alignment.centerLeft,
                     widthFactor: v,
-                    child: SizedBox(width: c.maxWidth, child: Container(color: accent, child: content(Palette.voltInk))),
+                    child: SizedBox(width: c.maxWidth, child: Container(color: accent ?? Palette.volt, child: content(Palette.voltInk))),
                   ),
                 ),
               ]),
@@ -316,7 +316,7 @@ class SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Space.page),
+      padding: EdgeInsets.symmetric(horizontal: Space.page),
       child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
         Expanded(child: Text(title, style: TextStyles.h2)),
         if (trailing != null)
@@ -341,7 +341,7 @@ class MediaThumb extends StatelessWidget {
           color: (source?.color ?? Palette.muted).withValues(alpha: 0.10),
           alignment: Alignment.center,
           child: source == null
-              ? const Icon(Icons.image_outlined, color: Palette.faint)
+              ? Icon(Icons.image_outlined, color: Palette.faint)
               : Text(source!.mono,
                   style: TextStyle(fontFamily: Fonts.display, fontWeight: FontWeight.w800, fontSize: 22, color: source!.color.withValues(alpha: 0.7))),
         );
@@ -364,9 +364,42 @@ void toast(BuildContext context, String message, {bool error = false}) {
       content: Row(children: [
         Icon(error ? Icons.error_outline_rounded : Icons.check_circle_rounded,
             color: error ? Palette.danger : Palette.volt, size: 20),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Expanded(child: Text(message)),
       ]),
-      margin: const EdgeInsets.fromLTRB(Space.page, 0, Space.page, 100),
+      margin: EdgeInsets.fromLTRB(Space.page, 0, Space.page, 100),
     ));
+}
+
+/// Sun / moon button for the top bars.
+class ThemeSwitch extends StatelessWidget {
+  const ThemeSwitch({super.key, this.size = 44, this.plain = false});
+  final double size;
+  final bool plain; // icon only (for dense bars)
+  @override
+  Widget build(BuildContext context) {
+    final icon = AnimatedSwitcher(
+      duration: Motion.base,
+      transitionBuilder: (c, a) => RotationTransition(turns: Tween(begin: 0.75, end: 1.0).animate(a), child: FadeTransition(opacity: a, child: c)),
+      child: Icon(Palette.dark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+          key: ValueKey(Palette.dark), size: plain ? 22 : size * 0.45, color: Palette.text),
+    );
+    return Tooltip(
+      message: Palette.dark ? 'Light theme' : 'Dark theme',
+      child: Pressable(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          ThemeController.toggle();
+        },
+        child: plain
+            ? SizedBox(width: 40, height: 40, child: Center(child: icon))
+            : Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(color: Palette.surface, shape: BoxShape.circle, border: Border.all(color: Palette.line)),
+                child: Center(child: icon),
+              ),
+      ),
+    );
+  }
 }

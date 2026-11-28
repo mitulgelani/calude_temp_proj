@@ -49,11 +49,11 @@ class BrowserTab extends ChangeNotifier {
     c
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setUserAgent(userAgent)
-      ..setBackgroundColor(const Color(0xFFFFFFFF))
+      ..setBackgroundColor(Color(0xFFFFFFFF))
       ..addJavaScriptChannel('Pluck', onMessageReceived: (m) {
         try {
           final j = jsonDecode(m.message) as Map<String, dynamic>;
-          codes = ((j['codes'] as List?) ?? const []).map((e) => '$e').toSet();
+          codes = ((j['codes'] as List?) ?? []).map((e) => '$e').toSet();
           mediaSrc = j['media'] as String?;
           _pick(j['url'] as String? ?? url ?? '', j['post'] as String?);
           if (pendingCode != null && codes.contains(pendingCode)) notifyListeners();

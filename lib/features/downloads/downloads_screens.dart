@@ -24,9 +24,10 @@ class _Header extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(title, style: TextStyles.h1.copyWith(fontSize: 30)),
-            if (subtitle != null) ...[const SizedBox(height: 4), Text(subtitle!, style: TextStyles.small)],
+            if (subtitle != null) ...[SizedBox(height: 4), Text(subtitle!, style: TextStyles.small)],
           ]),
         ),
+        ThemeSwitch(size: 40),
         if (trailing != null) trailing!,
       ]),
     );
@@ -41,7 +42,7 @@ class _Empty extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
         child: Padding(
-          padding: const EdgeInsets.all(40),
+          padding: EdgeInsets.all(40),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Container(
               width: 96,
@@ -49,10 +50,10 @@ class _Empty extends StatelessWidget {
               decoration: BoxDecoration(color: Palette.brand.withValues(alpha: 0.08), shape: BoxShape.circle),
               child: Icon(icon, size: 44, color: Palette.brand),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(title, style: TextStyles.h2.copyWith(fontSize: 19)),
-            const SizedBox(height: 6),
-            Text(body, textAlign: TextAlign.center, style: const TextStyle(fontSize: 15, color: Palette.faint, height: 1.4)),
+            SizedBox(height: 6),
+            Text(body, textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: Palette.faint, height: 1.4)),
           ]),
         ),
       );
@@ -89,11 +90,11 @@ class ProgressScreen extends StatelessWidget {
         _Header('Downloads', subtitle: m.jobs.isEmpty ? 'Nothing downloading right now' : '${m.runningCount} in progress'),
         Expanded(
           child: m.jobs.isEmpty
-              ? const _Empty(Icons.download_rounded, 'No downloads yet', 'Paste a link on Home, or open an app in the Browser and tap the orange download button.')
+              ? _Empty(Icons.download_rounded, 'No downloads yet', 'Paste a link on Home, or open an app in the Browser and tap the orange download button.')
               : ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: EdgeInsets.symmetric(vertical: 8),
                   itemCount: m.jobs.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, indent: 94, color: Palette.line),
+                  separatorBuilder: (_, __) => Divider(height: 1, indent: 94, color: Palette.line),
                   itemBuilder: (_, i) => _JobRow(m.jobs[i]),
                 ),
         ),
@@ -112,14 +113,14 @@ class _JobRow extends StatelessWidget {
     final failed = job.status == JobStatus.failed;
     final p = job.progress;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
+      padding: EdgeInsets.fromLTRB(12, 12, 4, 12),
       child: Row(children: [
         _thumb(null, job.thumb, job.source),
-        const SizedBox(width: 14),
+        SizedBox(width: 14),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(job.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyles.title.copyWith(fontSize: 14.5, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             if (!failed)
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
@@ -130,7 +131,7 @@ class _JobRow extends StatelessWidget {
                   backgroundColor: Palette.surfaceHi,
                 ),
               ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               failed ? job.error ?? 'Failed' : '${p < 0 ? 'Starting…' : '${(p * 100).floor()}%'}  ·  ${job.item.label} · ${job.item.ext.toUpperCase()}',
               maxLines: 2,
@@ -139,8 +140,8 @@ class _JobRow extends StatelessWidget {
           ]),
         ),
         if (failed)
-          IconButton(tooltip: 'Retry', icon: const Icon(Icons.refresh_rounded, color: Palette.brand), onPressed: () => m.retry(job)),
-        IconButton(tooltip: 'Cancel', icon: const Icon(Icons.close_rounded, color: Palette.muted), onPressed: () => m.cancel(job)),
+          IconButton(tooltip: 'Retry', icon: Icon(Icons.refresh_rounded, color: Palette.brand), onPressed: () => m.retry(job)),
+        IconButton(tooltip: 'Cancel', icon: Icon(Icons.close_rounded, color: Palette.muted), onPressed: () => m.cancel(job)),
       ]),
     );
   }
@@ -158,12 +159,12 @@ class FinishedScreen extends StatelessWidget {
         _Header('Saved',
             subtitle: '${s.records.length} ${s.records.length == 1 ? 'file' : 'files'} · ${formatBytes(s.totalBytes)}',
             trailing: PopupMenuButton<KindFilter>(
-              icon: const Icon(Icons.tune_rounded, color: Palette.ink),
+              icon: Icon(Icons.tune_rounded, color: Palette.ink),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              color: Colors.white,
+              color: Palette.surface,
               initialValue: s.kind,
               onSelected: cubit.setKind,
-              itemBuilder: (_) => const [
+              itemBuilder: (_) => [
                 PopupMenuItem(value: KindFilter.all, child: Text('All')),
                 PopupMenuItem(value: KindFilter.video, child: Text('Videos')),
                 PopupMenuItem(value: KindFilter.image, child: Text('Photos')),
@@ -172,11 +173,11 @@ class FinishedScreen extends StatelessWidget {
             )),
         Expanded(
           child: s.visible.isEmpty
-              ? const _Empty(Icons.video_library_rounded, 'Nothing saved yet', 'Everything you download lands here and in your gallery.')
+              ? _Empty(Icons.video_library_rounded, 'Nothing saved yet', 'Everything you download lands here and in your gallery.')
               : ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                  padding: EdgeInsets.fromLTRB(16, 4, 16, 24),
                   itemCount: s.visible.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, __) => SizedBox(height: 10),
                   itemBuilder: (_, i) => _Card(child: _FinishedRow(s.visible[i])),
                 ),
         ),
@@ -196,27 +197,27 @@ class _FinishedRow extends StatelessWidget {
     return InkWell(
       onTap: () => OpenFilex.open(r.path),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
+        padding: EdgeInsets.fromLTRB(12, 12, 4, 12),
         child: Row(children: [
           Stack(children: [
             _thumb(r.thumb, null, r.source),
             if (r.kind == 'video')
-              const Positioned.fill(child: Center(child: Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 30))),
+              Positioned.fill(child: Center(child: Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 30))),
             if (r.kind == 'audio')
-              const Positioned.fill(child: Center(child: Icon(Icons.music_note_rounded, color: Palette.brand, size: 30))),
+              Positioned.fill(child: Center(child: Icon(Icons.music_note_rounded, color: Palette.brand, size: 30))),
           ]),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(r.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyles.title.copyWith(fontSize: 14.5, fontWeight: FontWeight.w600)),
-              const SizedBox(height: 6),
-              Text('${r.source.label} · ${r.ext.toUpperCase()} · ${formatBytes(r.bytes)}', style: const TextStyle(fontSize: 13, color: Palette.muted)),
-              Text(date, style: const TextStyle(fontSize: 12, color: Palette.faint)),
+              SizedBox(height: 6),
+              Text('${r.source.label} · ${r.ext.toUpperCase()} · ${formatBytes(r.bytes)}', style: TextStyle(fontSize: 13, color: Palette.muted)),
+              Text(date, style: TextStyle(fontSize: 12, color: Palette.faint)),
             ]),
           ),
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert_rounded, color: Palette.muted),
-            color: Colors.white,
+            icon: Icon(Icons.more_vert_rounded, color: Palette.muted),
+            color: Palette.surface,
             onSelected: (v) {
               switch (v) {
                 case 'open':
@@ -228,7 +229,7 @@ class _FinishedRow extends StatelessWidget {
                   toast(context, 'Deleted from Pluck (gallery copy kept)');
               }
             },
-            itemBuilder: (_) => const [
+            itemBuilder: (_) => [
               PopupMenuItem(value: 'open', child: Text('Open')),
               PopupMenuItem(value: 'share', child: Text('Share')),
               PopupMenuItem(value: 'delete', child: Text('Delete')),

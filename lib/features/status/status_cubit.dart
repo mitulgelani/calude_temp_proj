@@ -34,7 +34,7 @@ class StatusState extends Equatable {
 }
 
 class StatusCubit extends Cubit<StatusState> {
-  StatusCubit(this._bridge, this._prefs) : super(const StatusState());
+  StatusCubit(this._bridge, this._prefs) : super(StatusState());
   final NativeBridge _bridge;
   final SharedPreferences _prefs;
 
@@ -47,7 +47,7 @@ class StatusCubit extends Cubit<StatusState> {
     }
     final tree = _prefs.getString(_key);
     if (tree == null) {
-      emit(state.copyWith(phase: StatusPhase.needsAccess, items: const []));
+      emit(state.copyWith(phase: StatusPhase.needsAccess, items: []));
       return;
     }
     if (state.items.isEmpty) emit(state.copyWith(phase: StatusPhase.loading));
@@ -57,7 +57,7 @@ class StatusCubit extends Cubit<StatusState> {
       emit(state.copyWith(phase: StatusPhase.ready, items: items));
     } on PlatformException {
       await _prefs.remove(_key); // permission revoked or folder moved
-      emit(state.copyWith(phase: StatusPhase.needsAccess, items: const []));
+      emit(state.copyWith(phase: StatusPhase.needsAccess, items: []));
     }
   }
 

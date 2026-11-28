@@ -99,23 +99,25 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         children: [
           // ── Header ──
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22),
+            padding: EdgeInsets.symmetric(horizontal: 22),
             child: Row(children: [
               Text.rich(
-                const TextSpan(children: [TextSpan(text: 'pluck'), TextSpan(text: '.', style: TextStyle(color: Palette.accent))]),
+                TextSpan(children: [TextSpan(text: 'pluck'), TextSpan(text: '.', style: TextStyle(color: Palette.accent))]),
                 style: TextStyles.h2.copyWith(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -1),
               ),
-              const Spacer(),
+              Spacer(),
+              ThemeSwitch(),
+              SizedBox(width: 8),
               IconCircle(
                 icon: Icons.tune_rounded,
                 tooltip: 'Settings',
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SettingsScreen())),
               ),
             ]),
           ).enter(context, 0),
           SizedBox(height: compact ? 14 : 26),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22),
+            padding: EdgeInsets.symmetric(horizontal: 22),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Save any video,\nin one tap.', style: TextStyles.hero.copyWith(fontSize: compact ? 32 : 40, height: 1.02, letterSpacing: compact ? -1.2 : -1.6)),
               SizedBox(height: compact ? 6 : 10),
@@ -129,38 +131,38 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             duration: Motion.base,
             curve: Motion.curve,
             child: _clip == null
-                ? const SizedBox(width: double.infinity)
-                : Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 12), child: _ClipCard(url: _clip!, onUse: () => _download(_clip), onClose: () => setState(() {
+                ? SizedBox(width: double.infinity)
+                : Padding(padding: EdgeInsets.fromLTRB(16, 0, 16, 12), child: _ClipCard(url: _clip!, onUse: () => _download(_clip), onClose: () => setState(() {
                     _dismissed.add(_clip!);
                     _clip = null;
                   }))),
           ),
 
           // ── Paste card ──
-          Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _PasteCard(controller: _link, focus: _focus, onDownload: _download))
+          Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: _PasteCard(controller: _link, focus: _focus, onDownload: _download))
               .enter(context, 2),
-          const SizedBox(height: 14),
-          const _TrustRow().enter(context, 3),
+          SizedBox(height: 14),
+          _TrustRow().enter(context, 3),
           SizedBox(height: compact ? 22 : 30),
 
           // ── Apps ──
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22),
+            padding: EdgeInsets.symmetric(horizontal: 22),
             child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Expanded(child: Text('Download from', style: TextStyles.h2.copyWith(fontSize: 20))),
               Text('Tap for a quick guide', style: TextStyles.small.copyWith(fontSize: 12.5)),
             ]),
           ).enter(context, 4),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Container(
-              padding: const EdgeInsets.fromLTRB(4, 18, 4, 8),
+              padding: EdgeInsets.fromLTRB(4, 18, 4, 8),
               decoration: BoxDecoration(color: Palette.surface, borderRadius: BorderRadius.circular(26), boxShadow: Shadows.soft),
               child: GridView.count(
                 crossAxisCount: 4,
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+                physics: NeverScrollableScrollPhysics(),
                 mainAxisSpacing: 10,
                 childAspectRatio: 0.82,
                 children: [
@@ -169,7 +171,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       onTap: () => showGuideSheet(context, s),
                       child: Column(children: [
                         AppIcon(s, size: 56),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Text(appName(s), maxLines: 1, overflow: TextOverflow.visible, softWrap: false, style: TextStyles.small.copyWith(color: Palette.text, fontWeight: FontWeight.w600, fontSize: appName(s).length > 9 ? 11 : 12.5)),
                       ]),
                     ),
@@ -177,32 +179,32 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
             ),
           ).enter(context, 5),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
 
           // ── Status saver spotlight ──
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Pressable(
               scale: 0.98,
               onTap: () => showGuideSheet(context, Source.whatsapp),
               child: Container(
-                padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
-                decoration: BoxDecoration(color: Palette.ink, borderRadius: BorderRadius.circular(24)),
+                padding: EdgeInsets.fromLTRB(18, 16, 14, 16),
+                decoration: BoxDecoration(color: Palette.feature, borderRadius: BorderRadius.circular(24)),
                 child: Row(children: [
-                  const AppIcon(Source.whatsapp, size: 44, shadow: false),
-                  const SizedBox(width: 14),
+                  AppIcon(Source.whatsapp, size: 44, shadow: false),
+                  SizedBox(width: 14),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text('Status saver', style: TextStyles.title.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text('Keep WhatsApp statuses before they vanish', style: TextStyles.small.copyWith(color: Colors.white70, fontSize: 12.5)),
                     ]),
                   ),
                   Container(
                     width: 36,
                     height: 36,
-                    decoration: const BoxDecoration(color: Colors.white12, shape: BoxShape.circle),
-                    child: const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 19),
+                    decoration: BoxDecoration(color: Colors.white12, shape: BoxShape.circle),
+                    child: Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 19),
                   ),
                 ]),
               ),
@@ -210,7 +212,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ).enter(context, 6),
 
           // ── Recent ──
-          const _Recent(),
+          _Recent(),
         ],
       ),
     );
@@ -230,7 +232,7 @@ class _PasteCard extends StatelessWidget {
     return AnimatedContainer(
       duration: Motion.base,
       curve: Motion.curve,
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Palette.surface,
         borderRadius: BorderRadius.circular(28),
@@ -240,16 +242,16 @@ class _PasteCard extends StatelessWidget {
       child: Column(children: [
         Container(
           height: 56,
-          padding: const EdgeInsets.only(left: 14, right: 6),
+          padding: EdgeInsets.only(left: 14, right: 6),
           decoration: BoxDecoration(color: Palette.bg, borderRadius: BorderRadius.circular(18)),
           child: Row(children: [
             AnimatedSwitcher(
               duration: Motion.base,
               child: src == null
-                  ? const Icon(Icons.link_rounded, key: ValueKey('l'), color: Palette.muted, size: 22)
+                  ? Icon(Icons.link_rounded, key: ValueKey('l'), color: Palette.muted, size: 22)
                   : SiteBubble(src, key: ValueKey(src), size: 26),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
               child: TextField(
                 controller: controller,
@@ -270,7 +272,7 @@ class _PasteCard extends StatelessWidget {
             if (text.isNotEmpty)
               IconButton(
                 tooltip: 'Clear',
-                icon: const Icon(Icons.close_rounded, size: 20, color: Palette.muted),
+                icon: Icon(Icons.close_rounded, size: 20, color: Palette.muted),
                 onPressed: controller.clear,
               )
             else
@@ -280,11 +282,11 @@ class _PasteCard extends StatelessWidget {
                   if (t.isNotEmpty) controller.text = LinkParser.extract(t) ?? t;
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   decoration: BoxDecoration(color: Palette.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: Palette.line)),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    const Icon(Icons.content_paste_rounded, size: 16, color: Palette.text),
-                    const SizedBox(width: 6),
+                    Icon(Icons.content_paste_rounded, size: 16, color: Palette.text),
+                    SizedBox(width: 6),
                     Text('Paste', style: TextStyles.button.copyWith(fontSize: 13.5, color: Palette.text)),
                   ]),
                 ),
@@ -295,17 +297,17 @@ class _PasteCard extends StatelessWidget {
           duration: Motion.base,
           curve: Motion.curve,
           child: src == null
-              ? const SizedBox(width: double.infinity)
+              ? SizedBox(width: double.infinity)
               : Padding(
-                  padding: const EdgeInsets.fromLTRB(6, 10, 6, 0),
+                  padding: EdgeInsets.fromLTRB(6, 10, 6, 0),
                   child: Row(children: [
-                    const Icon(Icons.check_circle_rounded, size: 16, color: Palette.success),
-                    const SizedBox(width: 6),
+                    Icon(Icons.check_circle_rounded, size: 16, color: Palette.success),
+                    SizedBox(width: 6),
                     Text('${appName(src)} ${src.kindOf(text).toLowerCase()} detected', style: TextStyles.small.copyWith(color: Palette.text, fontWeight: FontWeight.w600)),
                   ]),
                 ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         VoltButton(label: text.isEmpty ? 'Paste & download' : 'Download', icon: Icons.south_rounded, height: 56, onTap: onDownload),
       ]),
     );
@@ -318,14 +320,14 @@ class _TrustRow extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget item(IconData i, String t) => Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(i, size: 15, color: Palette.muted),
-          const SizedBox(width: 5),
+          SizedBox(width: 5),
           Text(t, style: TextStyles.small.copyWith(fontSize: 12.5)),
         ]);
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       item(Icons.lock_open_rounded, 'No login'),
-      const SizedBox(width: 16),
+      SizedBox(width: 16),
       item(Icons.hd_rounded, 'Full quality'),
-      const SizedBox(width: 16),
+      SizedBox(width: 16),
       item(Icons.water_drop_outlined, 'No watermark'),
     ]);
   }
@@ -340,11 +342,11 @@ class _ClipCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = Source.detect(url)!;
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
+      padding: EdgeInsets.fromLTRB(12, 10, 6, 10),
       decoration: BoxDecoration(color: Palette.accentSoft, borderRadius: BorderRadius.circular(20)),
       child: Row(children: [
         SiteBubble(s, size: 34),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('${appName(s)} link copied', style: TextStyles.title.copyWith(fontSize: 14, fontWeight: FontWeight.w700)),
@@ -354,12 +356,12 @@ class _ClipCard extends StatelessWidget {
         Pressable(
           onTap: onUse,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 9),
             decoration: BoxDecoration(color: Palette.accent, borderRadius: BorderRadius.circular(100)),
             child: Text('Download', style: TextStyles.button.copyWith(fontSize: 13, color: Colors.white)),
           ),
         ),
-        IconButton(onPressed: onClose, icon: const Icon(Icons.close_rounded, size: 18, color: Palette.muted)),
+        IconButton(onPressed: onClose, icon: Icon(Icons.close_rounded, size: 18, color: Palette.muted)),
       ]),
     );
   }
@@ -370,25 +372,25 @@ class _Recent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LibraryCubit, LibraryState>(builder: (context, s) {
-      if (s.records.isEmpty) return const SizedBox.shrink();
+      if (s.records.isEmpty) return SizedBox.shrink();
       final items = s.records.take(8).toList();
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const SizedBox(height: 30),
+        SizedBox(height: 30),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22),
+          padding: EdgeInsets.symmetric(horizontal: 22),
           child: Row(children: [
             Expanded(child: Text('Recent downloads', style: TextStyles.h2.copyWith(fontSize: 20))),
             Pressable(onTap: () => shellTab.value = 3, child: Text('See all', style: TextStyles.button.copyWith(fontSize: 14, color: Palette.accent))),
           ]),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: 14),
         SizedBox(
           height: 176,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            separatorBuilder: (_, __) => SizedBox(width: 10),
             itemBuilder: (_, i) => _RecentCard(items[i]),
           ),
         ),
@@ -411,21 +413,21 @@ class _RecentCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           child: Stack(fit: StackFit.expand, children: [
             if (r.kind == 'audio')
-              Container(color: Palette.surfaceHi, child: const Icon(Icons.graphic_eq_rounded, size: 40, color: Palette.muted))
+              Container(color: Palette.surfaceHi, child: Icon(Icons.graphic_eq_rounded, size: 40, color: Palette.muted))
             else
               MediaThumb(file: r.thumb, source: r.source, radius: 0),
-            const DecoratedBox(
+            DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, stops: [0.5, 1], colors: [Color(0x00000000), Color(0xB3000000)]),
               ),
             ),
             Positioned(left: 8, top: 8, child: SiteBubble(r.source, size: 24)),
-            if (r.kind == 'video') const Positioned(right: 8, top: 8, child: Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 22)),
+            if (r.kind == 'video') Positioned(right: 8, top: 8, child: Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 22)),
             Positioned(
               left: 10,
               right: 10,
               bottom: 10,
-              child: Text(r.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontFamily: Fonts.body, color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600, height: 1.25)),
+              child: Text(r.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontFamily: Fonts.body, color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600, height: 1.25)),
             ),
           ]),
         ),

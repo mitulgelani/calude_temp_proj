@@ -71,16 +71,16 @@ class _ShellState extends State<Shell> {
           if (!didPop) _onBack();
         },
         child: AnnotatedRegion<SystemUiOverlayStyle>(
-          value: const SystemUiOverlayStyle(
+          value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.dark,
-            systemNavigationBarColor: Colors.white,
-            systemNavigationBarIconBrightness: Brightness.dark,
+            statusBarIconBrightness: Palette.dark ? Brightness.light : Brightness.dark,
+            systemNavigationBarColor: Palette.surface,
+            systemNavigationBarIconBrightness: Palette.dark ? Brightness.light : Brightness.dark,
           ),
           child: Scaffold(
             backgroundColor: Palette.bg,
             resizeToAvoidBottomInset: true,
-            body: IndexedStack(index: _index, children: const [HomePage(), TabPage(), ProgressScreen(), FinishedScreen()]),
+            body: IndexedStack(index: _index, children: [HomePage(), TabPage(), ProgressScreen(), FinishedScreen()]),
             bottomNavigationBar: ListenableBuilder(
               listenable: manager,
               builder: (context, _) => _BottomBar(
@@ -111,7 +111,7 @@ class _BottomBar extends StatelessWidget {
     ];
     final bottom = MediaQuery.paddingOf(context).bottom;
     return Container(
-      decoration: const BoxDecoration(color: Palette.surface, border: Border(top: BorderSide(color: Palette.line))),
+      decoration: BoxDecoration(color: Palette.surface, border: Border(top: BorderSide(color: Palette.line))),
       padding: EdgeInsets.fromLTRB(8, 8, 8, bottom + 8),
       child: Row(children: [
         for (var i = 0; i < items.length; i++)
@@ -135,7 +135,7 @@ class _BottomBar extends StatelessWidget {
                     child: Icon(i == index ? items[i].$2 : items[i].$1, size: 23, color: i == index ? Palette.accent : Palette.muted),
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(items[i].$3,
                     style: TextStyle(
                       fontFamily: Fonts.body,

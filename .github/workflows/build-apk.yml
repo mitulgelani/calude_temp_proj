@@ -48,7 +48,9 @@ jobs:
           N=${{ github.run_number }}
           for pair in "arm64-v8a:android-arm64:arm64" "armeabi-v7a:android-arm:32bit" "x86_64:android-x64:x86_64"; do
             IFS=: read ABI PLAT NAME <<< "$pair"
-            PLUCK_ABIS=$ABI flutter build apk --release --target-platform $PLAT --dart-define=PLUCK_YOUTUBE=$YT
+            sed -i "s/abiFilters += .*/abiFilters += listOf(\"$ABI\")/" android/app/build.gradle.kts
+            grep -n "abiFilters" android/app/build.gradle.kts
+            flutter build apk --release --target-platform $PLAT --dart-define=PLUCK_YOUTUBE=$YT
             cp build/app/outputs/flutter-apk/app-release.apk pluck-$N-$NAME.apk
           done
           ls -la pluck-*.apk

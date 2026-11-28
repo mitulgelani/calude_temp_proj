@@ -38,7 +38,7 @@ abstract final class Brand {
 
 String appName(Source s) => s == Source.twitter ? 'X' : s.label;
 
-/// App icon tile: brand gradient squircle with the app's glyph.
+/// App icon tile: a glossy 3D squircle — brand gradient, top sheen, bottom shade, rim light, lifted shadow.
 class AppIcon extends StatelessWidget {
   const AppIcon(this.source, {super.key, this.size = 60, this.shadow = true});
   final Source source;
@@ -48,18 +48,71 @@ class AppIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icon, gradient) = brandLook(source);
+    final r = BorderRadius.circular(size * 0.3);
+    final base = gradient.colors.last;
     return Container(
       width: size,
       height: size,
-      alignment: Alignment.center,
       decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(size * 0.3),
+        borderRadius: r,
         boxShadow: shadow
-            ? [BoxShadow(color: gradient.colors.last.withValues(alpha: 0.30), blurRadius: size * 0.28, offset: Offset(0, size * 0.1))]
+            ? [
+                BoxShadow(color: base.withValues(alpha: 0.38), blurRadius: size * 0.32, offset: Offset(0, size * 0.14)),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.10), blurRadius: size * 0.06, offset: Offset(0, size * 0.03)),
+              ]
             : null,
       ),
-      child: Icon(icon, color: Colors.white, size: size * 0.46),
+      child: ClipRRect(
+        borderRadius: r,
+        child: Stack(fit: StackFit.expand, children: [
+          DecoratedBox(decoration: BoxDecoration(gradient: gradient)),
+          // bottom shade: gives the tile depth
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: const [0.45, 1],
+                colors: [Colors.black.withValues(alpha: 0), Colors.black.withValues(alpha: 0.22)],
+              ),
+            ),
+          ),
+          // glossy sheen across the top half
+          Positioned(
+            left: -size * 0.15,
+            right: -size * 0.15,
+            top: -size * 0.55,
+            height: size * 1.0,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.white.withValues(alpha: 0.42), Colors.white.withValues(alpha: 0.04)],
+                ),
+              ),
+            ),
+          ),
+          // rim light
+          DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: r,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.22), width: size * 0.018),
+            ),
+          ),
+          Center(
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: size * 0.46,
+              shadows: [
+                Shadow(color: Colors.black.withValues(alpha: 0.28), blurRadius: size * 0.08, offset: Offset(0, size * 0.035)),
+              ],
+            ),
+          ),
+        ]),
+      ),
     );
   }
 }
@@ -84,8 +137,21 @@ class SiteBubble extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(gradient: gradient, shape: BoxShape.circle),
-      child: Icon(icon, size: size * 0.44, color: Colors.white),
+      decoration: BoxDecoration(
+        gradient: gradient,
+        shape: BoxShape.circle,
+        boxShadow: [BoxShadow(color: gradient.colors.last.withValues(alpha: 0.30), blurRadius: size * 0.25, offset: Offset(0, size * 0.08))],
+      ),
+      foregroundDecoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.white.withValues(alpha: 0.30), Colors.white.withValues(alpha: 0), Colors.black.withValues(alpha: 0.15)],
+        ),
+      ),
+      child: Icon(icon, size: size * 0.44, color: Colors.white,
+          shadows: [Shadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: size * 0.08, offset: Offset(0, size * 0.03))]),
     );
   }
 }

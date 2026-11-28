@@ -97,7 +97,9 @@ class _TabPageState extends State<TabPage> {
     shellTab.value = 1;
     tab.pendingCode = code;
     final ig = code != '*';
-    tab.load(!ig ? url : (url.contains('/p/') ? 'https://www.instagram.com/p/$code/' : 'https://www.instagram.com/reels/$code/'));
+    // Instagram: the Reels route plays logged-out for any video (even /p/ links); photo posts fall back to the public embed page.
+    tab.load(!ig ? url : 'https://www.instagram.com/reels/$code/');
+    var stage = 0;
     setState(() => _resolving = true);
     final started = DateTime.now();
     _pendingTimer?.cancel();
@@ -107,7 +109,13 @@ class _TabPageState extends State<TabPage> {
         return;
       }
       final ready = ig ? tab.codes.contains(code) : tab.mediaSrc != null;
-      final waited = DateTime.now().difference(started) > Duration(seconds: ig ? 15 : 20);
+      final elapsed = DateTime.now().difference(started);
+      if (ig && !ready && stage == 0 && elapsed > const Duration(seconds: 8)) {
+        stage = 1;
+        tab.load('https://www.instagram.com/p/$code/embed/captioned/');
+        return;
+      }
+      final waited = elapsed > Duration(seconds: ig ? 18 : 20);
       if (ready || waited) {
         t.cancel();
         tab.pendingCode = null;

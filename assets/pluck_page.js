@@ -136,8 +136,21 @@
     return Math.abs((r.top + r.bottom) / 2 - innerHeight / 2);
   }
   var SEL = 'a[href*="/reel/"],a[href*="/p/"],a[href*="/video/"],a[href*="/status/"],a[href*="/pin/"],a[href*="/shorts/"],a[href*="watch?v="],a[href*="/videos/"]';
+  // Instagram's public embed page renders the real media in the DOM (works logged-out for public posts).
+  function scanEmbed() {
+    var em = location.pathname.match(/\/(?:p|reels?|tv)\/([A-Za-z0-9_-]{5,})\/embed/);
+    if (!em) return;
+    var vids = [], imgs = [];
+    document.querySelectorAll('video').forEach(function (v) { var s = v.currentSrc || v.src; if (s && s.indexOf('http') === 0) vids.push(s); });
+    document.querySelectorAll('img').forEach(function (i) { if (i.naturalWidth >= 320) imgs.push(i.currentSrc || i.src); });
+    if (!vids.length && !imgs.length) return;
+    var prev = store[em[1]];
+    if (prev && (prev.video_url || !vids.length)) return;
+    store[em[1]] = { video_url: vids[0] || null, display_url: imgs[0] || null, _title: (document.title || '').slice(0, 90), _owner: null };
+  }
   function scan() {
     scanScripts();
+    scanEmbed();
     clean();
     var bestV = null, bd = 1e9;
     document.querySelectorAll('video').forEach(function (v) { var d = dist(v); if (d < bd) { bd = d; bestV = v; } });

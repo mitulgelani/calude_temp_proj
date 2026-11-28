@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       child: Column(children: [
                         AppIcon(s, size: 56),
                         const SizedBox(height: 8),
-                        Text(appName(s), maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyles.small.copyWith(color: Palette.text, fontWeight: FontWeight.w600, fontSize: 12.5)),
+                        Text(appName(s), maxLines: 1, overflow: TextOverflow.visible, softWrap: false, style: TextStyles.small.copyWith(color: Palette.text, fontWeight: FontWeight.w600, fontSize: appName(s).length > 9 ? 11 : 12.5)),
                       ]),
                     ),
                 ],

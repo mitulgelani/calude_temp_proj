@@ -45,19 +45,23 @@ jobs:
         run: |
           YT=true
           if [ "${{ inputs.play_store }}" = "true" ]; then YT=false; fi
-          flutter build apk --release --dart-define=PLUCK_YOUTUBE=$YT
-          cp build/app/outputs/flutter-apk/app-release.apk pluck-${{ github.run_number }}.apk
+          flutter build apk --release --split-per-abi --dart-define=PLUCK_YOUTUBE=$YT
+          O=build/app/outputs/flutter-apk; N=${{ github.run_number }}
+          cp $O/app-arm64-v8a-release.apk pluck-$N-arm64.apk        # almost every phone
+          cp $O/app-armeabi-v7a-release.apk pluck-$N-32bit.apk      # very old phones
+          cp $O/app-x86_64-release.apk pluck-$N-x86_64.apk          # emulators
+          ls -la pluck-*.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: pluck-apk
-          path: pluck-${{ github.run_number }}.apk
+          path: pluck-*.apk
 
       - name: Publish as a release (direct download link)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "build-${{ github.run_number }}" "pluck-${{ github.run_number }}.apk" \
+          gh release create "build-${{ github.run_number }}" pluck-*.apk \
             --title "Pluck build ${{ github.run_number }}" \
-            --notes "Install on Android: download the APK, open it, allow 'Install unknown apps'." \
+            --notes "Download pluck-N-arm64.apk (works on almost every phone). Use the 32bit one only on very old phones." \
             --latest

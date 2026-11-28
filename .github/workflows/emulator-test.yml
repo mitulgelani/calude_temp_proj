@@ -21,7 +21,7 @@ jobs:
           sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
       - name: Get APK
         env: { GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
-        run: gh release download "${{ inputs.tag || 'build-23' }}" -p "*.apk" -O pluck.apk
+        run: gh release download "${{ inputs.tag || 'build-23' }}" -p "*x86_64.apk" -O pluck.apk
       - uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
